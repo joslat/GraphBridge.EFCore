@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36" role="img" aria-label="GraphBridge">
-  <path d="M8 8L28 28M28 8L8 28" stroke="#70d9fa" stroke-width="2.4" fill="none"/>
-  <circle cx="8" cy="8" r="5.5" fill="#64e5ad"/>
-  <circle cx="28" cy="8" r="5.5" fill="#b6a3ff"/>
-  <circle cx="8" cy="28" r="5.5" fill="#70d9fa"/>
-  <circle cx="28" cy="28" r="5.5" fill="#64e5ad"/>
-</svg>

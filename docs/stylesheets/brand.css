@@ -1,0 +1,19 @@
+/* Colours from the official logo (logos/GraphBridge-logo.png): navy #0d2640, blue #0161d4, teal #03a2a9. */
+:root > * {
+  --md-primary-fg-color: #0d2640;
+  --md-primary-fg-color--light: #1e4a7a;
+  --md-primary-fg-color--dark: #081a2d;
+  --md-accent-fg-color: #0161d4;
+  --md-accent-fg-color--transparent: rgba(1, 97, 212, 0.1);
+  --md-typeset-a-color: #0158c2;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-accent-fg-color: #3fc4ca;
+  --md-accent-fg-color--transparent: rgba(63, 196, 202, 0.1);
+  --md-typeset-a-color: #6aa9ff;
+}
+
+.md-header__button.md-logo img {
+  height: 1.9rem;
+}

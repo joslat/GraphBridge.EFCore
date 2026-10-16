@@ -15,18 +15,19 @@ theme:
   name: material
   # System fonts: the site makes no third-party font requests.
   font: false
-  logo: images/logo.svg
-  favicon: images/logo.svg
+  # Official logo (logos/GraphBridge-logo.png). The header is the logo's navy, so the light-navy mark variant is used.
+  logo: images/graphbridge-mark-dark.png
+  favicon: images/graphbridge-mark.png
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: teal
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle: { icon: material/weather-night, name: Switch to dark mode }
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: teal
-      accent: light blue
+      primary: custom
+      accent: custom
       toggle: { icon: material/weather-sunny, name: Switch to light mode }
   features:
     - navigation.sections
@@ -34,6 +35,9 @@ theme:
     - navigation.footer
     - search.highlight
     - content.code.copy
+
+extra_css:
+  - stylesheets/brand.css
 
 hooks:
   - eng/docs-site/hooks.py

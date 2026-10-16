@@ -1,6 +1,11 @@
-<p align="center"><a href="docs/README.md"><img src="docs/images/graphbridge-hero.svg" alt="GraphBridge: a graph database, no second ORM. A real Entity Framework Core provider for Neo4j." width="100%"></a></p>
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/graphbridge-logo-dark.png">
+    <img src="docs/images/graphbridge-logo.png" alt="GraphBridge" width="340">
+  </picture>
+</h1>
 
-# GraphBridge
+<p align="center"><a href="docs/README.md"><img src="docs/images/graphbridge-hero.svg" alt="A graph database, no second ORM. A real Entity Framework Core provider for Neo4j." width="100%"></a></p>
 
 > **Developer preview. Not production-supported yet.** APIs, mappings and generated artifacts may change between previews; pin exact versions and read the [changelog and breaking-change policy](CHANGELOG.md) before upgrading. No package has been published to NuGet yet.
 >

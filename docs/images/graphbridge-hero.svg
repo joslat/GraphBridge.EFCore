@@ -17,20 +17,14 @@
   <rect x="660" y="24" width="596" height="352" rx="18" fill="url(#dots)" opacity=".7"/>
   <rect x="0" y="0" width="1280" height="400" rx="22" fill="url(#glow)"/>
 
-  <!-- wordmark -->
-  <g transform="translate(64 70)">
-    <g stroke="#70d9fa" stroke-width="2" fill="none"><path d="M6 6L30 30M30 6L6 30"/></g>
-    <circle cx="6" cy="6" r="5" fill="#64e5ad"/><circle cx="30" cy="6" r="5" fill="#b6a3ff"/><circle cx="6" cy="30" r="5" fill="#70d9fa"/><circle cx="30" cy="30" r="5" fill="#64e5ad"/>
-    <text x="48" y="29" class="sans" font-size="30" font-weight="700" fill="#e7effb">Graph<tspan fill="#64e5ad">Bridge</tspan></text>
-  </g>
-  <text x="64" y="160" class="sans" font-size="44" font-weight="800" fill="#e7effb">A graph database.</text>
-  <text x="64" y="214" class="sans" font-size="44" font-weight="800" fill="#64e5ad">No second ORM.</text>
-  <text x="64" y="262" class="sans" font-size="19" fill="#98a9bf">A real Entity Framework Core provider for Neo4j: entities become</text>
-  <text x="64" y="290" class="sans" font-size="19" fill="#98a9bf">nodes, associations become native relationships.</text>
+  <text x="64" y="124" class="sans" font-size="44" font-weight="800" fill="#e7effb">A graph database.</text>
+  <text x="64" y="178" class="sans" font-size="44" font-weight="800" fill="#64e5ad">No second ORM.</text>
+  <text x="64" y="226" class="sans" font-size="19" fill="#98a9bf">A real Entity Framework Core provider for Neo4j: entities become</text>
+  <text x="64" y="254" class="sans" font-size="19" fill="#98a9bf">nodes, associations become native relationships.</text>
   <g class="sans" font-size="14" font-weight="600">
-    <rect x="64" y="318" width="118" height="32" rx="16" fill="#0f2a2a" stroke="#2c6b55"/><text x="123" y="339" text-anchor="middle" fill="#64e5ad">EF Core 10</text>
-    <rect x="192" y="318" width="166" height="32" rx="16" fill="#0f2233" stroke="#2b5872"/><text x="275" y="339" text-anchor="middle" fill="#70d9fa">Neo4j.Driver 6</text>
-    <rect x="368" y="318" width="190" height="32" rx="16" fill="#1d1a33" stroke="#4c4387"/><text x="463" y="339" text-anchor="middle" fill="#b6a3ff">Developer preview</text>
+    <rect x="64" y="282" width="118" height="32" rx="16" fill="#0f2a2a" stroke="#2c6b55"/><text x="123" y="303" text-anchor="middle" fill="#64e5ad">EF Core 10</text>
+    <rect x="192" y="282" width="166" height="32" rx="16" fill="#0f2233" stroke="#2b5872"/><text x="275" y="303" text-anchor="middle" fill="#70d9fa">Neo4j.Driver 6</text>
+    <rect x="368" y="282" width="190" height="32" rx="16" fill="#1d1a33" stroke="#4c4387"/><text x="463" y="303" text-anchor="middle" fill="#b6a3ff">Developer preview</text>
   </g>
 
   <!-- graph -->
