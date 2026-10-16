@@ -192,6 +192,49 @@ public sealed class ProviderFluentCypherTests(DisposableNeo4jFixture fixture)
         Assert.Empty(db.ChangeTracker.Entries());
     }
 
+    // dotnet/efcore#33795 asked how LINQ would express "MATCH (p1:Person)-[r:FRIENDS_WITH]-(p2:Person {name:'Alison'})
+    // RETURN p1, r, p2". The fluent undirected one-hop path must return exactly the rows of that native query.
+    [Neo4jIntegrationFact]
+    public async Task Undirected_friendships_match_the_native_bidirectional_query_rows_and_names()
+    {
+        await using var db = await Seed();
+        await Native(db, """
+            MATCH (b:FGQPerson {RunId:$run,Name:'Bob'}), (c:FGQPerson {RunId:$run,Name:'Cara'})
+            CREATE (al:FGQPerson {Id:randomUUID(),RunId:$run,Name:'Alison'}), (twin:FGQPerson {Id:randomUUID(),RunId:$run,Name:'Alison'}),
+                   (b)-[:FGQ_FRIEND]->(al), (b)-[:FGQ_FRIEND]->(al), (al)-[:FGQ_FRIEND]->(c), (al)-[:FGQ_FRIEND]->(al), (twin)-[:FGQ_FRIEND]->(al)
+            RETURN 1 AS seeded
+            """, r => r["seeded"].As<long>());
+        var run = db.RunId;
+        var person = Graph.Node<Person>(); var friend = Graph.Node<Person>(); var path = Graph.Path();
+        var paths = await db.Cypher()
+            .Match(path, person.Undirected(Graph.Edge<Friendship>(), friend).Repeat(1, 1))
+            .Where(() => person.Value.RunId == run && person.Value.Name == "Alison")
+            .Return(() => path.Value)
+            .Limit(100)
+            .ToListAsync();
+        var native = await Native(db, "MATCH (p1:FGQPerson)-[r:FGQ_FRIEND]-(p2:FGQPerson {RunId:$run,Name:'Alison'}) RETURN elementId(p2) AS alison, elementId(p1) AS other, elementId(r) AS edge",
+            r => r["alison"].As<string>() + ">" + r["other"].As<string>() + "|" + r["edge"].As<string>());
+        Assert.Equal(native.Order(StringComparer.Ordinal),
+            paths.Select(p => p.Nodes[0].ElementId + ">" + p.Nodes[1].ElementId + "|" + p.Relationships[0].ElementId).Order(StringComparer.Ordinal));
+        // Both stored directions, the parallel edges, the self-loop and the second Alison are all present.
+        Assert.Contains(paths, p => p.Nodes[1]["Name"].As<string>() == "Bob" && p.StepDirections[0] == GraphTraversalDirection.Incoming);
+        Assert.Contains(paths, p => p.Nodes[1]["Name"].As<string>() == "Cara" && p.StepDirections[0] == GraphTraversalDirection.Outgoing);
+        Assert.Equal(2, paths.Count(p => p.Nodes[1]["Name"].As<string>() == "Bob"));
+        Assert.Contains(paths, p => p.Nodes[0].ElementId == p.Nodes[1].ElementId);
+        Assert.Contains(paths, p => p.Nodes[0].ElementId != p.Nodes[1].ElementId && p.Nodes[1]["Name"].As<string>() == "Alison");
+
+        var typedPerson = Graph.Node<Person>(); var typedFriend = Graph.Node<Person>(); var typedPath = Graph.Path();
+        var names = await db.Cypher()
+            .Match(typedPath, typedPerson.Undirected(Graph.Edge<Friendship>(), typedFriend).Repeat(1, 1))
+            .Where(() => typedPerson.Value.RunId == run && typedPerson.Value.Name == "Alison")
+            .Return(() => typedFriend.Value.Name)
+            .Limit(100)
+            .ToListAsync();
+        var nativeNames = await Native(db, "MATCH (p1:FGQPerson)-[:FGQ_FRIEND]-(:FGQPerson {RunId:$run,Name:'Alison'}) RETURN p1.Name AS name", r => r["name"].As<string>());
+        Assert.Equal(nativeNames.Order(StringComparer.Ordinal), names.Order(StringComparer.Ordinal));
+        Assert.Empty(db.ChangeTracker.Entries());
+    }
+
     [Neo4jIntegrationFact]
     public async Task C6_zero_hops_empty_and_optional_results_and_limits_remain_native_rows()
     {

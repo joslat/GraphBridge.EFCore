@@ -71,6 +71,54 @@ public sealed class FluentCypherPathTests
         Assert.Null(compiled.Read(new Dictionary<string, object> { ["c0"] = null! }));
     }
 
+    // The bidirectional friendship query discussed in dotnet/efcore#33795, written with the fluent surface.
+    [Fact]
+    public void Undirected_single_hop_path_compiles_to_native_undirected_cypher_and_reads_both_stored_directions()
+    {
+        using var db = FluentCypherCompilerTests.Context();
+        var person = Graph.Node<Person>(); var friend = Graph.Node<Person>(); var path = Graph.Path();
+        var compiled = db.Cypher()
+            .Match(path, person.Undirected(Graph.Edge<Friendship>(), friend).Repeat(1, 1))
+            .Where(() => person.Value.Name == "Alison")
+            .Return(() => path.Value)
+            .Limit(25)
+            .Compile();
+        Assert.Equal("MATCH path3=(n0:`FluentPerson`)-[r2:`FLUENT_FRIEND`*1..1]-(n1:`FluentPerson`)\nWHERE n0.`display_name` = $p0\nRETURN path3 AS c0\nLIMIT $p1",
+            compiled.Command.Text.Replace("\r", ""));
+        Assert.Equal("Alison", compiled.Command.Parameters["p0"]);
+        var alison = Node("alison"); var bob = Node("bob");
+        var stored = compiled.Read(new Dictionary<string, object> { ["c0"] = Path([alison, bob], [Edge("alison-bob", "alison", "bob")]) });
+        Assert.Equal(GraphTraversalDirection.Outgoing, Assert.Single(stored.StepDirections));
+        var against = compiled.Read(new Dictionary<string, object> { ["c0"] = Path([alison, bob], [Edge("bob-alison", "bob", "alison")]) });
+        Assert.Equal(GraphTraversalDirection.Incoming, Assert.Single(against.StepDirections));
+        Assert.Empty(db.ChangeTracker.Entries());
+    }
+
+    [Fact]
+    public void Undirected_step_without_a_named_bounded_path_is_refused_with_GBFC202()
+    {
+        using var db = FluentCypherCompilerTests.Context();
+        var person = Graph.Node<Person>(); var friend = Graph.Node<Person>();
+        var error = Assert.Throws<NotSupportedException>(() => db.Cypher()
+            .Match(person.Undirected(Graph.Edge<Friendship>(), friend))
+            .Return(() => friend.Value.Name).ToQueryString());
+        Assert.Contains("GBFC202", error.Message);
+    }
+
+    [Fact]
+    public void Undirected_paths_return_typed_endpoint_values_but_not_repeated_edge_properties()
+    {
+        using var db = FluentCypherCompilerTests.Context();
+        var person = Graph.Node<Person>(); var friend = Graph.Node<Person>(); var edge = Graph.Edge<Friendship>(); var path = Graph.Path();
+        var query = db.Cypher()
+            .Match(path, person.Undirected(edge, friend).Repeat(1, 1))
+            .Where(() => person.Value.Name == "Alison");
+        Assert.Equal("MATCH path3=(n0:`FluentPerson`)-[r2:`FLUENT_FRIEND`*1..1]-(n1:`FluentPerson`)\nWHERE n0.`display_name` = $p0\nRETURN n1.`display_name` AS c0",
+            query.Return(() => friend.Value.Name).ToQueryString().Replace("\r", ""));
+        // A repeated edge variable is a list in Cypher, so its scalar properties are refused even for one hop.
+        Assert.Throws<NotSupportedException>(() => query.Return(() => edge.Value.SourceId).ToQueryString());
+    }
+
     private static INode Node(string id, string label = "FluentPerson") => NativeQueryTests.Proxy.For<INode>((m, _) => m.Name switch
     { "get_ElementId" => id, "get_Labels" => new[] { label }, _ => throw new InvalidOperationException(m.Name) });
     private static IRelationship Edge(string id, string from, string to) => NativeQueryTests.Proxy.For<IRelationship>((m, _) => m.Name switch
