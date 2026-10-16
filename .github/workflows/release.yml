@@ -1,0 +1,117 @@
+name: Release packages
+
+on:
+  # Manual only. Builds, tests and packs the selected commit; publishing to nuget.org also needs
+  # publish: true and an approval of the nuget environment. No long-lived API key is stored:
+  # nuget.org trusted publishing exchanges this job's GitHub OIDC token for a one-hour key.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version; must equal <Version> in the four packable projects (for example 0.1.0-preview.2)
+        required: true
+        type: string
+      publish:
+        description: Publish to nuget.org after the checks (leave off for a dry run)
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+      - name: Check the requested version
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          $projects = 'src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj',
+            'src/GraphBridge.Tooling/GraphBridge.Tooling.csproj', 'src/GraphBridge.Generators/GraphBridge.Generators.csproj',
+            'templates/GraphBridge.Templates.csproj'
+          foreach ($project in $projects) {
+            $version = (Select-Xml -Path $project -XPath '/Project/PropertyGroup/Version').Node.InnerText | Select-Object -First 1
+            if ($version -cne $env:RELEASE_VERSION) { throw "$project declares $version, not $env:RELEASE_VERSION." }
+          }
+      - name: Restore locked dependencies
+        run: dotnet restore GraphBridge.sln --locked-mode --disable-parallel
+      - name: Build
+        run: dotnet build GraphBridge.sln --no-restore -c Release -m:1 -p:UseSharedCompilation=false -p:ContinuousIntegrationBuild=true -nodeReuse:false
+      - name: Offline tests (live database suites run before release on the maintainer fixture)
+        run: |
+          dotnet test tests/GraphBridge.UnitTests --no-build -c Release
+          dotnet test tests/GraphBridge.ToolingTests --no-build -c Release
+          dotnet test tests/GraphBridge.Generators.Tests --no-build -c Release
+      - name: Check the compiled query gallery
+        run: dotnet run --project samples/05-FluentCypher/FluentCypher.Sample.csproj --no-build --no-restore -c Release -- --check
+      - name: Pack
+        run: |
+          dotnet pack GraphBridge.sln --no-build --no-restore -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
+          dotnet pack templates/GraphBridge.Templates.csproj -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
+      - name: Verify the four packages
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          . ./eng/scripts/Assert-PackageMetadata.ps1
+          $ids = 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates'
+          $found = @(Get-ChildItem artifacts/packages -Filter *.nupkg | ForEach-Object Name | Sort-Object)
+          $expected = @($ids | ForEach-Object { "$_.$env:RELEASE_VERSION.nupkg" } | Sort-Object)
+          if (Compare-Object $found $expected) { throw "Expected exactly $($expected -join ', '); found $($found -join ', ')." }
+          foreach ($id in $ids) {
+            $archive = [IO.Compression.ZipFile]::OpenRead((Join-Path artifacts/packages "$id.$env:RELEASE_VERSION.nupkg"))
+            try {
+              $entry = $archive.Entries | Where-Object FullName -like '*.nuspec' | Select-Object -First 1
+              $reader = [IO.StreamReader]::new($entry.Open())
+              try { [xml] $nuspec = $reader.ReadToEnd() } finally { $reader.Dispose() }
+              Assert-GraphBridgePackageMetadata -Archive $archive -Manifest $nuspec -RepositoryRoot $PWD.Path
+              $repository = $nuspec.SelectSingleNode("//*[local-name()='repository']")
+              if ($repository.GetAttribute('commit') -cne $env:GITHUB_SHA) { throw "$id was not built from $env:GITHUB_SHA." }
+              if ($null -eq ($archive.Entries | Where-Object FullName -eq 'icon.png')) { throw "$id has no icon." }
+            } finally { $archive.Dispose() }
+          }
+          Get-ChildItem artifacts/packages | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name } |
+            Tee-Object artifacts/packages/SHA256SUMS.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: packages-${{ inputs.version }}
+          path: artifacts/packages
+          if-no-files-found: error
+
+  publish:
+    needs: pack
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Required reviewers on this environment approve each publication; the nuget.org policy can also require it.
+    environment: nuget
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: packages-${{ inputs.version }}
+          path: packages
+      - name: Exchange the GitHub OIDC token for a one-hour nuget.org key
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: Push in dependency order
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates') {
+            dotnet nuget push "packages/$id.$env:RELEASE_VERSION.nupkg" --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+            if ($LASTEXITCODE) { throw "Pushing $id failed." }
+          }
