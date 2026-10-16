@@ -1,17 +1,19 @@
-# Optional compiled mapping registration
+![GraphBridge](https://raw.githubusercontent.com/joslat/GraphBridge.EFCore/main/docs/images/graphbridge-logo-small.png)
 
-This optional Roslyn incremental generator emits ordinary EF fluent registration from an explicit C# contract. It also emits static identifiers, optional IRI constants and an expected storage fingerprint. The finalized EF `IModel` remains the runtime authority. Generation never loads an application assembly, constructs a context, runs `OnModelCreating` or accesses a database.
+# GraphBridge.Generators
 
-The original generator passed project/package consumer and finalized-model parity acceptance. FS-21 adds specific diagnostics and an explicit schema responsibility policy; 47 generator tests now pass. The refreshed package consumer and build-cost evidence (maintainer-local record) also pass; see the [specific diagnostic contract](../../docs/tools/MAPPING_GENERATOR.md). See [ADR-0022](../../docs/architecture/adr/ADR-0022.md) and the implementation tracker (maintainer-local record).
+[![NuGet](https://img.shields.io/nuget/vpre/GraphBridge.Generators?label=nuget&color=0b6ae6)](https://www.nuget.org/packages/GraphBridge.Generators)
+![Roslyn incremental generator](https://img.shields.io/badge/Roslyn-incremental%20generator-512bd4)
+[![License: MIT](https://img.shields.io/badge/license-MIT-0b6ae6)](https://github.com/joslat/GraphBridge.EFCore/blob/main/LICENSE)
+![Developer preview](https://img.shields.io/badge/status-developer%20preview-e8a317)
 
-For a project reference, include the provider normally and the generator as an analyzer:
+Optional compile-time mapping for [GraphBridge](https://www.nuget.org/packages/GraphBridge.EntityFrameworkCore), the Entity Framework Core provider for Neo4j. Declare the graph mapping with attributes; the generator writes ordinary EF fluent registration, static identifiers and a storage fingerprint. The finalized EF model stays the runtime authority, and no generator assembly ships with your application.
 
 ```xml
-<ProjectReference Include="../GraphBridge.Generators/GraphBridge.Generators.csproj"
-                  OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+<PackageReference Include="GraphBridge.Generators" Version="<version on this page>" PrivateAssets="all" />
 ```
 
-The generator supplies internal authoring attributes directly to the consuming compilation. There is no generator assembly dependency in the compiled application. It targets `netstandard2.0`; the repository's SDK 10.0.401 contains Roslyn 5.9.0, matching the exact 5.9.0 analyzer package reference. Earlier compiler hosts are not verified.
+## Declare the model
 
 ```csharp
 using GraphBridge.Generated;
@@ -30,23 +32,22 @@ public sealed class Person
 }
 ```
 
-Call `PeopleMapping.Apply(modelBuilder)` explicitly in `OnModelCreating`. After the context model has finalized, call `PeopleMapping.Verify(context.Model)` before using that context. Verification compares the complete storage model with `PeopleMapping.Fingerprint` and fails if registration was omitted or later configuration changes the storage contract. The generator does not inject calls into a user's context or prevent later configuration.
+Call `PeopleMapping.Apply(modelBuilder)` in `OnModelCreating`. Once the context model has finalized, call `PeopleMapping.Verify(context.Model)`: it compares the whole storage model with `PeopleMapping.Fingerprint` and fails if registration was skipped or later configuration changed the storage contract.
 
-Every entity property must be mapped, an endpoint or explicitly `[GraphIgnore]`d. Nullability and requiredness must agree. GraphModel must declare `SchemaPolicy = GraphSchemaPolicy.ExistingConstraints`; constraints are provisioned separately and never checked or deployed by the generator. Earlier consumers must add this policy and regenerate. See [diagnostic codes and repair steps](../../docs/tools/MAPPING_GENERATOR.md). Node keys can contain up to sixteen ordered properties. Identified edges declare `[GraphIdentifiedEdge("TYPE", nameof(Id))]`, exactly one `[GraphSource(nameof(SourceId))]` navigation and one `[GraphTarget(nameof(TargetId))]` navigation. Endpoint attributes accept ordered FK arrays for composite principal keys. Direction is source to target; endpoint deletion is explicitly `Restrict`. Endpoint FK slots remain EF properties but are not stored edge payloads.
+## What you get
 
-Supported scalars are string, bool, int, long, double and their nullable forms, plus explicit Guid-to-string and invariant DateOnly-to-ISO-string conversion. Keys require non-null Guid/string/int/long values. All ordinary properties use `ValueGeneratedNever`; applications supply keys. `Concurrency = GraphConcurrency.OriginalValue` enables ordinary concurrency checking. `IncrementingInt64` emits `IsRowVersion` for required native long properties. Date conversion is represented as opaque in the storage witness, matching the runtime contract; equal hashes do not establish arbitrary converter semantic equivalence.
+| | |
+|---|---|
+| **Registration** | Plain EF fluent code for nodes, composite keys up to sixteen properties, and identified relationships with typed source and target |
+| **Identifiers** | Deterministic label, relationship-type and property-name constants, with optional IRIs |
+| **Fingerprint** | A storage fingerprint that `Verify` checks against the finalized model |
+| **Diagnostics** | Located compile errors with codes and repair steps instead of guessed mappings |
 
-`Identifiers` contains one deterministic `Entity_<hash>` container per fully qualified entity type, with `Label` or `RelationshipType`, optional `Iri`, `Properties.P_<member>` and optional `Iris.P_<member>` constants. Property names in endpoint slots identify logical mappings; they do not imply edge storage. Generated registration and identifier names remain deterministic when declaration order changes. CLR or IRI renaming can change generated source while preserving the storage fingerprint.
+## Boundaries
 
-The closed contract currently excludes inheritance, records, generic/nested entities, instance fields, init-only mapped members, shadow properties, alternate keys, explicit indexes, association edges, native one-to-many references and custom conversion code. EF/data-annotation mapping attributes are diagnosed to avoid conflicting convention inputs. Dynamic conventions and arbitrary later fluent configuration cannot be inspected at compile time; finalized-model verification detects storage differences. Unsupported declarations produce located errors rather than guessed mappings.
+- The generator never loads your assembly, constructs a context, runs `OnModelCreating` or opens a database.
+- Constraints are provisioned separately; the generator never checks or deploys them.
+- Not covered yet, among others: inheritance, records, generic or nested entities, shadow properties, alternate keys, association edges, native one-to-many references and custom conversions.
+- Targets `netstandard2.0`; verified with Roslyn 5.9.0 from .NET SDK 10.0.401.
 
-The real [consumer project](../../tests/GraphBridge.Generators.Tests/Consumer/GraphBridge.Generators.Consumer.csproj) uses analyzer-only project wiring. Its model covers composite node keys, composite edge endpoints, nullable payloads, original-value concurrency, generated versions and date conversion. Generator tests compare exact canonical JSON and SHA-256 with both that finalized model and a separately written EF model, check runtime mismatch detection, and exercise diagnostics, incremental reuse and deterministic output.
-
-Verification commands (local and hosted run 38120282034 pass all 36 tests and the packaged consumer):
-
-```powershell
-dotnet test tests/GraphBridge.Generators.Tests --no-restore -m:1
-pwsh -File eng/scripts/Test-GeneratorPackage.ps1
-```
-
-No database is needed for these tests. Their driver proxy throws on every attempted transport operation. The package check uses a unique local version and verifies a real PackageReference consumer without publishing. Broader compiler-host compatibility remains outside the pinned SDK scope.
+Read the [mapping generator guide](https://joslat.github.io/GraphBridge.EFCore/tools/MAPPING_GENERATOR.html) for every attribute and diagnostic code, and the [documentation](https://joslat.github.io/GraphBridge.EFCore/) for GraphBridge itself. Feedback is welcome in [GitHub issues](https://github.com/joslat/GraphBridge.EFCore/issues). MIT licensed.
