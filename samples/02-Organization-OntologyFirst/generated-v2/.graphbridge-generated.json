@@ -1,0 +1,37 @@
+{
+  "FormatVersion": 1,
+  "Files": [
+    {
+      "Path": "Context.g.cs",
+      "Sha256": "036b4982119d982deca8bcba816b362d6e58a8cf73f39a2df1864ffda58af2ca"
+    },
+    {
+      "Path": "Entities.g.cs",
+      "Sha256": "03e7a00c5a701f40fbccb68beda3875e42efbd8dd85965a6322a2e8c78bbb2e4"
+    },
+    {
+      "Path": "GraphIris.g.cs",
+      "Sha256": "589dc4815e5796f48723c842e1d76176e37279198b49efe97729fd27e6e17038"
+    },
+    {
+      "Path": "GraphModelConfiguration.g.cs",
+      "Sha256": "5a45abdd03f2b8223f097e6d4d0b6f0dedc2f10908e3610eb1f2256bc11832ca"
+    },
+    {
+      "Path": "generation-report.md",
+      "Sha256": "419f13037944bea5aa257f176d3bad69f6dfc860fc40f6e1316377aaa6042c16"
+    },
+    {
+      "Path": "graphbridge.binding.json",
+      "Sha256": "d5b7fa681abd75839e19db5710d0b1cc157e036807350785ec6f7b3250aa67c4"
+    },
+    {
+      "Path": "graphbridge.binding.sha256",
+      "Sha256": "bd89684a819d38d331077a01278d266a6e7b0c4ec20f7980caa759c8db7c38aa"
+    },
+    {
+      "Path": "schema-community.cypher",
+      "Sha256": "395d8921629ebf0a61577c8048d50ea2464ff5e9eefa516054a7254dfaeb4647"
+    }
+  ]
+}

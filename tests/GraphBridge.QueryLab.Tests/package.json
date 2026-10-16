@@ -1,0 +1,4 @@
+{
+  "name": "graphbridge-private-editor-acceptance", "private": true,
+  "dependencies": { "playwright-core": "1.64.0", "@vscode/test-electron": "3.1.0" }
+}

@@ -1,0 +1,13 @@
+{
+  "FormatVersion": 1,
+  "Files": [
+    {
+      "Path": "ScaffoldReadOnlyDtos.g.cs",
+      "Sha256": "8492d8a2af745ae0b4f9f2c785d5a94a1a249e2d1386043930b67b73d84889a6"
+    },
+    {
+      "Path": "inference-report.md",
+      "Sha256": "873b82c902efbbc54598258c6136cec671d296a04898b8eae900df4e04ff68dc"
+    }
+  ]
+}

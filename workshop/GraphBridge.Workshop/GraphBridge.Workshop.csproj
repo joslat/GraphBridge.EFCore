@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>GraphBridge.Workshop</RootNamespace>
+    <AssemblyName>GraphBridge.Workshop</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.Tooling/GraphBridge.Tooling.csproj" />
+    <ProjectReference Include="Mapping/GraphBridge.Workshop.Mapping.csproj" />
+    <!-- The mapping project builds itself with the source generator; its files are not part of this project. -->
+    <Compile Remove="Mapping/**" />
+    <None Remove="Mapping/**" />
+    <EmbeddedResource Include="Mapping/StudioModel.cs" LogicalName="Mapping/StudioModel.cs" />
+    <None Update="snapshots/*.cypher" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Lessons print their own code regions, so the shown code is always the code that runs. -->
+    <EmbeddedResource Include="Lessons/**/Lesson.cs" LogicalName="Lessons/%(RecursiveDir)Lesson.cs" />
+    <EmbeddedResource Include="Domain/*.cs" LogicalName="Domain/%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

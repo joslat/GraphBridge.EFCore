@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>GraphBridge contributors</Authors>
+    <Copyright>Copyright (c) 2026 GraphBridge contributors</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/joslat/GraphBridge.EFCore</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/joslat/GraphBridge.EFCore</PackageProjectUrl>
+    <PackageTags>EntityFrameworkCore;EFCore;Neo4j;Cypher;graph;non-relational</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>Developer preview. Release notes and the breaking-change policy: https://github.com/joslat/GraphBridge.EFCore/blob/main/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)../LICENSE" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)PACKAGE_NOTICES.md" Pack="true" PackagePath="THIRD_PARTY_NOTICES.md" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)dependencies/packages.json" Pack="true" PackagePath="DEPENDENCY-INVENTORY.json" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)dependencies/licenses/*.txt" Pack="true" PackagePath="notices/" Visible="false" />
+  </ItemGroup>
+</Project>

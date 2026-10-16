@@ -1,0 +1,57 @@
+{
+  "formatVersion": 1,
+  "namespace": "GraphBridge.Samples.Movies",
+  "contextName": "MoviesContext",
+  "nodes": [
+    {
+      "label": "GraphBridgeMoviesPerson",
+      "clrName": "Person",
+      "keyProperties": ["personId"],
+      "approveRequiredKey": true,
+      "properties": [
+        { "storeName": "personId", "clrName": "PersonId", "scalarType": "Guid", "conversion": "GuidString", "required": true, "ignore": false },
+        { "storeName": "name", "clrName": "Name", "scalarType": "String", "conversion": "Native", "required": true, "ignore": false },
+        { "storeName": "born", "clrName": "Born", "scalarType": "Int64", "conversion": "Native", "required": false, "ignore": false }
+      ]
+    },
+    {
+      "label": "GraphBridgeMoviesMovie",
+      "clrName": "Movie",
+      "keyProperties": ["movieId"],
+      "approveRequiredKey": true,
+      "properties": [
+        { "storeName": "movieId", "clrName": "MovieId", "scalarType": "Guid", "conversion": "GuidString", "required": true, "ignore": false },
+        { "storeName": "title", "clrName": "Title", "scalarType": "String", "conversion": "Native", "required": true, "ignore": false },
+        { "storeName": "released", "clrName": "Released", "scalarType": "Int64", "conversion": "Native", "required": true, "ignore": false },
+        { "storeName": "tagline", "clrName": "Tagline", "scalarType": "String", "conversion": "Native", "required": false, "ignore": false }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_ACTED_IN",
+      "clrName": "ActingCredit",
+      "sourceLabel": "GraphBridgeMoviesPerson",
+      "targetLabel": "GraphBridgeMoviesMovie",
+      "keyProperty": "actingCreditId",
+      "approveRequiredKey": true,
+      "properties": [
+        { "storeName": "actingCreditId", "clrName": "ActingCreditId", "scalarType": "Guid", "conversion": "GuidString", "required": true, "ignore": false },
+        { "storeName": "roles", "clrName": "Roles", "scalarType": "String", "conversion": "Native", "required": false, "ignore": true },
+        { "storeName": "billingOrder", "clrName": "BillingOrder", "scalarType": "Int64", "conversion": "Native", "required": true, "ignore": false }
+      ]
+    },
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_DIRECTED",
+      "clrName": "DirectingCredit",
+      "sourceLabel": "GraphBridgeMoviesPerson",
+      "targetLabel": "GraphBridgeMoviesMovie",
+      "keyProperty": "directingCreditId",
+      "approveRequiredKey": true,
+      "properties": [
+        { "storeName": "directingCreditId", "clrName": "DirectingCreditId", "scalarType": "Guid", "conversion": "GuidString", "required": true, "ignore": false },
+        { "storeName": "creditNote", "clrName": "CreditNote", "scalarType": "String", "conversion": "Native", "required": false, "ignore": false }
+      ]
+    }
+  ]
+}

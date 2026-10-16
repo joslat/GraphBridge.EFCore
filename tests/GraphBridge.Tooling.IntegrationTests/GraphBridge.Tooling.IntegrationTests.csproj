@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../samples/05-FluentCypher/FluentMovieContracts.cs" Link="Samples/FluentMovieContracts.cs" />
+    <Compile Include="../../samples/05-FluentCypher/FluentMovieReferences.cs" Link="Samples/FluentMovieReferences.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="../../src/GraphBridge.Tooling/GraphBridge.Tooling.csproj" />
+    <ProjectReference Include="../GraphBridge.IntegrationTests/GraphBridge.IntegrationTests.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../samples/03-Movies-DatabaseFirst/Movies.App/Movies.App.csproj" />
+    <Content Include="../../samples/03-Movies-DatabaseFirst/source/*" Link="MoviesSource/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

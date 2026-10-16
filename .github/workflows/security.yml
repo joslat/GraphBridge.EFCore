@@ -1,0 +1,79 @@
+name: Source and dependency security checks
+
+on:
+  # Run deliberately for release/milestone evidence, not on every intermediate push.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+      - name: Scan complete fetched history and clean tracked tree
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scanRoot = Join-Path $PWD '.artifacts/security-ci'
+          $scanTools = Join-Path $scanRoot 'tools'
+          $scanTree = Join-Path $scanRoot 'tracked-tree'
+          New-Item -ItemType Directory -Force $scanTools, $scanTree | Out-Null
+          $scanArchive = Join-Path $scanTools 'gitleaks.tar.gz'
+          Invoke-WebRequest 'https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz' -OutFile $scanArchive
+          if ((Get-FileHash -LiteralPath $scanArchive -Algorithm SHA256).Hash.ToLowerInvariant() -cne '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb') {
+            throw 'Pinned Gitleaks archive checksum mismatch.'
+          }
+          tar -xzf $scanArchive -C $scanTools
+          if ($LASTEXITCODE) { throw 'Scanner extraction failed.' }
+          $scanner = Join-Path $scanTools 'gitleaks'
+          & $scanner version
+          if ($LASTEXITCODE) { throw 'Scanner cannot execute.' }
+          & $scanner git . --log-opts=--all --config=.gitleaks.toml --redact=100 --report-format=json --report-path="$scanRoot/history.json" --no-banner
+          if ($LASTEXITCODE) { throw 'History secret scan failed; inspect redacted evidence.' }
+          $treeArchive = Join-Path $scanRoot 'tree.tar'
+          git archive --format=tar --output=$treeArchive HEAD
+          if ($LASTEXITCODE) { throw 'Tracked source snapshot failed.' }
+          tar -xf $treeArchive -C $scanTree
+          if ($LASTEXITCODE) { throw 'Tracked source snapshot extraction failed.' }
+          & $scanner dir $scanTree --config=.gitleaks.toml --redact=100 --report-format=json --report-path="$scanRoot/tracked-tree.json" --no-banner
+          if ($LASTEXITCODE) { throw 'Tracked-tree secret scan failed; inspect redacted evidence.' }
+      - name: Restore exact locked graph without building or starting databases
+        run: dotnet restore GraphBridge.sln --locked-mode --disable-parallel
+      - name: Check dependency and notice inventory
+        shell: pwsh
+        run: ./eng/scripts/Export-DependencyInventory.ps1 -Check
+      - name: Audit direct and transitive package advisories
+        shell: pwsh
+        run: |
+          $auditText = @(& dotnet list GraphBridge.sln package --vulnerable --include-transitive --format json --output-version 1 --no-restore)
+          if ($LASTEXITCODE) { throw 'Dependency audit command failed.' }
+          $auditText | Set-Content -LiteralPath .artifacts/security-ci/vulnerabilities.json -Encoding utf8
+          $audit = ($auditText -join "`n") | ConvertFrom-Json
+          if (@($audit.projects).Count -eq 0 -or @($audit.logs | Where-Object { $_.level -eq 'error' }).Count -gt 0) {
+            throw 'Dependency audit did not produce a complete usable report.'
+          }
+          $findings = @($audit.projects | ForEach-Object { $_.frameworks } | ForEach-Object {
+            @($_.topLevelPackages) + @($_.transitivePackages)
+          } | Where-Object { $null -ne $_ -and @($_.vulnerabilities).Count -gt 0 })
+          if ($findings.Count -gt 0) { throw 'Known vulnerable package versions require review; inspect the retained advisory report.' }
+          Write-Output "No known vulnerable packages reported across $(@($audit.projects).Count) projects."
+      - name: Retain only redacted findings and package advisory metadata
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: security-evidence
+          path: |
+            .artifacts/security-ci/history.json
+            .artifacts/security-ci/tracked-tree.json
+            .artifacts/security-ci/vulnerabilities.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30

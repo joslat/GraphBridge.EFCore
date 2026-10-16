@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.Tooling/GraphBridge.Tooling.csproj" />
+    <None Update="queries/*.cypher" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="FluentMovieQueries.cs" LogicalName="GraphBridge.FluentMovieQueries.cs" />
+  </ItemGroup>
+</Project>

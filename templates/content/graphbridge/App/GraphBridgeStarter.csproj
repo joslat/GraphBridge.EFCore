@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="[0.0.0-provider-version-required]" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.12]" />
+    <PackageReference Include="Neo4j.Driver" Version="[6.3.0]" />
+  </ItemGroup>
+</Project>

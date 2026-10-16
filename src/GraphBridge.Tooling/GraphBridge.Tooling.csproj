@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Optional GraphBridge model-authoring and generation tools; not a runtime provider dependency.</Description>
+    <Version>0.1.0-preview.2</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <PackageReference Include="dotNetRdf.Core" />
+    <PackageReference Include="dotNetRdf.Shacl" />
+    <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <!-- dotNetRdf's minimum 1.4.0 has GHSA-pgww-w46g-26qg; pin the patched compatible version. -->
+    <PackageReference Include="AngleSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <EmbeddedResource Include="Diagnostics/QueryLab.css" LogicalName="GraphBridge.QueryLab.css" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+</Project>

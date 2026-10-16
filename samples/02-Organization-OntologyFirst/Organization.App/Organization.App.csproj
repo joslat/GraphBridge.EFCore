@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <Compile Include="../generated/*.cs" Link="Generated/V1/%(Filename)%(Extension)" />
+    <Compile Include="../generated-v2/*.cs" Link="Generated/V2/%(Filename)%(Extension)" />
+    <Content Include="../generated/graphbridge.binding.json;../generated/graphbridge.binding.sha256" Link="organization-schema/v1/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../generated-v2/graphbridge.binding.json;../generated-v2/graphbridge.binding.sha256" Link="organization-schema/v2/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,71 @@
+{
+  "people": [
+    {
+      "personId": "11000000-0000-0000-0000-000000000001",
+      "name": "Mira Vale",
+      "born": 1988
+    },
+    {
+      "personId": "11000000-0000-0000-0000-000000000002",
+      "name": "Theo Rowan",
+      "born": 1991
+    },
+    {
+      "personId": "11000000-0000-0000-0000-000000000003",
+      "name": "Iona Reed",
+      "born": null
+    }
+  ],
+  "movies": [
+    {
+      "movieId": "22000000-0000-0000-0000-000000000001",
+      "title": "The Quiet Observatory",
+      "released": 2024,
+      "tagline": "Every signal has a story."
+    },
+    {
+      "movieId": "22000000-0000-0000-0000-000000000002",
+      "title": "A Map of Tomorrow",
+      "released": 2025,
+      "tagline": null
+    }
+  ],
+  "actingCredits": [
+    {
+      "actingCreditId": "33000000-0000-0000-0000-000000000001",
+      "personId": "11000000-0000-0000-0000-000000000001",
+      "movieId": "22000000-0000-0000-0000-000000000001",
+      "roles": ["Navigator", "Narrator"],
+      "billingOrder": 1
+    },
+    {
+      "actingCreditId": "33000000-0000-0000-0000-000000000002",
+      "personId": "11000000-0000-0000-0000-000000000001",
+      "movieId": "22000000-0000-0000-0000-000000000001",
+      "roles": ["Voice of the station"],
+      "billingOrder": 2
+    },
+    {
+      "actingCreditId": "33000000-0000-0000-0000-000000000003",
+      "personId": "11000000-0000-0000-0000-000000000002",
+      "movieId": "22000000-0000-0000-0000-000000000001",
+      "roles": ["Archivist"],
+      "billingOrder": 3
+    },
+    {
+      "actingCreditId": "33000000-0000-0000-0000-000000000004",
+      "personId": "11000000-0000-0000-0000-000000000002",
+      "movieId": "22000000-0000-0000-0000-000000000002",
+      "roles": ["Cartographer"],
+      "billingOrder": 1
+    }
+  ],
+  "directingCredits": [
+    {
+      "directingCreditId": "44000000-0000-0000-0000-000000000001",
+      "personId": "11000000-0000-0000-0000-000000000003",
+      "movieId": "22000000-0000-0000-0000-000000000001",
+      "creditNote": "Original cut"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+@prefix ex: <https://example.org/org#> .
+ex:alice a ex:Person ; ex:personName "Alice" ; ex:worksFor ex:acme .
+ex:acme a ex:Organization ; ex:organizationName "Acme" .

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Experimental non-relational EF Core provider for Neo4j: async LINQ and tracked saves, native graph relationships, explicit Cypher and schema inspection.</Description>
+    <Version>0.1.0-preview.2</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Neo4j.Driver" />
+    <None Update="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+</Project>

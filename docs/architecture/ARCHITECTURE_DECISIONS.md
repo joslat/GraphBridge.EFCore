@@ -1,0 +1,83 @@
+# Architecture decision records
+
+Each record states one decision, the alternatives that were considered and the evidence that accepted it. All records listed here are accepted and in force; a later record that amends an earlier one says so. Records 0001–0010 predate the public repository and are not published; their invariants are summarized in the [architecture overview](ARCHITECTURE.md).
+
+## Foundation and EF Core integration
+
+| Record | Decision |
+|---|---|
+| [ADR-0011](adr/ADR-0011.md) | Version baseline and execution gates: exact .NET, EF Core and Neo4j.Driver pins, and what must pass before a feature counts |
+| [ADR-0012](adr/ADR-0012.md) | EF query adapter and the initial compatibility boundary |
+| [ADR-0013](adr/ADR-0013.md) | Async node persistence, optimistic concurrency and transaction ownership |
+| [ADR-0025](adr/ADR-0025.md) | EF finder value equality |
+| [ADR-0029](adr/ADR-0029.md) | Prepare immutable read slots before enumeration |
+| [ADR-0035](adr/ADR-0035.md) | Retain prepared Cypher in EF compiled delegates |
+| [ADR-0037](adr/ADR-0037.md) | Retain asynchronous-only persistence |
+
+## Graph storage
+
+| Record | Decision |
+|---|---|
+| [ADR-0014](adr/ADR-0014.md) | EF join-entry observation supports native relationships |
+| [ADR-0015](adr/ADR-0015.md) | Explicit directed association metadata |
+| [ADR-0016](adr/ADR-0016.md) | Identified relationships and native Cypher results |
+| [ADR-0021](adr/ADR-0021.md) | Native storage for ordinary node foreign keys (references) |
+| [ADR-0032](adr/ADR-0032.md) | Optional native references remain dependent-owned graph membership |
+
+## Schema and migrations
+
+| Record | Decision |
+|---|---|
+| [ADR-0017](adr/ADR-0017.md) | Storage witnesses and explicit schema comparison |
+| [ADR-0018](adr/ADR-0018.md) | Migration journal and recovery boundaries |
+| [ADR-0036](adr/ADR-0036.md) | A bounded design-time command subset |
+
+## Querying
+
+| Record | Decision |
+|---|---|
+| [ADR-0023](adr/ADR-0023.md) | Explicit server EXPLAIN without query execution |
+| [ADR-0024](adr/ADR-0024.md) | Bounded scalar `Contains` with explicit equality semantics |
+| [ADR-0027](adr/ADR-0027.md) | Nullable scalar contracts and literal Guid construction |
+| [ADR-0030](adr/ADR-0030.md) | Construct DTO projections through the existing EF shaper |
+| [ADR-0031](adr/ADR-0031.md) | Validate integer extrema inputs within the aggregate statement |
+| [ADR-0033](adr/ADR-0033.md) | Explicit typed native search with observed index provenance |
+| [ADR-0034](adr/ADR-0034.md) | Bounded native paths with typed projections and explicit direction |
+| [ADR-0038](adr/ADR-0038.md) | Bounded untracked bulk mutation batches |
+| [ADR-0045](adr/ADR-0045.md) | Native `DateTimeOffset` payloads with explicit query semantics |
+
+## Fluent Cypher
+
+| Record | Decision |
+|---|---|
+| [ADR-0041](adr/ADR-0041.md) | Explicit native Cypher clauses beside EF LINQ |
+| [ADR-0047](adr/ADR-0047.md) | C# predicate lambdas under an agree-or-reject rule (amends 0041) |
+| [ADR-0048](adr/ADR-0048.md) | Aggregates and bounded `collect` (extends 0041) |
+
+## Transactions and observability
+
+| Record | Decision |
+|---|---|
+| [ADR-0026](adr/ADR-0026.md) | Uncertain commit verification and replay contract |
+| [ADR-0028](adr/ADR-0028.md) | Correlated runtime tracing with value-free events |
+
+## Authoring toolchains
+
+| Record | Decision |
+|---|---|
+| [ADR-0019](adr/ADR-0019.md) | Optional ontology compilation into the EF model |
+| [ADR-0020](adr/ADR-0020.md) | Database-first observations and reviewed tracking proposals |
+| [ADR-0022](adr/ADR-0022.md) | Optional attributed mapping generation with finalized-model verification |
+| [ADR-0039](adr/ADR-0039.md) | Explicit mapping diagnostics and schema responsibility |
+| [ADR-0040](adr/ADR-0040.md) | Offline database-first review between explicit versions |
+
+## Developer tools and compatibility
+
+| Record | Decision |
+|---|---|
+| [ADR-0042](adr/ADR-0042.md) | Application-hosted evidence tools (Doctor and Verify) |
+| [ADR-0043](adr/ADR-0043.md) | Typed compiler snapshots for the static Query Lab report |
+| [ADR-0044](adr/ADR-0044.md) | A read-only compatibility probe for Neo4j 5.26 |
+| [ADR-0046](adr/ADR-0046.md) | Integrated VS Code Query Lab with application-owned capture |
+
+Investigations behind some records: [EF service map](EF_SERVICE_MAP.md) (internal EF APIs the provider depends on) and the [join-entry experiment](JOIN_ENTRY_EXPERIMENT.md) behind ADR-0014.

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../samples/05-FluentCypher/FluentMovieQueries.cs" Link="Samples/FluentMovieQueries.cs" />
+    <Compile Include="../../samples/05-FluentCypher/FluentMovieContracts.cs" Link="Samples/FluentMovieContracts.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="../../src/GraphBridge.Tooling/GraphBridge.Tooling.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.Tool/GraphBridge.Tool.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

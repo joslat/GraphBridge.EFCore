@@ -1,0 +1,2152 @@
+{
+  "formatVersion": 1,
+  "scope": "All tracked NuGet lock files; references, not bundled assemblies",
+  "packages": [
+    {
+      "id": "AngleSharp",
+      "version": "1.5.0",
+      "lockedContentHash": "REAdFOAlTxr6yqmxWFFLLMB/+uvIS3N6tXXUAWjoexA0LsQB/CfZYadg+z+DkcpAwJk8gF1VF4YLsq4U1Gficg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://anglesharp.github.io/",
+      "authors": "AngleSharp",
+      "copyright": "Copyright 2013-2026, AngleSharp.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Castle.Core",
+      "version": "5.2.1",
+      "lockedContentHash": "wHARzQA695jwwKreOzNsq54KiGqKP38tv8hi8e2FXDEC/sA6BtrX90tVPDkOfVu13PbEzr00TCV8coikl+D1Iw==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": "http://www.castleproject.org/",
+      "authors": "Castle Project Contributors",
+      "copyright": "Copyright (c) 2004-2025 Castle Project - http://www.castleproject.org/",
+      "noticeAssets": [
+        {
+          "path": "ASL - Apache Software Foundation License.txt",
+          "sha256": "ab1fd16ef97a3cd6c19dc263c0b9900b01932996b671d2ac0452c38183f9274d"
+        },
+        {
+          "path": "LICENSE",
+          "sha256": "1bf6d24645729f179f69f7f624572635986123b09e6241849ccbb945208649e1"
+        }
+      ]
+    },
+    {
+      "id": "dotNetRdf.Core",
+      "version": "3.5.2",
+      "lockedContentHash": "rHp/RXZelasYYuWLdqAlXuN7bPx6zkxBZ5fOi2WV5tG1plb2muaZCDgnHb8CBwtrsQyCH+oBOICfF33IxIKBjg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://www.dotnetrdf.org/",
+      "authors": "RobVesse,tpluscode,kal_ahmed,ronmichael,dotnetrdf",
+      "copyright": "Copyright © dotNetRDF Project 2009-2026",
+      "noticeAssets": []
+    },
+    {
+      "id": "dotNetRdf.Shacl",
+      "version": "3.5.2",
+      "lockedContentHash": "b+nU+kECqC/W1LdBOVRboBiR9MacOj3fkPskZOV5IButKsyRfWHNQMXVRDyArQ3APYXC50wXrLPILpQISez8ow==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://www.dotnetrdf.org/",
+      "authors": "RobVesse,tpluscode,kal_ahmed,ronmichael,dotnetrdf",
+      "copyright": "Copyright © dotNetRDF Project 2009-2026",
+      "noticeAssets": []
+    },
+    {
+      "id": "HtmlAgilityPack",
+      "version": "1.12.4",
+      "lockedContentHash": "ljqvBabvFwKoLniuoQKO8b5bJfJweKLs4fUNS/V5dsvpo0A8MlJqxxn9XVmP2DaskbUXty6IYaWAi1SArGIMeQ==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "http://html-agility-pack.net/",
+      "authors": "ZZZ Projects,Simon Mourrier,Jeff Klawiter,Stephan Grell",
+      "copyright": "Copyright © ZZZ Projects Inc.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Humanizer.Core",
+      "version": "2.14.1",
+      "lockedContentHash": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/Humanizr/Humanizer",
+      "authors": "Mehdi Khalili, Claire Novotny",
+      "copyright": "Copyright (c) .NET Foundation and Contributors",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.Build.Framework",
+      "version": "18.0.2",
+      "lockedContentHash": "sOSb+0J4G/jCBW/YqmRuL0eOMXgfw1KQLdC9TkbvfA5xs7uNm+PBQXJCOzSJGXtZcZrtXozcwxPmUiRUbmd7FA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "http://go.microsoft.com/fwlink/?LinkId=624683",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "notices/THIRDPARTYNOTICES.txt",
+          "sha256": "74dc1c6ae57076cd6e4caf9b105f9b61508b8dfefdb5888f4e7656f948a5b8dd"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Analyzers",
+      "version": "3.11.0",
+      "lockedContentHash": "v/EW3UE8/lbEYHoC2Qq7AR/DnmvpgdtAMndfQNmpuIMx/Mto8L5JnuCfdBYtgvalQOtfNCnxFejxuRrryvUTsg==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn-analyzers",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.txt",
+          "sha256": "0eabe2880daf9bfb25ac160b1e779c5da95a88406dd06cdb570ec7edb5eabb76"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Analyzers",
+      "version": "5.9.0-1.26328.17",
+      "lockedContentHash": "HP9NNk8ZjOSI2hgOyXnQg+kv7/X837Vr2nAlXiGAtqtYnYKjRRa1UmQFr8KFs5ynGYKqfbb8zB9APoWjiAGdMg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Generators",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.txt",
+          "sha256": "0eabe2880daf9bfb25ac160b1e779c5da95a88406dd06cdb570ec7edb5eabb76"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Common",
+      "version": "5.0.0",
+      "lockedContentHash": "ZXRAdvH6GiDeHRyd3q/km8Z44RoM6FBWHd+gen/la81mVnAdHTEsEkO5J0TCNXBymAcx5UYKt5TvgKBhaLJEow==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Common",
+      "version": "5.9.0",
+      "lockedContentHash": "IYaIaUWdIx539AReKZOBEqTskFusZfCh/wFSPilDvCn5Say8MegLw2LONcSIcVy+v3Gzv53qYBspgvBGSErfbQ==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Generators",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.CSharp.Workspaces",
+      "version": "5.0.0",
+      "lockedContentHash": "Al/Q8B+yO8odSqGVpSvrShMFDvlQdIBU//F3E6Rb0YdiLSALE9wh/pvozPNnfmh5HDnvU+mkmSjpz4hQO++jaA==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.CSharp.Workspaces",
+      "version": "5.9.0",
+      "lockedContentHash": "D2zqK/k16fto0yMz0hcXMTkzOxEwMDJyA1mu/KXF9Befwz4zub3MpHQD8FeRxJtVSSsC3dQFYBw7zu7r/pfO7g==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.CSharp",
+      "version": "5.0.0",
+      "lockedContentHash": "5DSyJ9bk+ATuDy7fp2Zt0mJStDVKbBoiz1DyfAwSa+k4H4IwykAUcV3URelw5b8/iVbfSaOwkwmPUZH6opZKCw==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.CSharp",
+      "version": "5.9.0",
+      "lockedContentHash": "7JGDA0UT1+h7k9ZcA3rF4eFC8+QPq1xyYaXxag4p8r/zzPurEJxvdi7aM+MRL/SfP7XADXpWF/pl/eUYXOq/ww==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Generators",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Workspaces.Common",
+      "version": "5.0.0",
+      "lockedContentHash": "ZbUmIvT6lqTNKiv06Jl5wf0MTMi1vQ1oH7ou4CLcs2C/no/L7EhP3T8y3XXvn9VbqMcJaJnEsNA1jwYUMgc5jg==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Workspaces.Common",
+      "version": "5.9.0",
+      "lockedContentHash": "1A6jz50NG4nOEW8tX5+h+MyHqjWL0mPGwrUdwu+OlTfyknLo0GfxSqj4zEks8uVUdHdo9v8Ir9dHxACf8iYNEA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Workspaces.MSBuild",
+      "version": "5.0.0",
+      "lockedContentHash": "/G+LVoAGMz6Ae8nm+PGLxSw+F5RjYx/J7irbTO5uKAPw1bxHyQJLc/YOnpDxt+EpPtYxvC9wvBsg/kETZp1F9Q==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeAnalysis.Workspaces.MSBuild",
+      "version": "5.9.0",
+      "lockedContentHash": "BBux6hhD4wXt4lYN2oaY+jV4PnIj5plyqohijgSZtxJQqsvsldPEdii2q9lGrJbNjKEALnldDHz1rmGKG0PeeA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/roslyn",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.rtf",
+          "sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.CodeCoverage",
+      "version": "17.14.1",
+      "lockedContentHash": "pmTrhfFIoplzFVbhVwUquT+77CbGH+h4/3mBpdmIlYtBi9nAB+kKI6dN3A/nV4DFi3wLLx/BlHIPK+MkbQ6Tpg==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/microsoft/vstest",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "build/netstandard2.0/ThirdPartyNotices.txt",
+          "sha256": "4fc4244935bbe3516164402c573f053a5d246571ed4d357e6cccd8ebec296bbc"
+        },
+        {
+          "path": "ThirdPartyNotices.txt",
+          "sha256": "4fc4244935bbe3516164402c573f053a5d246571ed4d357e6cccd8ebec296bbc"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore.Abstractions",
+      "version": "10.0.12",
+      "lockedContentHash": "kDrux7T6C3V/YYYe2LXr7x6AEsVyq5Y2YoTE9er1SwbDtap3z1g8RgxNh5eKQVyB4T+DKvBBJ4Ezd/VZzJQJZg==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore.Analyzers",
+      "version": "10.0.12",
+      "lockedContentHash": "Kd4o2oO1A6dfKxjz5LS16QyLtpCFTUiFWwmBABETAXRsSImBdRdWeKjSgbbRhAMiV3a3/nWr95ZtzClT4uaADQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore.Design",
+      "version": "10.0.12",
+      "lockedContentHash": "I/IwEkUEUoa62UMJHh2+04oAs+gZz4QEunpZ3MGtAf12PZUcTduZLuGZEp3FAZ7wkmkSThZez41P8tgFj8QYKQ==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore.Proxies",
+      "version": "10.0.12",
+      "lockedContentHash": "ijG6j04UjYCugQyuj3L804oa6AuwetuLavCY6xPFfAA/Q84gaSvtSe5KGYy4buF6fuL5YRc4fz4Q93UCvhTamA==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore.Relational",
+      "version": "10.0.12",
+      "lockedContentHash": "OiHmr8XzX96dbgMsYGe8qoqg4KxibdZG2r0QUVJBGktFInOp8IrABe8jvcbo5hrqeWfbwpK7fCEBiEPbY/ik4A==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore.Specification.Tests",
+      "version": "10.0.12",
+      "lockedContentHash": "VBqvrPrlpNQ51+QoQQuJDaLS7Jq2baG80US/VSpEEMliojAZPDZQM5vFsbqzzAaqDw0R5JG73sgfdKJ9WlI+Tw==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.EntityFrameworkCore",
+      "version": "10.0.12",
+      "lockedContentHash": "e7OrVN8U5yr4kuwdTHWBHGVQIVsGfMkAr0Ej1/BnrS989Q0XBVANpIzNZ2bc1GvMZ0/XwMt5InTnmKskxGy99Q==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://docs.microsoft.com/ef/core/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.Extensions.Caching.Abstractions",
+      "version": "10.0.12",
+      "lockedContentHash": "sI3A6MUAyZwccLnwq0cXuRmC3WBtXieimBWafXSfhRJ4jnM2uGVXrqImDDVyW27u4vVaTOGlJxNJd8d1FGvCNQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Caching.Memory",
+      "version": "10.0.12",
+      "lockedContentHash": "fhC3DHcBcFF4bXvHIxFtXJYNut7q7ZItqNFcgWfrIgmpVImlcEKNHhE7ztpNSPJYMHYYStS5QGND2I5mC26yeA==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Configuration.Abstractions",
+      "version": "10.0.12",
+      "lockedContentHash": "8xaGcvS/qZ1otoxPQCEJkNva389CVL/plNcvIETZhQTETYdRkYDPEYhUMoAGONo4FU45ufdfE0j29AfWVVj0wA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Configuration.Abstractions",
+      "version": "10.0.8",
+      "lockedContentHash": "I63esIFbL3h5pSt7gXpXOlmcwDmYBUoYNEglKfDPFUqtYvSV84f2l28hO2lfVXsV0wdlplgAM7IVz16matapSg==",
+      "projects": [
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Configuration",
+      "version": "10.0.8",
+      "lockedContentHash": "ehZcoPbjzWzS4XFvuz7R3V55SmpdkyMqFURLH3yXaN9NtXd9tR6CGB7pd49HYtCkenl+G7ctXSFLhNI08xLfRg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.DependencyInjection.Abstractions",
+      "version": "10.0.12",
+      "lockedContentHash": "9/qymSh7hVDMGTGwrLz8MRp5zRyXy9adGDOs4HwRdnLil3oZGYuWeZjbmHgCQ9BL1qBroVfgUK3U/nb61617Cw==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.DependencyInjection",
+      "version": "10.0.12",
+      "lockedContentHash": "lXyK2O5GoYvfxW8eCFcD16JFbcoSTM1sJkAM0UHS1jZyl9NYMW64Tqm6OQFT0IDBjZi+xHt95/Zg+nxZhGFhZg==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.DependencyModel",
+      "version": "10.0.12",
+      "lockedContentHash": "rDPQVTxh/zMTDF7wHlRqL/jjZbwjAP6315ydBxj51pZW7qkAwGwjoSiMutxYI91xmOE3ZXjAGHbYRqzyJV7Urw==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Logging.Abstractions",
+      "version": "10.0.12",
+      "lockedContentHash": "+24lC4plfbEDNfLAdTV/SWKS7dW+16X4HdydO3R++134kSNTzcbYA4KpR1Hdh6uWisB8Za3AzwyOn+K+NxWIug==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Logging",
+      "version": "10.0.12",
+      "lockedContentHash": "6I46fTPfgYkrjRYfRXbho9WOvOelTnNjWuZws/hzGHDASH1LEJeA4VKK9k3wJvido8o7jJSB5WkMTonX7HM1bA==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Options",
+      "version": "10.0.12",
+      "lockedContentHash": "TDYD33TSRpXKZWlmTXNlj5kCihxatmv2Ec1u6C+bMYLphCS7PoSLE9Pjd/nunDoE7yETk+LLKjVJX78HYtWjpA==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.Extensions.Primitives",
+      "version": "10.0.12",
+      "lockedContentHash": "dYfCLR52UA+3DL7C4I/pvSaRPkNqxrUAQmbFL2u0zvYKKzqgrFCJl08Df+F1aYc8leu9JvpC9bsURUdpExcBXQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.NET.Test.Sdk",
+      "version": "17.14.1",
+      "lockedContentHash": "HJKqKOE+vshXra2aEHpi2TlxYX7Z9VFYkr+E5rwEvHC8eIXiyO+K9kNm8vmNom3e2rA56WqxU+/N9NJlLGXsJQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/microsoft/vstest",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.NETCore.Platforms",
+      "version": "1.1.0",
+      "lockedContentHash": "kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": null,
+      "licenseValue": null,
+      "licenseUrl": "http://go.microsoft.com/fwlink/?LinkId=329770",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation.  All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "dotnet_library_license.txt",
+          "sha256": "f1db688d8481c91a452fabcea5060a23da9ea5088329b58c478a040e2e426297"
+        },
+        {
+          "path": "ThirdPartyNotices.txt",
+          "sha256": "0684b2349427ee28e392ae8914645832e59731dba8a38a984f72b3fb8769c76b"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.TestPlatform.ObjectModel",
+      "version": "17.14.1",
+      "lockedContentHash": "xTP1W6Mi6SWmuxd3a+jj9G9UoC850WGwZUps1Wah9r1ZxgXhdJfj1QqDLJkFjHDCvN42qDL2Ps5KjQYWUU0zcQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/microsoft/vstest",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.TestPlatform.TestHost",
+      "version": "17.14.1",
+      "lockedContentHash": "d78LPzGKkJwsJXAQwsbJJ7LE7D1wB+rAyhHHAaODF+RDSQ0NgMjDFkSA1Djw18VrxO76GlKAjRUhl+H8NL8Z+Q==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/microsoft/vstest",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "ThirdPartyNotices.txt",
+          "sha256": "e2ce7628e0f67d0d724eea9d9286a6938bf1eedd253fc84b23d72ae54778a5f7"
+        }
+      ]
+    },
+    {
+      "id": "Microsoft.VisualStudio.SolutionPersistence",
+      "version": "1.0.52",
+      "lockedContentHash": "oNv2JtYXhpdJrX63nibx1JT3uCESOBQ1LAk7Dtz/sr0+laW0KRM6eKp4CZ3MHDR2siIkKsY8MmUkeP5DKkQQ5w==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/microsoft/vs-solutionpersistence",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "NOTICE",
+          "sha256": "2d56342544395b1cc4bb98192a439031362265125a68b8062942383b8df4309a"
+        }
+      ]
+    },
+    {
+      "id": "Mono.TextTemplating",
+      "version": "3.0.0",
+      "lockedContentHash": "YqueG52R/Xej4VVbKuRIodjiAhV0HR/XVbLbNrJhCZnzjnSjgMJ/dCdV0akQQxavX6hp/LC6rqLGLcXeQYU7XA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/mono/t4",
+      "authors": "Mikayla Hutchinson",
+      "copyright": null,
+      "noticeAssets": [
+        {
+          "path": "LICENSE.txt/LICENSE",
+          "sha256": "143c56ff6ba2dd121fa4bbf61c17aa8563378a6223c0bf7c5201e382ebd5f34a"
+        }
+      ]
+    },
+    {
+      "id": "Neo4j.Driver",
+      "version": "6.3.0",
+      "lockedContentHash": "USPPWixK2RkGO+BVuPa4WAH1p0BZpp4d5iIukXEL7/muoYT4bjB62pVlAuQyaW/3PfC0JTDlehsjKwOVf+yQdg==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks",
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "samples/01-Blogging-CodeFirst/Blogging.App",
+        "samples/02-Organization-OntologyFirst/Organization.App",
+        "samples/03-Movies-DatabaseFirst/Movies.App",
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.EntityFrameworkCore",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.Generators.Tests/Consumer",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop",
+        "workshop/GraphBridge.Workshop/Mapping"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": "https://github.com/neo4j/neo4j-dotnet-driver",
+      "authors": "Neo4j",
+      "copyright": "Copyright 2002-2023",
+      "noticeAssets": []
+    },
+    {
+      "id": "NETStandard.Library",
+      "version": "2.0.3",
+      "lockedContentHash": "st47PosZSHrjECdjeIzZQbzivYBJFv6P2nv4cj2ypdI204DO+vZ7l5raGMiX4eXMJ53RfOIg+/s4DHVZ54Nu2A==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": null,
+      "licenseValue": null,
+      "licenseUrl": "https://github.com/dotnet/standard/blob/master/LICENSE.TXT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": ".NET Foundation and Contributors",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "fc95de1436a321aadbfafd21f8a8506a2f4678bfc003bd806d6b59d3088efadc"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "0684b2349427ee28e392ae8914645832e59731dba8a38a984f72b3fb8769c76b"
+        }
+      ]
+    },
+    {
+      "id": "NetTopologySuite.Features",
+      "version": "2.0.0",
+      "lockedContentHash": "RDbEpujDL0bsAyTMHlbKj36KIPhUrtSGUaO/jUjMnsLcixrJFwoDJ8p717FdgMHpQDrcEJAKF+QsAlYsSULkew==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "BSD-3-Clause",
+      "licenseUrl": "https://licenses.nuget.org/BSD-3-Clause",
+      "projectUrl": null,
+      "authors": "NetTopologySuite - Team",
+      "copyright": "Copyright © 2019 NetTopologySuite - Team",
+      "noticeAssets": []
+    },
+    {
+      "id": "NetTopologySuite.IO.GeoJSON",
+      "version": "4.0.0",
+      "lockedContentHash": "AWpcRwPAIrUZfghQat7bXK9dAckhuAxKF/Yvp+DoctLpct7pilj0Y+VCiof/8NlaclGlrISSfgnu3Tbvq6T2ug==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "BSD-3-Clause",
+      "licenseUrl": "https://licenses.nuget.org/BSD-3-Clause",
+      "projectUrl": null,
+      "authors": "NetTopologySuite - Team",
+      "copyright": "Copyright © 2023 NetTopologySuite - Team",
+      "noticeAssets": []
+    },
+    {
+      "id": "NetTopologySuite",
+      "version": "2.6.0",
+      "lockedContentHash": "1B1OTacTd4QtFyBeuIOcThwSSLUdRZU3bSFIwM8vk36XiZlBMi3K36u74e4OqwwHRHUuJC1PhbDx4hyI266X1Q==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "BSD-3-Clause",
+      "licenseUrl": "https://licenses.nuget.org/BSD-3-Clause",
+      "projectUrl": null,
+      "authors": "NetTopologySuite - Team",
+      "copyright": "Copyright © 2006 - 2025 NetTopologySuite - Team, Diego Guidi, John Diss (www.newgrove.com), Felix Obermaier (www.ivv-aachen.de), Todd Jackson, Joe Amenta",
+      "noticeAssets": []
+    },
+    {
+      "id": "Newtonsoft.Json",
+      "version": "13.0.3",
+      "lockedContentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.UnitTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://www.newtonsoft.com/json",
+      "authors": "James Newton-King",
+      "copyright": "Copyright © James Newton-King 2008",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "b98a397897ff55f76cddc380041507a95a896b2946e0188703bf0496793d6516"
+        }
+      ]
+    },
+    {
+      "id": "Newtonsoft.Json",
+      "version": "13.0.4",
+      "lockedContentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://www.newtonsoft.com/json",
+      "authors": "James Newton-King",
+      "copyright": "Copyright © James Newton-King 2008",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "b98a397897ff55f76cddc380041507a95a896b2946e0188703bf0496793d6516"
+        }
+      ]
+    },
+    {
+      "id": "System.Buffers",
+      "version": "4.6.1",
+      "lockedContentHash": "N8GXpmiLMtljq7gwvyS+1QvKT/W2J8sNAvx+HVg4NGmsG/H+2k/y9QI23auLJRterrzCiDH+IWAw4V/GPwsMlw==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/maintenance-packages",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "System.CodeDom",
+      "version": "6.0.0",
+      "lockedContentHash": "CPc6tWO1LAer3IzfZufDBRL+UZQcj5uS207NHALQzP84Vp/z6wF0Aa0YZImOQY8iStY0A2zI/e3ihKNPfUm8XA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95"
+        }
+      ]
+    },
+    {
+      "id": "System.Collections.Immutable",
+      "version": "10.0.1",
+      "lockedContentHash": "kdTe61B8P7i2M1pODC3MLbZ/CfFGjpC6c6jzxjQoB5DHZNewayCRqgFUmx3JKB6vLQtozpMQEiw+R5fO32Jv4g==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.AttributedModel",
+      "version": "10.0.1",
+      "lockedContentHash": "mRxYvpCVPAeuLEk0c0kxWJVjbW1/HUoxCgYotOj9eDeQiYcTDOMdCQApsTrHYMN3pHBA8WoF00KGolG632Etaw==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.AttributedModel",
+      "version": "9.0.0",
+      "lockedContentHash": "iri00l/zIX9g4lHMY+Nz0qV1n40+jFYAmgsaiNn16xvt2RDwlqByNG4wgblagnDYxm3YSQQ0jLlC/7Xlk9CzyA==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "40686c6447a7d5b5d3693068e4571b5f483d7ed335aeee773ef662440de4c5d5"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.Convention",
+      "version": "10.0.1",
+      "lockedContentHash": "dYynUByfVBzYDheNPGxS8UN8AvG/4tXf/coSs1odHOyoh4etv1kad/FrLWLMq4f8NO49NV20Xu+0/y613woTUA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.Convention",
+      "version": "9.0.0",
+      "lockedContentHash": "+vuqVP6xpi582XIjJi6OCsIxuoTZfR0M7WWufk3uGDeCl3wGW6KnpylUJ3iiXdPByPE0vR5TjJgR6hDLez4FQg==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "40686c6447a7d5b5d3693068e4571b5f483d7ed335aeee773ef662440de4c5d5"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.Hosting",
+      "version": "10.0.1",
+      "lockedContentHash": "4UGmyBdKWEN1nkqspJlji/nV7XIVm6KGlOC2So0mtM/gKvaNgLz+tUkcbY+6Zpr7dr6ohX1S5yl0RLID5otRHw==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.Hosting",
+      "version": "9.0.0",
+      "lockedContentHash": "OFqSeFeJYr7kHxDfaViGM1ymk7d4JxK//VSoNF9Ux0gpqkLsauDZpu89kTHHNdCWfSljbFcvAafGyBoY094btQ==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "40686c6447a7d5b5d3693068e4571b5f483d7ed335aeee773ef662440de4c5d5"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.Runtime",
+      "version": "10.0.1",
+      "lockedContentHash": "TVfys1gnUIhmXuYfFzyez0fOkDyELe9UwlxYeVlq6FmqmWmt1ouF0OQJ+6ozkHbkaop7uBUaXw7Qb+/o0m+nMg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.Runtime",
+      "version": "9.0.0",
+      "lockedContentHash": "w1HOlQY1zsOWYussjFGZCEYF2UZXgvoYnS94NIu2CBnAGMbXFAX8PY8c92KwUItPmowal68jnVLBCzdrWLeEKA==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "40686c6447a7d5b5d3693068e4571b5f483d7ed335aeee773ef662440de4c5d5"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.TypedParts",
+      "version": "10.0.1",
+      "lockedContentHash": "koSfjkdQZfgQr3SyiSIBboDn+GiR0vZ3x9Uek9FJbXK0w5AiATV8KrnMEP8B8OAlO+Y3zQf0CPCNzwH+VIYDKg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition.TypedParts",
+      "version": "9.0.0",
+      "lockedContentHash": "aRZlojCCGEHDKqh43jaDgaVpYETsgd7Nx4g1zwLKMtv4iTo0627715ajEFNpEEBTgLmvZuv8K0EVxc3sM4NWJA==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "40686c6447a7d5b5d3693068e4571b5f483d7ed335aeee773ef662440de4c5d5"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition",
+      "version": "10.0.1",
+      "lockedContentHash": "DJkqaWQfho/ReTzKcZD3zJJ6K4GcS154k+T0UCPMBNIOZ2U/lNpyiiWZ6Etw0onWyTH1K+yhICsdmwA5xy2aPQ==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Composition",
+      "version": "9.0.0",
+      "lockedContentHash": "3Djj70fFTraOarSKmRnmRy/zm4YurICm+kiCtI0dYRqGJnLX6nJ+G3WYuFJ173cAPax/gh96REcbNiVqcrypFQ==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "40686c6447a7d5b5d3693068e4571b5f483d7ed335aeee773ef662440de4c5d5"
+        }
+      ]
+    },
+    {
+      "id": "System.Configuration.ConfigurationManager",
+      "version": "10.0.8",
+      "lockedContentHash": "QG+HHwJjLyUiRuA9axr5pDqHAxboo7FXCTRakxMABE9CUAUij/tsd/MsgQPJUEppkf+YBLT+F/P/wKIVCAIcNg==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Diagnostics.EventLog",
+      "version": "10.0.8",
+      "lockedContentHash": "+Ro7WgIom+BDNH+YhTuZKL6QJ0ctfOpTyfUG/h3aU5KwXt3OaNf0wYWrTvoBUj+34Dy5V8dN9yCco1hAJQ4txw==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Diagnostics.EventLog",
+      "version": "6.0.0",
+      "lockedContentHash": "lcyUiXTsETK2ALsZrX+nWuHSIQeazhqPphLfaRxzdGaG93+0kELqpgEHtwWOlQe7+jSFnKwaCAgL4kjeZCQJnw==",
+      "projects": [
+        "tests/GraphBridge.SpecificationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95"
+        }
+      ]
+    },
+    {
+      "id": "System.Memory",
+      "version": "4.6.3",
+      "lockedContentHash": "qdcDOgnFZY40+Q9876JUHnlHu7bosOHX8XISRoH94fwk6hgaeQGSgfZd8srWRZNt5bV9ZW2TljcegDNxsf+96A==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/maintenance-packages",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "System.Numerics.Vectors",
+      "version": "4.6.1",
+      "lockedContentHash": "sQxefTnhagrhoq2ReR0D/6K0zJcr9Hrd6kikeXsA1I8kOCboTavcUC4r7TSfpKFeE163uMuxZcyfO1mGO3EN8Q==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/maintenance-packages",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "System.Reflection.Metadata",
+      "version": "10.0.1",
+      "lockedContentHash": "zpcfT/wacPPhE17zcudozlxQtWN/84qyiMyZNGLnK4cj2IMBtLsZYwYjVnALUhPliwyUVj/P7kaZvBWYBCnf2Q==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Reflection.TypeExtensions",
+      "version": "4.7.0",
+      "lockedContentHash": "VybpaOQQhqE6siHppMktjfGBw1GCwvCqiufqmP8F1nj7fTUNtW35LOEt3UZTEsECfo+ELAl/9o9nJx3U91i7vA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/corefx",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "388c07f579998286e5df706a2e68bf6e01100187ccb0ff0310e26c3383f7b2b2"
+        }
+      ]
+    },
+    {
+      "id": "System.Runtime.CompilerServices.Unsafe",
+      "version": "6.1.2",
+      "lockedContentHash": "2hBr6zdbIBTDE3EhK7NSVNdX58uTK6iHW/P/Axmm9sl1xoGSLqDvMtpecn226TNwHByFokYwJmt/aQQNlO5CRw==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/maintenance-packages",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "System.Security.Cryptography.ProtectedData",
+      "version": "10.0.8",
+      "lockedContentHash": "/ldVgSfImIBp6fLWS7sLH0BnmtFj0ZwGlZo4Xx2q0K3ZhJNDbW45kj2f6zPoC+L+BTINuHdMzTsopuwmkbgcNA==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
+      "id": "System.Text.Encoding.CodePages",
+      "version": "8.0.0",
+      "lockedContentHash": "OZIsVplFGaVY90G2SbpgU7EnCoOO5pw1t4ic21dBF3/1omrJFpAGoNAVpPyMVOC90/hvgkGG3VFqR13YgZMQfg==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "LICENSE.TXT",
+          "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "19c19dcac9f3ee6302cfbc6745bb8e79f08efc4c933eb8dc5509bf14b88347ec"
+        }
+      ]
+    },
+    {
+      "id": "System.Threading.Tasks.Extensions",
+      "version": "4.6.3",
+      "lockedContentHash": "7sCiwilJLYbTZELaKnc7RecBBXWXA+xMLQWZKWawBxYjp6DBlSE3v9/UcvKBvr1vv2tTOhipiogM8rRmxlhrVA==",
+      "projects": [
+        "src/GraphBridge.Generators"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/dotnet/maintenance-packages",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "VDS.Common",
+      "version": "3.0.1",
+      "lockedContentHash": "37Xq3UfF7gbcKhFhx2dgRIatLCrbkg/99XVSkIi9pJtttmHEfGX483Ix52mO3PPPZI6YNbZjzHfH5hQwwb+X2g==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://www.dotnetrdf.org/",
+      "authors": "RobVesse,kal_ahmed",
+      "copyright": null,
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.abstractions",
+      "version": "2.0.3",
+      "lockedContentHash": "pot1I4YOxlWjIb5jmwvvQNbTrZ3lJQ+jUGkGjWE3hEFM0l5gOnBWS+H3qsex68s5cO52g+44vpGzhAt+42vwKg==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": null,
+      "licenseValue": null,
+      "licenseUrl": "https://raw.githubusercontent.com/xunit/xunit/master/license.txt",
+      "projectUrl": "https://github.com/xunit/xunit",
+      "authors": "James Newkirk,Brad Wilson",
+      "copyright": null,
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.analyzers",
+      "version": "1.18.0",
+      "lockedContentHash": "OtFMHN8yqIcYP9wcVIgJrq01AfTxijjAqVDy/WeQVSyrDC1RzBWeQPztL49DN2syXRah8TYnfvk035s7L95EZQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson,marcind",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.assert",
+      "version": "2.9.3",
+      "lockedContentHash": "/Kq28fCE7MjOV42YLVRAJzRF0WmEqsmflm0cfpMjGtzQ2lR5mYVj1/i0Y8uDAOLczkL3/jArrwehfMD0YogMAA==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.core",
+      "version": "2.9.3",
+      "lockedContentHash": "BiAEvqGvyme19wE0wTKdADH+NloYqikiU0mcnmiNyXaF9HyHmE6sr/3DC5vnBkgsWaE6yPyWszKSPSApWdRVeQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.extensibility.core",
+      "version": "2.9.3",
+      "lockedContentHash": "kf3si0YTn2a8J8eZNb+zFpwfoyvIrQ7ivNk5ZYA5yuYk1bEtMe4DxJ2CF/qsRgmEnDr7MnW1mxylBaHTZ4qErA==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.extensibility.execution",
+      "version": "2.9.3",
+      "lockedContentHash": "yMb6vMESlSrE3Wfj7V6cjQ3S4TXdXpRqYeNEI3zsX31uTsGMJjEw6oD5F5u1cHnMptjhEECnmZSsPxB6ChZHDQ==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit.runner.visualstudio",
+      "version": "3.1.4",
+      "lockedContentHash": "5mj99LvCqrq3CNi06xYdyIAXOEh+5b33F2nErCzI5zWiDdLHXiPXEWFSUAF8zlIv0ZWqjZNCwHTQeAPYbF3pCg==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "xunit",
+      "version": "2.9.3",
+      "lockedContentHash": "TlXQBinK35LpOPKHAqbLY4xlEen9TBafjs0V5KnA4wZsoQLQJiirCR4CbIXvOH8NzkW4YeJKP5P/Bnrodm0h9Q==",
+      "projects": [
+        "benchmarks/GraphBridge.Benchmarks.Tests",
+        "tests/GraphBridge.EnterpriseIntegrationTests",
+        "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": null,
+      "authors": "jnewkirk,bradwilson",
+      "copyright": "Copyright (C) .NET Foundation",
+      "noticeAssets": []
+    },
+    {
+      "id": "YamlDotNet",
+      "version": "18.1.0",
+      "lockedContentHash": "5K+9KFg2TdTl7VXv88Qzi/0lqK6JFoNP3lRuImPYGRV7K/QYklDyTrj4+A+KAki1JsQi6qKY+hDyY7d6WRqjrw==",
+      "projects": [
+        "samples/04-DesignTime/DesignTime.App",
+        "samples/05-FluentCypher",
+        "src/GraphBridge.Tool",
+        "src/GraphBridge.Tooling",
+        "tests/GraphBridge.QueryLab.Tests/Export",
+        "tests/GraphBridge.Tooling.IntegrationTests",
+        "tests/GraphBridge.ToolingTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/aaubry/YamlDotNet/wiki",
+      "authors": "Antoine Aubry",
+      "copyright": "Copyright (c) Antoine Aubry and contributors",
+      "noticeAssets": []
+    }
+  ]
+}

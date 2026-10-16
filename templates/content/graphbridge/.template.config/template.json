@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "GraphBridge contributors",
+  "classifications": ["Console", "EF Core", "Neo4j"],
+  "identity": "GraphBridge.Starter.CSharp",
+  "name": "GraphBridge preview starter",
+  "shortName": "graphbridge",
+  "sourceName": "GraphBridgeStarter",
+  "preferNameDirectory": true,
+  "tags": { "language": "C#", "type": "solution" },
+  "symbols": {
+    "provider-version": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Exact GraphBridge.EntityFrameworkCore version available in your local/private feed.",
+      "replaces": "0.0.0-provider-version-required"
+    }
+  }
+}

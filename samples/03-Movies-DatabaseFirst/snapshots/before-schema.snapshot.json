@@ -1,0 +1,153 @@
+{
+  "formatVersion": 1,
+  "capabilities": {
+    "serverVersion": "2026.09.0",
+    "edition": "community",
+    "advertisedCypherVersions": [
+      "25",
+      "5"
+    ]
+  },
+  "schema": {
+    "constraints": [],
+    "indexes": [],
+    "graphTypeSpecification": null
+  },
+  "labels": [
+    "GraphBridgeMoviesMovie",
+    "GraphBridgeMoviesPerson"
+  ],
+  "relationshipTypes": [
+    "GRAPHBRIDGE_MOVIES_ACTED_IN",
+    "GRAPHBRIDGE_MOVIES_DIRECTED"
+  ],
+  "nodes": [
+    {
+      "labels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "movieId": "String",
+        "released": "Integer",
+        "tagline": "String",
+        "title": "String"
+      }
+    },
+    {
+      "labels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "movieId": "String",
+        "released": "Integer",
+        "title": "String"
+      }
+    },
+    {
+      "labels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "properties": {
+        "born": "Integer",
+        "name": "String",
+        "personId": "String"
+      }
+    },
+    {
+      "labels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "properties": {
+        "born": "Integer",
+        "name": "String",
+        "personId": "String"
+      }
+    },
+    {
+      "labels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "properties": {
+        "name": "String",
+        "personId": "String"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_ACTED_IN",
+      "sourceLabels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "targetLabels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "actingCreditId": "String",
+        "billingOrder": "Integer",
+        "roles": "StringList"
+      },
+      "observedParallel": false
+    },
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_ACTED_IN",
+      "sourceLabels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "targetLabels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "actingCreditId": "String",
+        "billingOrder": "Integer",
+        "roles": "StringList"
+      },
+      "observedParallel": false
+    },
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_ACTED_IN",
+      "sourceLabels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "targetLabels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "actingCreditId": "String",
+        "billingOrder": "Integer",
+        "roles": "StringList"
+      },
+      "observedParallel": true
+    },
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_ACTED_IN",
+      "sourceLabels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "targetLabels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "actingCreditId": "String",
+        "billingOrder": "Integer",
+        "roles": "StringList"
+      },
+      "observedParallel": true
+    },
+    {
+      "relationshipType": "GRAPHBRIDGE_MOVIES_DIRECTED",
+      "sourceLabels": [
+        "GraphBridgeMoviesPerson"
+      ],
+      "targetLabels": [
+        "GraphBridgeMoviesMovie"
+      ],
+      "properties": {
+        "creditNote": "String",
+        "directingCreditId": "String"
+      },
+      "observedParallel": false
+    }
+  ],
+  "sampleLimit": 32
+}

@@ -1,0 +1,35 @@
+title = "GraphBridge: default detection with reviewed exact false positives"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Ordinary mapping prose: missing/incompatible keys"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^missing/incompatible$''']
+paths = ['''(^|/)docs/adr/ADR-0022\.md$''', '''(^|/)docs/architecture/adr/ADR-0022\.md$''']
+
+[[rules.allowlists]]
+description = "Ordinary EF model-shape prose"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^owned/complex/inherited$''']
+paths = ['''(^|/)docs/EF_CONFORMANCE_MATRIX\.md$''', '''(^|/)docs/verification/EF_CONFORMANCE_MATRIX\.md$''', '''(^|/)tests/verification/EF_CONFORMANCE_MATRIX\.md$''']
+
+[[rules.allowlists]]
+description = "User-authored strategy prose about dependency review, including its generated dashboard copy"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^vulnerability/dependency$''']
+paths = ['''(^|/)design/features/GraphBridge_Feature_Strategy_(Interactive_v01|QuickWins_v02)\.html$''', '''(^|/)design/features/GraphBridge_Implementation_Progress\.html$''']
+
+[[rules.allowlists]]
+description = "Deliberately noncanonical synthetic GUID in graph identity regression"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^ABCDEF00-1234-5678-90AB-CDEF00123456$''']
+paths = ['''(^|/)tests/GraphBridge\.IntegrationTests/ProviderIdentifiedEdgeQueryTests\.cs$''']

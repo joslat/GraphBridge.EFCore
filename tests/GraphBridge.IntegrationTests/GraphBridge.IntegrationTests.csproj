@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Shared/BoltBoundaryReader.cs" Link="Testing/BoltBoundaryReader.cs" />
+    <Compile Include="../../samples/05-FluentCypher/FluentMovieQueries.cs" Link="Samples/FluentMovieQueries.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../samples/01-Blogging-CodeFirst/Blogging.App/Blogging.App.csproj" />
+    <ProjectReference Include="../../samples/02-Organization-OntologyFirst/Organization.App/Organization.App.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

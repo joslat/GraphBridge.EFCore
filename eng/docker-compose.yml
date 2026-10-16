@@ -1,0 +1,26 @@
+name: ${GRAPHBRIDGE_COMPOSE_PROJECT:?Generate a fixture project with Start-Neo4jFixture.ps1}
+services:
+  neo4j:
+    image: neo4j:2026.09.0-community@sha256:6f3f17e72d69bb6f26b03f6186f5afb15a201f8b460bb69b0cd8030717f9f01a
+    labels:
+      org.graphbridge.disposable: "true"
+    ports:
+      - "127.0.0.1:17687:7687"
+      - "127.0.0.1:17474:7474"
+    environment:
+      NEO4J_AUTH: "neo4j/${GRAPHBRIDGE_NEO4J_PASSWORD:?Generate fixture credentials with Start-Neo4jFixture.ps1}"
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    tmpfs:
+      - /data:uid=7474,gid=7474,mode=0700
+      - /logs:uid=7474,gid=7474,mode=0700
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$${NEO4J_AUTH#*/}\" 'RETURN 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
+    restart: "no"
+    mem_limit: 1536m
+    cpus: 1.0

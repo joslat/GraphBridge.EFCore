@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The same disposable fixture contract as the provider integration tests. -->
+    <Compile Include="../GraphBridge.IntegrationTests/DisposableNeo4jFixture.cs" Link="Testing/DisposableNeo4jFixture.cs" />
+    <Compile Include="../GraphBridge.IntegrationTests/Neo4jIntegrationFactAttribute.cs" Link="Testing/Neo4jIntegrationFactAttribute.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="../../workshop/GraphBridge.Workshop/GraphBridge.Workshop.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

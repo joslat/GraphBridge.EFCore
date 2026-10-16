@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400" role="img" aria-labelledby="t d">
+  <title id="t">GraphBridge</title>
+  <desc id="d">GraphBridge: a real EF Core provider for Neo4j. Entities become nodes, associations become native relationships, with no second ORM.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1424"/><stop offset="1" stop-color="#0a1a22"/></linearGradient>
+    <radialGradient id="glow" cx="0.78" cy="0.45" r="0.45"><stop offset="0" stop-color="#64e5ad" stop-opacity=".16"/><stop offset="1" stop-color="#64e5ad" stop-opacity="0"/></radialGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#27374d"/></pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64e5ad"/></marker>
+    <marker id="arrowb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#70d9fa"/></marker>
+    <marker id="arrowv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b6a3ff"/></marker>
+    <style>
+      .sans{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}
+      .mono{font-family:Consolas,"SFMono-Regular",Menlo,monospace}
+    </style>
+  </defs>
+  <rect x="0.5" y="0.5" width="1279" height="399" rx="22" fill="url(#bg)" stroke="#27374d"/>
+  <rect x="660" y="24" width="596" height="352" rx="18" fill="url(#dots)" opacity=".7"/>
+  <rect x="0" y="0" width="1280" height="400" rx="22" fill="url(#glow)"/>
+
+  <!-- wordmark -->
+  <g transform="translate(64 70)">
+    <g stroke="#70d9fa" stroke-width="2" fill="none"><path d="M6 6L30 30M30 6L6 30"/></g>
+    <circle cx="6" cy="6" r="5" fill="#64e5ad"/><circle cx="30" cy="6" r="5" fill="#b6a3ff"/><circle cx="6" cy="30" r="5" fill="#70d9fa"/><circle cx="30" cy="30" r="5" fill="#64e5ad"/>
+    <text x="48" y="29" class="sans" font-size="30" font-weight="700" fill="#e7effb">Graph<tspan fill="#64e5ad">Bridge</tspan></text>
+  </g>
+  <text x="64" y="160" class="sans" font-size="44" font-weight="800" fill="#e7effb">A graph database.</text>
+  <text x="64" y="214" class="sans" font-size="44" font-weight="800" fill="#64e5ad">No second ORM.</text>
+  <text x="64" y="262" class="sans" font-size="19" fill="#98a9bf">A real Entity Framework Core provider for Neo4j: entities become</text>
+  <text x="64" y="290" class="sans" font-size="19" fill="#98a9bf">nodes, associations become native relationships.</text>
+  <g class="sans" font-size="14" font-weight="600">
+    <rect x="64" y="318" width="118" height="32" rx="16" fill="#0f2a2a" stroke="#2c6b55"/><text x="123" y="339" text-anchor="middle" fill="#64e5ad">EF Core 10</text>
+    <rect x="192" y="318" width="166" height="32" rx="16" fill="#0f2233" stroke="#2b5872"/><text x="275" y="339" text-anchor="middle" fill="#70d9fa">Neo4j.Driver 6</text>
+    <rect x="368" y="318" width="190" height="32" rx="16" fill="#1d1a33" stroke="#4c4387"/><text x="463" y="339" text-anchor="middle" fill="#b6a3ff">Developer preview</text>
+  </g>
+
+  <!-- graph -->
+  <g class="sans">
+    <line x1="826" y1="150" x2="1066" y2="128" stroke="#70d9fa" stroke-width="2.5" marker-end="url(#arrowb)"/>
+    <rect x="896" y="114" width="104" height="26" rx="13" fill="#0f2233" stroke="#2b5872"/><text x="948" y="132" text-anchor="middle" class="mono" font-size="13" font-weight="700" fill="#70d9fa">ACTED_IN</text>
+    <path d="M830 196 C 900 280, 990 280, 1062 160" stroke="#64e5ad" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+    <rect x="904" y="250" width="134" height="26" rx="13" fill="#0f2a2a" stroke="#2c6b55"/><text x="971" y="268" text-anchor="middle" class="mono" font-size="13" font-weight="700" fill="#64e5ad">LIKES {stars}</text>
+    <line x1="1110" y1="176" x2="1110" y2="262" stroke="#b6a3ff" stroke-width="2.5" marker-end="url(#arrowv)"/>
+    <rect x="1124" y="206" width="118" height="26" rx="13" fill="#1d1a33" stroke="#4c4387"/><text x="1183" y="224" text-anchor="middle" class="mono" font-size="13" font-weight="700" fill="#b6a3ff">HAS_REVIEW</text>
+
+    <circle cx="784" cy="170" r="52" fill="#0f2233" stroke="#70d9fa" stroke-width="2.5"/>
+    <text x="784" y="168" text-anchor="middle" font-size="20" font-weight="700" fill="#e7effb">Person</text>
+    <text x="784" y="190" text-anchor="middle" font-size="13" fill="#98a9bf">node</text>
+    <circle cx="1110" cy="128" r="48" fill="#1b1838" stroke="#b6a3ff" stroke-width="2.5"/>
+    <text x="1110" y="126" text-anchor="middle" font-size="20" font-weight="700" fill="#e7effb">Movie</text>
+    <text x="1110" y="148" text-anchor="middle" font-size="13" fill="#98a9bf">node</text>
+    <circle cx="1110" cy="306" r="42" fill="#0f2a2a" stroke="#64e5ad" stroke-width="2.5"/>
+    <text x="1110" y="304" text-anchor="middle" font-size="18" font-weight="700" fill="#e7effb">Review</text>
+    <text x="1110" y="325" text-anchor="middle" font-size="13" fill="#98a9bf">node</text>
+    <text x="672" y="372" font-size="13" fill="#697d95">EF tracks the entities · GraphBridge writes and validates the graph</text>
+  </g>
+</svg>

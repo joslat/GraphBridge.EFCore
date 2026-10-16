@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="App/GraphBridgeStarter.csproj" />
+  <Project Path="Tests/GraphBridgeStarter.Tests.csproj" />
+</Solution>

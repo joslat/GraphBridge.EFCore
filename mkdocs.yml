@@ -1,0 +1,95 @@
+# Documentation site for docs/. Build locally with eng/scripts/Build-DocsSite.ps1; publishing is a separate, manual step.
+site_name: GraphBridge
+site_url: https://joslat.github.io/GraphBridge.EFCore/
+site_description: A real Entity Framework Core provider for Neo4j, with native nodes and relationships and no second ORM.
+repo_url: https://github.com/joslat/GraphBridge.EFCore
+repo_name: joslat/GraphBridge.EFCore
+edit_uri: blob/main/docs/
+docs_dir: docs
+site_dir: .artifacts/docs-site
+# Pages keep their file names (GETTING_STARTED.html), so the visual introduction can link to them directly.
+use_directory_urls: false
+strict: true
+
+theme:
+  name: material
+  # System fonts: the site makes no third-party font requests.
+  font: false
+  logo: images/logo.svg
+  favicon: images/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: indigo
+      toggle: { icon: material/weather-night, name: Switch to dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: light blue
+      toggle: { icon: material/weather-sunny, name: Switch to light mode }
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+
+hooks:
+  - eng/docs-site/hooks.py
+
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+validation:
+  omitted_files: info
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Home: README.md
+  - What is GraphBridge: WHAT_IS_GRAPHBRIDGE.html
+  - Concepts: CONCEPTS.md
+  - Getting started: GETTING_STARTED.md
+  - Workshop: WORKSHOP.md
+  - Samples: SAMPLES.md
+  - Features:
+      - Mapping nodes: features/MAPPING_NODES.md
+      - References: features/REFERENCES.md
+      - Associations: features/ASSOCIATIONS.md
+      - Identified relationships: features/IDENTIFIED_RELATIONSHIPS.md
+      - LINQ queries: features/LINQ_QUERIES.md
+      - Native Cypher: features/NATIVE_CYPHER.md
+      - Fluent Cypher: features/FLUENT_CYPHER.md
+      - Bounded paths: features/BOUNDED_PATHS.md
+      - Graph search: features/GRAPH_SEARCH.md
+      - Bulk mutations: features/BULK_MUTATIONS.md
+      - Transactions and concurrency: features/TRANSACTIONS_AND_CONCURRENCY.md
+      - Nulls, types and time: features/NULLS_TYPES_AND_TIME.md
+      - Schema and migrations: features/SCHEMA_AND_MIGRATIONS.md
+      - Query inspection: features/QUERY_INSPECTION.md
+      - Command tracing: features/COMMAND_TRACING.md
+  - Tools:
+      - Doctor: tools/DOCTOR.md
+      - Verify: tools/VERIFY.md
+      - Query Lab: tools/QUERY_LAB.md
+      - Mapping generator: tools/MAPPING_GENERATOR.md
+      - GraphBridge.Tool: tools/GRAPHBRIDGE_TOOL.md
+      - Design-time commands: tools/DESIGN_TIME.md
+      - Project template: tools/TEMPLATE.md
+  - Reference:
+      - Compatibility: reference/COMPATIBILITY.md
+      - Known limitations: reference/KNOWN_LIMITATIONS.md
+      - Troubleshooting: reference/TROUBLESHOOTING.md
+      - Packages and components: reference/PACKAGES_AND_COMPONENTS.md
+  - Architecture:
+      - Overview: architecture/ARCHITECTURE.md
+      - Decision records: architecture/ARCHITECTURE_DECISIONS.md
+      - EF service map: architecture/EF_SERVICE_MAP.md

@@ -1,0 +1,298 @@
+{
+  "formatVersion": 1,
+  "tier": "v1",
+  "evidence": {
+    "formatVersion": 1,
+    "mode": "inspect",
+    "versions": {
+      "provider": "0.1.0-preview.1+bd9ec12506aa4481eae05b10170fcd0444300305",
+      "efCore": "10.0.12",
+      "driver": "6.3.0+f8a4020c589489a92c969856d6a624619080d276",
+      "tooling": "0.1.0-preview.1+bd9ec12506aa4481eae05b10170fcd0444300305"
+    },
+    "model": {
+      "fingerprint": "968b4f267d60aae5ba41ee3196b4d53c674c5838e8edd72dd1fac753923d793e",
+      "nodes": 2,
+      "relationships": 2
+    },
+    "database": {
+      "profileId": "sample.configured.v1",
+      "serverVersion": "2026.09.0",
+      "edition": "community",
+      "advertisedCypherVersions": [
+        "25",
+        "5"
+      ],
+      "nodeUniqueness": "supported",
+      "relationshipUniqueness": "supported",
+      "rangeIndexes": "supported",
+      "propertyExistence": "unsupported",
+      "propertyType": "unsupported",
+      "keyConstraints": "unsupported",
+      "graphTypeObserved": false,
+      "schemaStatus": "fail",
+      "findings": [
+        {
+          "code": "AdditionalIndex",
+          "category": "unmanaged-schema",
+          "status": "warn",
+          "count": 2
+        },
+        {
+          "code": "EndpointPairApplicationEnforced",
+          "category": "identity",
+          "status": "warn",
+          "count": 1
+        },
+        {
+          "code": "ManifestCaveat",
+          "category": "manifest",
+          "status": "warn",
+          "count": 2
+        },
+        {
+          "code": "MissingIdentityConstraint",
+          "category": "identity",
+          "status": "fail",
+          "count": 3
+        },
+        {
+          "code": "PropertyExistenceApplicationEnforced",
+          "category": "existence",
+          "status": "warn",
+          "count": 10
+        },
+        {
+          "code": "PropertyTypeApplicationEnforced",
+          "category": "property-type",
+          "status": "warn",
+          "count": 11
+        },
+        {
+          "code": "ProposalCapabilityUnavailable",
+          "category": "capability",
+          "status": "warn",
+          "count": 21
+        }
+      ],
+      "status": "fail"
+    },
+    "queries": [
+      {
+        "contractId": "movies.coactors.v1",
+        "statementFingerprint": "096687b155310fd6177c3bbf25651cd7d7ce8d92dfb78a5de0a312db57a5770f",
+        "sensitiveTextIncluded": false,
+        "parameterCount": 3,
+        "parameters": [
+          {
+            "position": 0,
+            "kind": "string"
+          },
+          {
+            "position": 1,
+            "kind": "string"
+          },
+          {
+            "position": 2,
+            "kind": "integer"
+          }
+        ],
+        "definition": {
+          "id": "movies.coactors.v1",
+          "kind": "fluent-cypher",
+          "description": "Distinct coactor names ordered by name; physical parallel credits must not duplicate names.",
+          "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#Coactors",
+          "columns": [
+            {
+              "name": "name",
+              "kind": "string",
+              "nullable": false
+            }
+          ],
+          "comparison": "ordered",
+          "duplicates": "eliminate",
+          "budget": {
+            "maxRows": 100,
+            "deadline": "00:00:10"
+          },
+          "requiredFeatures": [
+            "distinct",
+            "identified-relationships"
+          ],
+          "referenceId": "movies.coactors.native.v1",
+          "fixtureId": "movies.parallel-credits.v1"
+        },
+        "compilation": "pass",
+        "execution": "not-run"
+      },
+      {
+        "contractId": "movies.optional.v1",
+        "statementFingerprint": "4bf9db9b6b32ed5730ac2b8674145b78afe26d6901c7859774a2ea1ce4ea8850",
+        "sensitiveTextIncluded": false,
+        "parameterCount": 3,
+        "parameters": [
+          {
+            "position": 0,
+            "kind": "string"
+          },
+          {
+            "position": 1,
+            "kind": "integer"
+          },
+          {
+            "position": 2,
+            "kind": "integer"
+          }
+        ],
+        "definition": {
+          "id": "movies.optional.v1",
+          "kind": "fluent-cypher",
+          "description": "People with optional qualifying movies; preserve nulls and parallel credit rows. Name ordering leaves ties unspecified, so compare multisets.",
+          "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#OptionalMovies",
+          "columns": [
+            {
+              "name": "name",
+              "kind": "string",
+              "nullable": false
+            },
+            {
+              "name": "title",
+              "kind": "string",
+              "nullable": true
+            },
+            {
+              "name": "year",
+              "kind": "integer",
+              "nullable": true
+            }
+          ],
+          "comparison": "multiset",
+          "duplicates": "preserve",
+          "budget": {
+            "maxRows": 100,
+            "deadline": "00:00:10"
+          },
+          "requiredFeatures": [
+            "identified-relationships",
+            "optional-match"
+          ],
+          "referenceId": "movies.optional.native.v1",
+          "fixtureId": "movies.parallel-credits.v1"
+        },
+        "compilation": "pass",
+        "execution": "not-run"
+      },
+      {
+        "contractId": "movies.shared-movies.v1",
+        "statementFingerprint": "12f69892c86f512fc22d96a13529206676615a3e8fe8a05fb44f52c0a3b321e1",
+        "sensitiveTextIncluded": false,
+        "parameterCount": 4,
+        "parameters": [
+          {
+            "position": 0,
+            "kind": "string"
+          },
+          {
+            "position": 1,
+            "kind": "string"
+          },
+          {
+            "position": 2,
+            "kind": "integer"
+          },
+          {
+            "position": 3,
+            "kind": "integer"
+          }
+        ],
+        "definition": {
+          "id": "movies.shared-movies.v1",
+          "kind": "fluent-cypher",
+          "description": "Distinct shared movie count and physical match-row count, ordered by score descending then name.",
+          "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#SharedMovies",
+          "columns": [
+            {
+              "name": "name",
+              "kind": "string",
+              "nullable": false
+            },
+            {
+              "name": "score",
+              "kind": "integer",
+              "nullable": false
+            },
+            {
+              "name": "rows",
+              "kind": "integer",
+              "nullable": false
+            }
+          ],
+          "comparison": "ordered",
+          "duplicates": "preserve",
+          "budget": {
+            "maxRows": 100,
+            "deadline": "00:00:10"
+          },
+          "requiredFeatures": [
+            "aggregation",
+            "identified-relationships",
+            "with"
+          ],
+          "referenceId": "movies.shared-movies.native.v1",
+          "fixtureId": "movies.parallel-credits.v1"
+        },
+        "compilation": "pass",
+        "execution": "not-run"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "GBD-MODEL-000",
+        "status": "pass",
+        "severity": "information",
+        "phase": "model",
+        "component": "Finalized model",
+        "explanation": "The finalized model passed the selected graph mapping validation.",
+        "suggestedAction": "Review the supported mapping boundary; this result does not observe database state.",
+        "documentation": "https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/tools/MAPPING_GENERATOR.md"
+      },
+      {
+        "code": "GBD-SCHEMA-001",
+        "status": "fail",
+        "severity": "error",
+        "phase": "schema",
+        "component": "Schema inspection",
+        "explanation": "A required schema expectation is not satisfied by the observed profile.",
+        "suggestedAction": "Review the schema inspection details and explicitly provision the approved constraint or index; this tool performs no repair.",
+        "documentation": "https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/features/SCHEMA_AND_MIGRATIONS.md"
+      }
+    ],
+    "parameterValuesIncluded": false,
+    "sensitiveTextIncluded": false,
+    "databaseObservation": "fail",
+    "status": "fail"
+  },
+  "contracts": [
+    {
+      "contractId": "movies.coactors.v1",
+      "compilation": "pass",
+      "planning": "not-run",
+      "semantics": "not-run"
+    },
+    {
+      "contractId": "movies.optional.v1",
+      "compilation": "pass",
+      "planning": "not-run",
+      "semantics": "not-run"
+    },
+    {
+      "contractId": "movies.shared-movies.v1",
+      "compilation": "pass",
+      "planning": "not-run",
+      "semantics": "not-run"
+    }
+  ],
+  "requiredContractCount": 3,
+  "status": "fail",
+  "exitCode": 1
+}

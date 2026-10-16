@@ -1,0 +1,482 @@
+{
+  "formatVersion": 1,
+  "tier": "v1",
+  "evidence": {
+    "formatVersion": 1,
+    "mode": "inspect",
+    "versions": {
+      "provider": "0.1.0-preview.1+bd9ec12506aa4481eae05b10170fcd0444300305",
+      "efCore": "10.0.12",
+      "driver": "6.3.0+f8a4020c589489a92c969856d6a624619080d276",
+      "tooling": "0.1.0-preview.1+bd9ec12506aa4481eae05b10170fcd0444300305"
+    },
+    "model": {
+      "fingerprint": "968b4f267d60aae5ba41ee3196b4d53c674c5838e8edd72dd1fac753923d793e",
+      "nodes": 2,
+      "relationships": 2
+    },
+    "database": {
+      "profileId": "sample.configured.v1",
+      "serverVersion": "2026.09.0",
+      "edition": "community",
+      "advertisedCypherVersions": [
+        "25",
+        "5"
+      ],
+      "nodeUniqueness": "supported",
+      "relationshipUniqueness": "supported",
+      "rangeIndexes": "supported",
+      "propertyExistence": "unsupported",
+      "propertyType": "unsupported",
+      "keyConstraints": "unsupported",
+      "graphTypeObserved": false,
+      "schemaStatus": "warn",
+      "findings": [
+        {
+          "code": "AdditionalIndex",
+          "category": "unmanaged-schema",
+          "status": "warn",
+          "count": 2
+        },
+        {
+          "code": "EndpointPairApplicationEnforced",
+          "category": "identity",
+          "status": "warn",
+          "count": 1
+        },
+        {
+          "code": "IdentityConstraintPresent",
+          "category": "identity",
+          "status": "pass",
+          "count": 3
+        },
+        {
+          "code": "ManifestCaveat",
+          "category": "manifest",
+          "status": "warn",
+          "count": 2
+        },
+        {
+          "code": "PropertyExistenceApplicationEnforced",
+          "category": "existence",
+          "status": "warn",
+          "count": 10
+        },
+        {
+          "code": "PropertyTypeApplicationEnforced",
+          "category": "property-type",
+          "status": "warn",
+          "count": 11
+        },
+        {
+          "code": "ProposalCapabilityUnavailable",
+          "category": "capability",
+          "status": "warn",
+          "count": 21
+        }
+      ],
+      "status": "pass"
+    },
+    "queries": [
+      {
+        "contractId": "movies.coactors.v1",
+        "statementFingerprint": "096687b155310fd6177c3bbf25651cd7d7ce8d92dfb78a5de0a312db57a5770f",
+        "sensitiveTextIncluded": false,
+        "parameterCount": 3,
+        "parameters": [
+          {
+            "position": 0,
+            "kind": "string"
+          },
+          {
+            "position": 1,
+            "kind": "string"
+          },
+          {
+            "position": 2,
+            "kind": "integer"
+          }
+        ],
+        "definition": {
+          "id": "movies.coactors.v1",
+          "kind": "fluent-cypher",
+          "description": "Distinct coactor names ordered by name; physical parallel credits must not duplicate names.",
+          "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#Coactors",
+          "columns": [
+            {
+              "name": "name",
+              "kind": "string",
+              "nullable": false
+            }
+          ],
+          "comparison": "ordered",
+          "duplicates": "eliminate",
+          "budget": {
+            "maxRows": 100,
+            "deadline": "00:00:10"
+          },
+          "requiredFeatures": [
+            "distinct",
+            "identified-relationships"
+          ],
+          "referenceId": "movies.coactors.native.v1",
+          "fixtureId": "movies.parallel-credits.v1"
+        },
+        "compilation": "pass",
+        "execution": "not-run"
+      },
+      {
+        "contractId": "movies.optional.v1",
+        "statementFingerprint": "4bf9db9b6b32ed5730ac2b8674145b78afe26d6901c7859774a2ea1ce4ea8850",
+        "sensitiveTextIncluded": false,
+        "parameterCount": 3,
+        "parameters": [
+          {
+            "position": 0,
+            "kind": "string"
+          },
+          {
+            "position": 1,
+            "kind": "integer"
+          },
+          {
+            "position": 2,
+            "kind": "integer"
+          }
+        ],
+        "definition": {
+          "id": "movies.optional.v1",
+          "kind": "fluent-cypher",
+          "description": "People with optional qualifying movies; preserve nulls and parallel credit rows. Name ordering leaves ties unspecified, so compare multisets.",
+          "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#OptionalMovies",
+          "columns": [
+            {
+              "name": "name",
+              "kind": "string",
+              "nullable": false
+            },
+            {
+              "name": "title",
+              "kind": "string",
+              "nullable": true
+            },
+            {
+              "name": "year",
+              "kind": "integer",
+              "nullable": true
+            }
+          ],
+          "comparison": "multiset",
+          "duplicates": "preserve",
+          "budget": {
+            "maxRows": 100,
+            "deadline": "00:00:10"
+          },
+          "requiredFeatures": [
+            "identified-relationships",
+            "optional-match"
+          ],
+          "referenceId": "movies.optional.native.v1",
+          "fixtureId": "movies.parallel-credits.v1"
+        },
+        "compilation": "pass",
+        "execution": "not-run"
+      },
+      {
+        "contractId": "movies.shared-movies.v1",
+        "statementFingerprint": "12f69892c86f512fc22d96a13529206676615a3e8fe8a05fb44f52c0a3b321e1",
+        "sensitiveTextIncluded": false,
+        "parameterCount": 4,
+        "parameters": [
+          {
+            "position": 0,
+            "kind": "string"
+          },
+          {
+            "position": 1,
+            "kind": "string"
+          },
+          {
+            "position": 2,
+            "kind": "integer"
+          },
+          {
+            "position": 3,
+            "kind": "integer"
+          }
+        ],
+        "definition": {
+          "id": "movies.shared-movies.v1",
+          "kind": "fluent-cypher",
+          "description": "Distinct shared movie count and physical match-row count, ordered by score descending then name.",
+          "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#SharedMovies",
+          "columns": [
+            {
+              "name": "name",
+              "kind": "string",
+              "nullable": false
+            },
+            {
+              "name": "score",
+              "kind": "integer",
+              "nullable": false
+            },
+            {
+              "name": "rows",
+              "kind": "integer",
+              "nullable": false
+            }
+          ],
+          "comparison": "ordered",
+          "duplicates": "preserve",
+          "budget": {
+            "maxRows": 100,
+            "deadline": "00:00:10"
+          },
+          "requiredFeatures": [
+            "aggregation",
+            "identified-relationships",
+            "with"
+          ],
+          "referenceId": "movies.shared-movies.native.v1",
+          "fixtureId": "movies.parallel-credits.v1"
+        },
+        "compilation": "pass",
+        "execution": "not-run"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "GBD-MODEL-000",
+        "status": "pass",
+        "severity": "information",
+        "phase": "model",
+        "component": "Finalized model",
+        "explanation": "The finalized model passed the selected graph mapping validation.",
+        "suggestedAction": "Review the supported mapping boundary; this result does not observe database state.",
+        "documentation": "https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/tools/MAPPING_GENERATOR.md"
+      },
+      {
+        "code": "GBD-SCHEMA-002",
+        "status": "pass",
+        "severity": "warning",
+        "phase": "schema",
+        "component": "Schema inspection",
+        "explanation": "Required schema expectations pass, with warnings requiring manual review.",
+        "suggestedAction": "Review the summarized warning codes, including application-enforced properties, optional indexes and unmanaged schema. No changes were applied.",
+        "documentation": "https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/features/SCHEMA_AND_MIGRATIONS.md"
+      }
+    ],
+    "parameterValuesIncluded": false,
+    "sensitiveTextIncluded": false,
+    "databaseObservation": "pass",
+    "status": "pass"
+  },
+  "contracts": [
+    {
+      "contractId": "movies.coactors.v1",
+      "compilation": "pass",
+      "planning": "pass",
+      "semantics": "not-run",
+      "plan": {
+        "statementFingerprint": "096687b155310fd6177c3bbf25651cd7d7ce8d92dfb78a5de0a312db57a5770f",
+        "shapeFingerprint": "5b3a1910017df21ce70dd25cb145f76a184859118aa8dd997ba77a649541b5d7",
+        "operators": [
+          {
+            "index": 0,
+            "operator": "ProduceResults"
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "operator": "Top"
+          },
+          {
+            "index": 2,
+            "parent": 1,
+            "operator": "Distinct"
+          },
+          {
+            "index": 3,
+            "parent": 2,
+            "operator": "Filter"
+          },
+          {
+            "index": 4,
+            "parent": 3,
+            "operator": "Expand(All)"
+          },
+          {
+            "index": 5,
+            "parent": 4,
+            "operator": "Filter"
+          },
+          {
+            "index": 6,
+            "parent": 5,
+            "operator": "Expand(All)"
+          },
+          {
+            "index": 7,
+            "parent": 6,
+            "operator": "NodeIndexScan"
+          }
+        ],
+        "argumentsIncluded": false,
+        "identifiersIncluded": false,
+        "hasRedactedOperators": false
+      }
+    },
+    {
+      "contractId": "movies.optional.v1",
+      "compilation": "pass",
+      "planning": "pass",
+      "semantics": "not-run",
+      "plan": {
+        "statementFingerprint": "4bf9db9b6b32ed5730ac2b8674145b78afe26d6901c7859774a2ea1ce4ea8850",
+        "shapeFingerprint": "c5873d2f30863b38ebb881ec7a6ba5cbb87238e807c98343ca0f6fea074bed8d",
+        "operators": [
+          {
+            "index": 0,
+            "operator": "ProduceResults"
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "operator": "Projection"
+          },
+          {
+            "index": 2,
+            "parent": 1,
+            "operator": "Top"
+          },
+          {
+            "index": 3,
+            "parent": 2,
+            "operator": "Projection"
+          },
+          {
+            "index": 4,
+            "parent": 3,
+            "operator": "Apply"
+          },
+          {
+            "index": 5,
+            "parent": 4,
+            "operator": "Filter"
+          },
+          {
+            "index": 6,
+            "parent": 5,
+            "operator": "NodeByLabelScan"
+          },
+          {
+            "index": 7,
+            "parent": 4,
+            "operator": "Optional"
+          },
+          {
+            "index": 8,
+            "parent": 7,
+            "operator": "CacheProperties"
+          },
+          {
+            "index": 9,
+            "parent": 8,
+            "operator": "Filter"
+          },
+          {
+            "index": 10,
+            "parent": 9,
+            "operator": "Expand(All)"
+          },
+          {
+            "index": 11,
+            "parent": 10,
+            "operator": "Filter"
+          },
+          {
+            "index": 12,
+            "parent": 11,
+            "operator": "Argument"
+          }
+        ],
+        "argumentsIncluded": false,
+        "identifiersIncluded": false,
+        "hasRedactedOperators": false
+      }
+    },
+    {
+      "contractId": "movies.shared-movies.v1",
+      "compilation": "pass",
+      "planning": "pass",
+      "semantics": "not-run",
+      "plan": {
+        "statementFingerprint": "12f69892c86f512fc22d96a13529206676615a3e8fe8a05fb44f52c0a3b321e1",
+        "shapeFingerprint": "f40b2856d0f48a0027fd5579dcb0783b626d0592aa671d4ed120146bd80add80",
+        "operators": [
+          {
+            "index": 0,
+            "operator": "ProduceResults"
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "operator": "Projection"
+          },
+          {
+            "index": 2,
+            "parent": 1,
+            "operator": "Top"
+          },
+          {
+            "index": 3,
+            "parent": 2,
+            "operator": "Projection"
+          },
+          {
+            "index": 4,
+            "parent": 3,
+            "operator": "Filter"
+          },
+          {
+            "index": 5,
+            "parent": 4,
+            "operator": "EagerAggregation"
+          },
+          {
+            "index": 6,
+            "parent": 5,
+            "operator": "Filter"
+          },
+          {
+            "index": 7,
+            "parent": 6,
+            "operator": "Expand(All)"
+          },
+          {
+            "index": 8,
+            "parent": 7,
+            "operator": "Filter"
+          },
+          {
+            "index": 9,
+            "parent": 8,
+            "operator": "Expand(All)"
+          },
+          {
+            "index": 10,
+            "parent": 9,
+            "operator": "NodeIndexScan"
+          }
+        ],
+        "argumentsIncluded": false,
+        "identifiersIncluded": false,
+        "hasRedactedOperators": false
+      }
+    }
+  ],
+  "requiredContractCount": 3,
+  "status": "pass",
+  "exitCode": 0
+}

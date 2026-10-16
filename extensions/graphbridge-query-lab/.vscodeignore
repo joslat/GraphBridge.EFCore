@@ -1,0 +1,8 @@
+**/*
+!dist/**
+!package.json
+!README.md
+!HOST_PROTOCOL.md
+!LICENSE
+!NOTICE
+!THIRD_PARTY_NOTICES.md

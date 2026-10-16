@@ -1,0 +1,88 @@
+contractVersion: 1
+namespace: GraphBridge.Samples.Organization
+contextName: OrganizationContext
+entities:
+  ex:Person:
+    clrType: Person
+    storage: node
+    label: OrganizationSamplePerson
+    deletion: restrict
+    keyProperties: [Id]
+    properties:
+      Id:
+        storeName: id
+        type: guid
+        required: true
+        conversion: guid-string
+      Name:
+        iri: ex:personName
+        storeName: name
+        type: string
+        required: true
+        conversion: native
+  ex:Organization:
+    clrType: Organization
+    storage: node
+    label: OrganizationSampleOrganization
+    deletion: restrict
+    keyProperties: [Id]
+    properties:
+      Id:
+        storeName: id
+        type: guid
+        required: true
+        conversion: guid-string
+      Name:
+        iri: ex:organizationName
+        storeName: name
+        type: string
+        required: true
+        conversion: native
+relationships:
+  ex:worksFor:
+    clrType: Employment
+    storage: identified-edge
+    relationshipType: ORGANIZATION_SAMPLE_WORKS_FOR
+    direction: outgoing
+    keyProperty: EmploymentId
+    source:
+      entity: ex:Person
+      navigation: Person
+      foreignKeyProperties: [PersonId]
+      deletion: restrict
+    target:
+      entity: ex:Organization
+      navigation: Organization
+      foreignKeyProperties: [OrganizationId]
+      deletion: restrict
+    properties:
+      EmploymentId:
+        storeName: employmentId
+        type: guid
+        required: true
+        conversion: guid-string
+      PersonId:
+        storeName: personId
+        type: guid
+        required: true
+        conversion: guid-string
+      OrganizationId:
+        storeName: organizationId
+        type: guid
+        required: true
+        conversion: guid-string
+      Role:
+        storeName: role
+        type: string
+        required: true
+        conversion: native
+      ValidFrom:
+        storeName: validFrom
+        type: date-only
+        required: true
+        conversion: date-only-iso-string
+      ValidTo:
+        storeName: validTo
+        type: date-only
+        required: false
+        conversion: date-only-iso-string

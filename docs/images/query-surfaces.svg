@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400" role="img" aria-labelledby="t d">
+  <title id="t">Choosing a query level</title>
+  <desc id="d">Four levels for reading data, from EF Core LINQ with C# semantics and tracked entities, through Fluent Cypher with C# lambdas and with explicit native methods, to native Cypher text. Start at the highest level that can express the question; each refusal names the next level down.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1424"/><stop offset="1" stop-color="#0c1726"/></linearGradient>
+    <linearGradient id="ramp" gradientUnits="userSpaceOnUse" x1="60" y1="0" x2="1212" y2="0"><stop offset="0" stop-color="#70d9fa"/><stop offset=".5" stop-color="#b6a3ff"/><stop offset="1" stop-color="#64e5ad"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64e5ad"/></marker>
+    <style>
+      .sans{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}
+      .mono{font-family:Consolas,"SFMono-Regular",Menlo,monospace}
+      .card{fill:#0f1929;stroke:#27374d}
+      .n{font-size:30px;font-weight:800}
+      .h{font-size:19px;font-weight:700;fill:#e7effb}
+      .p{font-size:13.5px;fill:#98a9bf}
+      .code{font-size:12.5px;fill:#cfe3f5}
+      .lbl{font-size:11px;font-weight:700;letter-spacing:1.3px}
+    </style>
+  </defs>
+  <rect x="0.5" y="0.5" width="1279" height="399" rx="22" fill="url(#bg)" stroke="#27374d"/>
+  <text x="40" y="52" class="sans" font-size="13" font-weight="700" letter-spacing="2" fill="#64e5ad">CHOOSING A LEVEL</text>
+  <text x="40" y="84" class="sans" font-size="24" font-weight="800" fill="#e7effb">Start at the highest level that can express the question</text>
+
+  <g class="sans">
+    <!-- level cards -->
+    <g transform="translate(40 112)">
+      <rect class="card" width="284" height="220" rx="16"/>
+      <text x="20" y="44" class="n" fill="#70d9fa">1</text>
+      <text x="50" y="42" class="h">EF Core LINQ</text>
+      <text x="20" y="72" class="lbl" fill="#70d9fa">C# MEANING · TRACKED ENTITIES</text>
+      <rect x="20" y="88" width="244" height="54" rx="8" fill="#0a1220" stroke="#1f2e43"/>
+      <text x="32" y="111" class="mono code">db.People</text>
+      <text x="32" y="130" class="mono code">  .Where(p =&gt; p.Name == name)</text>
+      <text x="20" y="170" class="p">Entities you track and save;</text>
+      <text x="20" y="189" class="p">EF's null comparisons.</text>
+    </g>
+    <g transform="translate(344 112)">
+      <rect class="card" width="284" height="220" rx="16"/>
+      <text x="20" y="44" class="n" fill="#9fbdf8">2</text>
+      <text x="50" y="42" class="h">Fluent · C# lambdas</text>
+      <text x="20" y="72" class="lbl" fill="#9fbdf8">C# MEANING · GRAPH PATTERNS</text>
+      <rect x="20" y="88" width="244" height="54" rx="8" fill="#0a1220" stroke="#1f2e43"/>
+      <text x="32" y="111" class="mono code">.Match(a.Out&lt;Credit&gt;(m))</text>
+      <text x="32" y="130" class="mono code">.Where(() =&gt; a.Value.Name == n)</text>
+      <text x="20" y="170" class="p">Refused where native Cypher</text>
+      <text x="20" y="189" class="p">would return different rows.</text>
+    </g>
+    <g transform="translate(648 112)">
+      <rect class="card" width="284" height="220" rx="16"/>
+      <text x="20" y="44" class="n" fill="#b6a3ff">3</text>
+      <text x="50" y="42" class="h">Fluent · explicit methods</text>
+      <text x="20" y="72" class="lbl" fill="#b6a3ff">NATIVE MEANING, STATED</text>
+      <rect x="20" y="88" width="244" height="54" rx="8" fill="#0a1220" stroke="#1f2e43"/>
+      <text x="32" y="111" class="mono code">.Where(a.Property(p =&gt; p.Nickname)</text>
+      <text x="32" y="130" class="mono code">  .Ne("Bob"))</text>
+      <text x="20" y="170" class="p">What lambdas refuse; mix both</text>
+      <text x="20" y="189" class="p">levels with Graph.Is(…).</text>
+    </g>
+    <g transform="translate(952 112)">
+      <rect class="card" width="288" height="220" rx="16"/>
+      <text x="20" y="44" class="n" fill="#64e5ad">4</text>
+      <text x="50" y="42" class="h">Native Cypher</text>
+      <text x="20" y="72" class="lbl" fill="#64e5ad">EXACTLY WHAT YOU WRITE</text>
+      <rect x="20" y="88" width="248" height="54" rx="8" fill="#0a1220" stroke="#1f2e43"/>
+      <text x="32" y="111" class="mono code">db.Database</text>
+      <text x="32" y="130" class="mono code">  .QueryCypherAsync(text, …)</text>
+      <text x="20" y="170" class="p">Anything else, with parameters</text>
+      <text x="20" y="189" class="p">and your own projector.</text>
+    </g>
+    <!-- ramp -->
+    <line x1="60" y1="362" x2="1212" y2="362" stroke="url(#ramp)" stroke-width="3" marker-end="url(#ar)"/>
+    <text x="60" y="388" class="p" font-size="13">Most familiar</text>
+    <text x="640" y="388" text-anchor="middle" class="p" font-size="13">Every refusal names its alternative, usually the next level</text>
+    <text x="1220" y="388" text-anchor="end" class="p" font-size="13">Most expressive</text>
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+{
+  "formatVersion": 1,
+  "namespace": "GraphBridge.Samples.Movies.ReadOnly",
+  "contextName": "MoviesReadOnlyContext",
+  "nodes": [],
+  "relationships": []
+}

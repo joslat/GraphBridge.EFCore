@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 396" width="1280" height="396" role="img" aria-labelledby="t d">
+  <title id="t">Four storage forms</title>
+  <desc id="d">How EF concepts map to the graph: an entity becomes a node; a one-to-many reference becomes a parent-to-child relationship; a many-to-many join entity becomes one relationship per pair; a relationship entity with its own key becomes an identified relationship that allows parallel relationships.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1424"/><stop offset="1" stop-color="#0c1726"/></linearGradient>
+    <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64e5ad"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#70d9fa"/></marker>
+    <marker id="av" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b6a3ff"/></marker>
+    <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffc17d"/></marker>
+    <style>
+      .sans{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}
+      .mono{font-family:Consolas,"SFMono-Regular",Menlo,monospace}
+      .card{fill:#0f1929;stroke:#27374d}
+      .k{font-size:12px;font-weight:700;letter-spacing:1.4px}
+      .h{font-size:21px;font-weight:700;fill:#e7effb}
+      .p{font-size:14px;fill:#98a9bf}
+      .node{font-size:13px;font-weight:700;fill:#e7effb}
+      .rel{font-size:11px;font-weight:700}
+      .api{font-size:13px}
+    </style>
+  </defs>
+  <rect x="0.5" y="0.5" width="1279" height="395" rx="22" fill="url(#bg)" stroke="#27374d"/>
+  <text x="40" y="52" class="sans" font-size="13" font-weight="700" letter-spacing="2" fill="#64e5ad">FOUR STORAGE FORMS</text>
+  <text x="40" y="84" class="sans" font-size="24" font-weight="800" fill="#e7effb">Every EF concept has a native graph shape</text>
+
+  <!-- 1 node -->
+  <g class="sans" transform="translate(40 110)">
+    <rect class="card" width="284" height="256" rx="16"/>
+    <text x="20" y="32" class="k" fill="#70d9fa">ENTITY</text>
+    <text x="20" y="62" class="h">Node</text>
+    <circle cx="142" cy="122" r="36" fill="#0f2233" stroke="#70d9fa" stroke-width="2"/>
+    <text x="142" y="119" text-anchor="middle" class="node">:Person</text>
+    <text x="142" y="137" text-anchor="middle" class="mono" font-size="11" fill="#98a9bf">{id, name}</text>
+    <text x="20" y="192" class="mono api" fill="#70d9fa">ToGraphNode("Person")</text>
+    <text x="20" y="216" class="p">A label, an application key and</text>
+    <text x="20" y="234" class="p">mapped properties.</text>
+  </g>
+
+  <!-- 2 reference -->
+  <g class="sans" transform="translate(344 110)">
+    <rect class="card" width="284" height="256" rx="16"/>
+    <text x="20" y="32" class="k" fill="#64e5ad">ONE-TO-MANY REFERENCE</text>
+    <text x="20" y="62" class="h">Native reference</text>
+    <circle cx="60" cy="122" r="30" fill="#1b1838" stroke="#b6a3ff" stroke-width="2"/><text x="60" y="127" text-anchor="middle" class="node">Movie</text>
+    <circle cx="224" cy="122" r="30" fill="#0f2a2a" stroke="#64e5ad" stroke-width="2"/><text x="224" y="127" text-anchor="middle" class="node">Review</text>
+    <line x1="92" y1="122" x2="190" y2="122" stroke="#64e5ad" stroke-width="2" marker-end="url(#am)"/>
+    <text x="141" y="112" text-anchor="middle" class="mono rel" fill="#64e5ad">HAS_REVIEW</text>
+    <text x="20" y="192" class="mono api" fill="#64e5ad">ToGraphReference("HAS_REVIEW")</text>
+    <text x="20" y="216" class="p">Parent to child, required or optional;</text>
+    <text x="20" y="234" class="p">no foreign key stored on the child.</text>
+  </g>
+
+  <!-- 3 association -->
+  <g class="sans" transform="translate(648 110)">
+    <rect class="card" width="284" height="256" rx="16"/>
+    <text x="20" y="32" class="k" fill="#b6a3ff">MANY-TO-MANY JOIN ENTITY</text>
+    <text x="20" y="62" class="h">Association</text>
+    <circle cx="60" cy="122" r="30" fill="#0f2233" stroke="#70d9fa" stroke-width="2"/><text x="60" y="127" text-anchor="middle" class="node">Person</text>
+    <circle cx="224" cy="122" r="30" fill="#1b1838" stroke="#b6a3ff" stroke-width="2"/><text x="224" y="127" text-anchor="middle" class="node">Movie</text>
+    <line x1="92" y1="122" x2="190" y2="122" stroke="#b6a3ff" stroke-width="2" marker-end="url(#av)"/>
+    <text x="141" y="112" text-anchor="middle" class="mono rel" fill="#b6a3ff">LIKES {stars}</text>
+    <text x="20" y="192" class="mono api" fill="#b6a3ff">ToGraphRelationship("LIKES", …)</text>
+    <text x="20" y="216" class="p">One relationship per pair, with</text>
+    <text x="20" y="234" class="p">payload and skip navigations.</text>
+  </g>
+
+  <!-- 4 identified -->
+  <g class="sans" transform="translate(952 110)">
+    <rect class="card" width="288" height="256" rx="16"/>
+    <text x="20" y="32" class="k" fill="#ffc17d">RELATIONSHIP WITH ITS OWN KEY</text>
+    <text x="20" y="62" class="h">Identified relationship</text>
+    <circle cx="60" cy="122" r="30" fill="#0f2233" stroke="#70d9fa" stroke-width="2"/><text x="60" y="127" text-anchor="middle" class="node">Person</text>
+    <circle cx="228" cy="122" r="30" fill="#1b1838" stroke="#b6a3ff" stroke-width="2"/><text x="228" y="127" text-anchor="middle" class="node">Movie</text>
+    <path d="M90 112 Q 144 90 194 112" stroke="#ffc17d" stroke-width="2" fill="none" marker-end="url(#aa)"/>
+    <path d="M90 132 Q 144 154 194 132" stroke="#ffc17d" stroke-width="2" fill="none" marker-end="url(#aa)"/>
+    <text x="144" y="94" text-anchor="middle" class="mono rel" fill="#ffc17d">ACTED_IN {id: 1}</text>
+    <text x="144" y="166" text-anchor="middle" class="mono rel" fill="#ffc17d">ACTED_IN {id: 2}</text>
+    <text x="20" y="192" class="mono api" font-size="12" fill="#ffc17d">ToGraphIdentifiedRelationship(…)</text>
+    <text x="20" y="216" class="p">Its own key, so parallel</text>
+    <text x="20" y="234" class="p">relationships are allowed.</text>
+  </g>
+</svg>

@@ -1,0 +1,38 @@
+{
+  "name": "graphbridge-query-lab",
+  "displayName": "GraphBridge Query Lab",
+  "description": "Explore captured GraphBridge query, Doctor and Verify evidence in VS Code.",
+  "version": "0.1.0",
+  "publisher": "joslat",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/joslat/GraphBridge.EFCore.git", "directory": "extensions/graphbridge-query-lab" },
+  "engines": { "vscode": "^1.106.0", "node": ">=22" },
+  "categories": ["Other"],
+  "main": "./dist/extension.cjs",
+  "capabilities": { "untrustedWorkspaces": { "supported": "limited", "description": "Saved evidence viewing works; application-host execution requires workspace trust." }, "virtualWorkspaces": false },
+  "contributes": {
+    "commands": [
+      { "command": "graphbridge.openEvidence", "title": "Open Saved Evidence", "category": "GraphBridge Query Lab", "icon": "$(graph)" },
+      { "command": "graphbridge.captureEvidence", "title": "Capture from Application Host", "category": "GraphBridge Query Lab", "enablement": "isWorkspaceTrusted" }
+    ],
+    "menus": {
+      "explorer/context": [
+        { "command": "graphbridge.openEvidence", "when": "resourceExtname == .json", "group": "navigation@90" }
+      ],
+      "editor/title": [
+        { "command": "graphbridge.openEvidence", "when": "resourceExtname == .json", "group": "navigation" }
+      ]
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "node build.mjs",
+    "vscode:prepublish": "npm run check && npm run build",
+    "package": "vsce package --no-dependencies"
+  },
+  "dependencies": { "react": "19.3.0", "react-dom": "19.3.0", "zod": "4.6.7" },
+  "devDependencies": {
+    "@types/node": "24.0.0", "@types/react": "19.3.0", "@types/react-dom": "19.3.0",
+    "@types/vscode": "1.106.1", "@vscode/vsce": "4.0.0", "esbuild": "0.28.2", "typescript": "7.0.2"
+  }
+}

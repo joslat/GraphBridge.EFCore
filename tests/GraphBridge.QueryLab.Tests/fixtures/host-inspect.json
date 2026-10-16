@@ -1,0 +1,824 @@
+{
+  "report": {
+    "formatVersion": 1,
+    "tier": "v1",
+    "evidence": {
+      "formatVersion": 1,
+      "mode": "inspect",
+      "versions": {
+        "provider": "0.1.0-preview.1+9626b36b3dac8d87f9892d6614b3117800937eca",
+        "efCore": "10.0.12",
+        "driver": "6.3.0+f8a4020c589489a92c969856d6a624619080d276",
+        "tooling": "0.1.0-preview.1+9626b36b3dac8d87f9892d6614b3117800937eca"
+      },
+      "model": {
+        "fingerprint": "968b4f267d60aae5ba41ee3196b4d53c674c5838e8edd72dd1fac753923d793e",
+        "nodes": 2,
+        "relationships": 2
+      },
+      "database": {
+        "profileId": "sample.configured.v1",
+        "serverVersion": "2026.09.0",
+        "edition": "community",
+        "schemaStatus": "warn",
+        "status": "pass",
+        "findings": [
+          {
+            "code": "AdditionalIndex",
+            "category": "unmanaged-schema",
+            "status": "warn",
+            "count": 2
+          },
+          {
+            "code": "EndpointPairApplicationEnforced",
+            "category": "identity",
+            "status": "warn",
+            "count": 1
+          },
+          {
+            "code": "IdentityConstraintPresent",
+            "category": "identity",
+            "status": "pass",
+            "count": 3
+          },
+          {
+            "code": "ManifestCaveat",
+            "category": "manifest",
+            "status": "warn",
+            "count": 2
+          },
+          {
+            "code": "PropertyExistenceApplicationEnforced",
+            "category": "existence",
+            "status": "warn",
+            "count": 10
+          },
+          {
+            "code": "PropertyTypeApplicationEnforced",
+            "category": "property-type",
+            "status": "warn",
+            "count": 11
+          },
+          {
+            "code": "ProposalCapabilityUnavailable",
+            "category": "capability",
+            "status": "warn",
+            "count": 21
+          }
+        ]
+      },
+      "queries": [
+        {
+          "contractId": "movies.coactors.v1",
+          "statementFingerprint": "096687b155310fd6177c3bbf25651cd7d7ce8d92dfb78a5de0a312db57a5770f",
+          "statement": "MATCH (n0:`FGQPerson`)-[r2:`FGQ_ACTED`]->(n1:`FGQMovie`)<-[r4:`FGQ_ACTED`]-(n3:`FGQPerson`)\nWHERE (((n0.`RunId` = $p0) AND (n0.`Name` = $p1)) AND (n3.`Id` <> n0.`Id`))\nRETURN DISTINCT n3.`Name` AS c0\nORDER BY c0 ASC\nLIMIT $p2",
+          "sensitiveTextIncluded": true,
+          "parameterCount": 3,
+          "parameters": [
+            {
+              "position": 0,
+              "kind": "string"
+            },
+            {
+              "position": 1,
+              "kind": "string"
+            },
+            {
+              "position": 2,
+              "kind": "integer"
+            }
+          ],
+          "definition": {
+            "id": "movies.coactors.v1",
+            "description": "Distinct coactor names ordered by name; physical parallel credits must not duplicate names.",
+            "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#Coactors",
+            "comparison": "ordered",
+            "duplicates": "eliminate",
+            "referenceId": "movies.coactors.native.v1",
+            "fixtureId": "movies.parallel-credits.v1"
+          },
+          "compilation": "pass",
+          "execution": "not-run",
+          "semantics": {
+            "formatVersion": 1,
+            "status": "complete",
+            "clauses": [
+              {
+                "kind": "match",
+                "firstLine": 1,
+                "lastLine": 2,
+                "distinct": false,
+                "hasPredicate": true,
+                "scopeBefore": [],
+                "scopeAfter": [
+                  "n0",
+                  "n1",
+                  "n3",
+                  "r2",
+                  "r4"
+                ],
+                "patterns": [
+                  {
+                    "nodes": [
+                      {
+                        "alias": "n0",
+                        "label": "FGQPerson"
+                      },
+                      {
+                        "alias": "n1",
+                        "label": "FGQMovie"
+                      },
+                      {
+                        "alias": "n3",
+                        "label": "FGQPerson"
+                      }
+                    ],
+                    "steps": [
+                      {
+                        "alias": "r2",
+                        "relationshipType": "FGQ_ACTED",
+                        "identified": true,
+                        "startAlias": "n0",
+                        "endAlias": "n1",
+                        "direction": "outgoing",
+                        "mappedSourceAlias": "n0",
+                        "mappedTargetAlias": "n1",
+                        "repeated": false
+                      },
+                      {
+                        "alias": "r4",
+                        "relationshipType": "FGQ_ACTED",
+                        "identified": true,
+                        "startAlias": "n1",
+                        "endAlias": "n3",
+                        "direction": "incoming",
+                        "mappedSourceAlias": "n3",
+                        "mappedTargetAlias": "n1",
+                        "repeated": false
+                      }
+                    ]
+                  }
+                ],
+                "aggregates": []
+              },
+              {
+                "kind": "return",
+                "firstLine": 3,
+                "lastLine": 3,
+                "distinct": true,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "n0",
+                  "n1",
+                  "n3",
+                  "r2",
+                  "r4"
+                ],
+                "scopeAfter": [
+                  "c0"
+                ],
+                "patterns": [],
+                "aggregates": []
+              },
+              {
+                "kind": "order-by",
+                "firstLine": 4,
+                "lastLine": 4,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "c0"
+                ],
+                "scopeAfter": [
+                  "c0"
+                ],
+                "patterns": [],
+                "aggregates": []
+              },
+              {
+                "kind": "limit",
+                "firstLine": 5,
+                "lastLine": 5,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "c0"
+                ],
+                "scopeAfter": [
+                  "c0"
+                ],
+                "patterns": [],
+                "aggregates": []
+              }
+            ]
+          }
+        },
+        {
+          "contractId": "movies.optional.v1",
+          "statementFingerprint": "4bf9db9b6b32ed5730ac2b8674145b78afe26d6901c7859774a2ea1ce4ea8850",
+          "statement": "MATCH (n0:`FGQPerson`)\nWHERE (n0.`RunId` = $p0)\nOPTIONAL MATCH (n0:`FGQPerson`)-[r2:`FGQ_ACTED`]->(n1:`FGQMovie`)\nWHERE (n1.`Year` > $p1)\nRETURN n0.`Name` AS c0, n1.`Title` AS c1, n1.`Year` AS c2\nORDER BY c0 ASC\nLIMIT $p2",
+          "sensitiveTextIncluded": true,
+          "parameterCount": 3,
+          "parameters": [
+            {
+              "position": 0,
+              "kind": "string"
+            },
+            {
+              "position": 1,
+              "kind": "integer"
+            },
+            {
+              "position": 2,
+              "kind": "integer"
+            }
+          ],
+          "definition": {
+            "id": "movies.optional.v1",
+            "description": "People with optional qualifying movies; preserve nulls and parallel credit rows. Name ordering leaves ties unspecified, so compare multisets.",
+            "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#OptionalMovies",
+            "comparison": "multiset",
+            "duplicates": "preserve",
+            "referenceId": "movies.optional.native.v1",
+            "fixtureId": "movies.parallel-credits.v1"
+          },
+          "compilation": "pass",
+          "execution": "not-run",
+          "semantics": {
+            "formatVersion": 1,
+            "status": "complete",
+            "clauses": [
+              {
+                "kind": "match",
+                "firstLine": 1,
+                "lastLine": 2,
+                "distinct": false,
+                "hasPredicate": true,
+                "scopeBefore": [],
+                "scopeAfter": [
+                  "n0"
+                ],
+                "patterns": [
+                  {
+                    "nodes": [
+                      {
+                        "alias": "n0",
+                        "label": "FGQPerson"
+                      }
+                    ],
+                    "steps": []
+                  }
+                ],
+                "aggregates": []
+              },
+              {
+                "kind": "optional-match",
+                "firstLine": 3,
+                "lastLine": 4,
+                "distinct": false,
+                "hasPredicate": true,
+                "scopeBefore": [
+                  "n0"
+                ],
+                "scopeAfter": [
+                  "n0",
+                  "n1",
+                  "r2"
+                ],
+                "patterns": [
+                  {
+                    "nodes": [
+                      {
+                        "alias": "n0",
+                        "label": "FGQPerson"
+                      },
+                      {
+                        "alias": "n1",
+                        "label": "FGQMovie"
+                      }
+                    ],
+                    "steps": [
+                      {
+                        "alias": "r2",
+                        "relationshipType": "FGQ_ACTED",
+                        "identified": true,
+                        "startAlias": "n0",
+                        "endAlias": "n1",
+                        "direction": "outgoing",
+                        "mappedSourceAlias": "n0",
+                        "mappedTargetAlias": "n1",
+                        "repeated": false
+                      }
+                    ]
+                  }
+                ],
+                "aggregates": []
+              },
+              {
+                "kind": "return",
+                "firstLine": 5,
+                "lastLine": 5,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "n0",
+                  "n1",
+                  "r2"
+                ],
+                "scopeAfter": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "patterns": [],
+                "aggregates": []
+              },
+              {
+                "kind": "order-by",
+                "firstLine": 6,
+                "lastLine": 6,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "scopeAfter": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "patterns": [],
+                "aggregates": []
+              },
+              {
+                "kind": "limit",
+                "firstLine": 7,
+                "lastLine": 7,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "scopeAfter": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "patterns": [],
+                "aggregates": []
+              }
+            ]
+          }
+        },
+        {
+          "contractId": "movies.shared-movies.v1",
+          "statementFingerprint": "12f69892c86f512fc22d96a13529206676615a3e8fe8a05fb44f52c0a3b321e1",
+          "statement": "MATCH (n0:`FGQPerson`)-[r2:`FGQ_ACTED`]->(n1:`FGQMovie`)<-[r4:`FGQ_ACTED`]-(n3:`FGQPerson`)\nWHERE (((n0.`RunId` = $p0) AND (n0.`Name` = $p1)) AND (n0.`Id` <> n3.`Id`))\nWITH n3, count(DISTINCT n1) AS v5, count(*) AS v6\nWHERE (v5 >= $p2)\nRETURN n3.`Name` AS c0, v5 AS c1, v6 AS c2\nORDER BY c1 DESC, c0 ASC\nLIMIT $p3",
+          "sensitiveTextIncluded": true,
+          "parameterCount": 4,
+          "parameters": [
+            {
+              "position": 0,
+              "kind": "string"
+            },
+            {
+              "position": 1,
+              "kind": "string"
+            },
+            {
+              "position": 2,
+              "kind": "integer"
+            },
+            {
+              "position": 3,
+              "kind": "integer"
+            }
+          ],
+          "definition": {
+            "id": "movies.shared-movies.v1",
+            "description": "Distinct shared movie count and physical match-row count, ordered by score descending then name.",
+            "sourceReference": "samples/05-FluentCypher/FluentMovieQueries.cs#SharedMovies",
+            "comparison": "ordered",
+            "duplicates": "preserve",
+            "referenceId": "movies.shared-movies.native.v1",
+            "fixtureId": "movies.parallel-credits.v1"
+          },
+          "compilation": "pass",
+          "execution": "not-run",
+          "semantics": {
+            "formatVersion": 1,
+            "status": "complete",
+            "clauses": [
+              {
+                "kind": "match",
+                "firstLine": 1,
+                "lastLine": 2,
+                "distinct": false,
+                "hasPredicate": true,
+                "scopeBefore": [],
+                "scopeAfter": [
+                  "n0",
+                  "n1",
+                  "n3",
+                  "r2",
+                  "r4"
+                ],
+                "patterns": [
+                  {
+                    "nodes": [
+                      {
+                        "alias": "n0",
+                        "label": "FGQPerson"
+                      },
+                      {
+                        "alias": "n1",
+                        "label": "FGQMovie"
+                      },
+                      {
+                        "alias": "n3",
+                        "label": "FGQPerson"
+                      }
+                    ],
+                    "steps": [
+                      {
+                        "alias": "r2",
+                        "relationshipType": "FGQ_ACTED",
+                        "identified": true,
+                        "startAlias": "n0",
+                        "endAlias": "n1",
+                        "direction": "outgoing",
+                        "mappedSourceAlias": "n0",
+                        "mappedTargetAlias": "n1",
+                        "repeated": false
+                      },
+                      {
+                        "alias": "r4",
+                        "relationshipType": "FGQ_ACTED",
+                        "identified": true,
+                        "startAlias": "n1",
+                        "endAlias": "n3",
+                        "direction": "incoming",
+                        "mappedSourceAlias": "n3",
+                        "mappedTargetAlias": "n1",
+                        "repeated": false
+                      }
+                    ]
+                  }
+                ],
+                "aggregates": []
+              },
+              {
+                "kind": "with",
+                "firstLine": 3,
+                "lastLine": 4,
+                "distinct": false,
+                "hasPredicate": true,
+                "scopeBefore": [
+                  "n0",
+                  "n1",
+                  "n3",
+                  "r2",
+                  "r4"
+                ],
+                "scopeAfter": [
+                  "n3",
+                  "v5",
+                  "v6"
+                ],
+                "patterns": [],
+                "aggregates": [
+                  {
+                    "alias": "v5",
+                    "expression": "count(DISTINCT n1)"
+                  },
+                  {
+                    "alias": "v6",
+                    "expression": "count(*)"
+                  }
+                ]
+              },
+              {
+                "kind": "return",
+                "firstLine": 5,
+                "lastLine": 5,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "n3",
+                  "v5",
+                  "v6"
+                ],
+                "scopeAfter": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "patterns": [],
+                "aggregates": []
+              },
+              {
+                "kind": "order-by",
+                "firstLine": 6,
+                "lastLine": 6,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "scopeAfter": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "patterns": [],
+                "aggregates": []
+              },
+              {
+                "kind": "limit",
+                "firstLine": 7,
+                "lastLine": 7,
+                "distinct": false,
+                "hasPredicate": false,
+                "scopeBefore": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "scopeAfter": [
+                  "c0",
+                  "c1",
+                  "c2"
+                ],
+                "patterns": [],
+                "aggregates": []
+              }
+            ]
+          }
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "GBD-MODEL-000",
+          "status": "pass",
+          "severity": "information",
+          "phase": "model",
+          "component": "Finalized model",
+          "explanation": "The finalized model passed the selected graph mapping validation.",
+          "suggestedAction": "Review the supported mapping boundary; this result does not observe database state.",
+          "documentation": "https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/tools/MAPPING_GENERATOR.md"
+        },
+        {
+          "code": "GBD-SCHEMA-002",
+          "status": "pass",
+          "severity": "warning",
+          "phase": "schema",
+          "component": "Schema inspection",
+          "explanation": "Required schema expectations pass, with warnings requiring manual review.",
+          "suggestedAction": "Review the summarized warning codes, including application-enforced properties, optional indexes and unmanaged schema. No changes were applied.",
+          "documentation": "https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/features/SCHEMA_AND_MIGRATIONS.md"
+        }
+      ],
+      "parameterValuesIncluded": false,
+      "sensitiveTextIncluded": true,
+      "databaseObservation": "pass",
+      "status": "pass"
+    },
+    "contracts": [
+      {
+        "contractId": "movies.coactors.v1",
+        "compilation": "pass",
+        "planning": "pass",
+        "semantics": "not-run",
+        "plan": {
+          "statementFingerprint": "096687b155310fd6177c3bbf25651cd7d7ce8d92dfb78a5de0a312db57a5770f",
+          "shapeFingerprint": "5f88aa866ef664a5caf69130f8b3afc9012669dbf80d0ccaf66da90fa7fdfc2c",
+          "operators": [
+            {
+              "index": 0,
+              "operator": "ProduceResults"
+            },
+            {
+              "index": 1,
+              "parent": 0,
+              "operator": "Top"
+            },
+            {
+              "index": 2,
+              "parent": 1,
+              "operator": "Distinct"
+            },
+            {
+              "index": 3,
+              "parent": 2,
+              "operator": "Filter"
+            },
+            {
+              "index": 4,
+              "parent": 3,
+              "operator": "Expand(All)"
+            },
+            {
+              "index": 5,
+              "parent": 4,
+              "operator": "Filter"
+            },
+            {
+              "index": 6,
+              "parent": 5,
+              "operator": "Expand(All)"
+            },
+            {
+              "index": 7,
+              "parent": 6,
+              "operator": "Filter"
+            },
+            {
+              "index": 8,
+              "parent": 7,
+              "operator": "NodeIndexScan"
+            }
+          ],
+          "argumentsIncluded": false,
+          "identifiersIncluded": false,
+          "hasRedactedOperators": false
+        }
+      },
+      {
+        "contractId": "movies.optional.v1",
+        "compilation": "pass",
+        "planning": "pass",
+        "semantics": "not-run",
+        "plan": {
+          "statementFingerprint": "4bf9db9b6b32ed5730ac2b8674145b78afe26d6901c7859774a2ea1ce4ea8850",
+          "shapeFingerprint": "c5873d2f30863b38ebb881ec7a6ba5cbb87238e807c98343ca0f6fea074bed8d",
+          "operators": [
+            {
+              "index": 0,
+              "operator": "ProduceResults"
+            },
+            {
+              "index": 1,
+              "parent": 0,
+              "operator": "Projection"
+            },
+            {
+              "index": 2,
+              "parent": 1,
+              "operator": "Top"
+            },
+            {
+              "index": 3,
+              "parent": 2,
+              "operator": "Projection"
+            },
+            {
+              "index": 4,
+              "parent": 3,
+              "operator": "Apply"
+            },
+            {
+              "index": 5,
+              "parent": 4,
+              "operator": "Filter"
+            },
+            {
+              "index": 6,
+              "parent": 5,
+              "operator": "NodeByLabelScan"
+            },
+            {
+              "index": 7,
+              "parent": 4,
+              "operator": "Optional"
+            },
+            {
+              "index": 8,
+              "parent": 7,
+              "operator": "CacheProperties"
+            },
+            {
+              "index": 9,
+              "parent": 8,
+              "operator": "Filter"
+            },
+            {
+              "index": 10,
+              "parent": 9,
+              "operator": "Expand(All)"
+            },
+            {
+              "index": 11,
+              "parent": 10,
+              "operator": "Filter"
+            },
+            {
+              "index": 12,
+              "parent": 11,
+              "operator": "Argument"
+            }
+          ],
+          "argumentsIncluded": false,
+          "identifiersIncluded": false,
+          "hasRedactedOperators": false
+        }
+      },
+      {
+        "contractId": "movies.shared-movies.v1",
+        "compilation": "pass",
+        "planning": "pass",
+        "semantics": "not-run",
+        "plan": {
+          "statementFingerprint": "12f69892c86f512fc22d96a13529206676615a3e8fe8a05fb44f52c0a3b321e1",
+          "shapeFingerprint": "1bf89be6bca09e60b4502d0abcbec740fa7c2a4b688ed66a08f5c992abd99297",
+          "operators": [
+            {
+              "index": 0,
+              "operator": "ProduceResults"
+            },
+            {
+              "index": 1,
+              "parent": 0,
+              "operator": "Projection"
+            },
+            {
+              "index": 2,
+              "parent": 1,
+              "operator": "Top"
+            },
+            {
+              "index": 3,
+              "parent": 2,
+              "operator": "Projection"
+            },
+            {
+              "index": 4,
+              "parent": 3,
+              "operator": "Filter"
+            },
+            {
+              "index": 5,
+              "parent": 4,
+              "operator": "EagerAggregation"
+            },
+            {
+              "index": 6,
+              "parent": 5,
+              "operator": "Filter"
+            },
+            {
+              "index": 7,
+              "parent": 6,
+              "operator": "Expand(All)"
+            },
+            {
+              "index": 8,
+              "parent": 7,
+              "operator": "Filter"
+            },
+            {
+              "index": 9,
+              "parent": 8,
+              "operator": "Expand(All)"
+            },
+            {
+              "index": 10,
+              "parent": 9,
+              "operator": "Filter"
+            },
+            {
+              "index": 11,
+              "parent": 10,
+              "operator": "NodeIndexScan"
+            }
+          ],
+          "argumentsIncluded": false,
+          "identifiersIncluded": false,
+          "hasRedactedOperators": false
+        }
+      }
+    ],
+    "requiredContractCount": 3,
+    "status": "pass",
+    "exitCode": 0
+  },
+  "sources": [
+    {
+      "contractId": "movies.coactors.v1",
+      "text": "public static CypherResultQuery<string> Coactors(DbContext db, string runId, string actorName)\n{\n    var actor = Graph.Node<Person>();\n    var coactor = Graph.Node<Person>();\n    var movie = Graph.Node<Movie>();\n    return db.Cypher()\n        .Match(actor.Out(Graph.Edge<Credit>(), movie).In(Graph.Edge<Credit>(), coactor))\n        .Where(actor.Property(p => p.RunId).Eq(runId)\n            .And(actor.Property(p => p.Name).Eq(actorName))\n            .And(coactor.Property(p => p.Id).Ne(actor.Property(p => p.Id))))\n        .ReturnDistinct(() => coactor.Value.Name)\n        .OrderBy(coactor.Property(p => p.Name))\n        .Limit(100);\n}"
+    },
+    {
+      "contractId": "movies.optional.v1",
+      "text": "/// <summary>WHERE stays attached to OPTIONAL MATCH, preserving people without a qualifying movie.</summary>\npublic static CypherResultQuery<OptionalMovieRow> OptionalMovies(DbContext db, string runId, int afterYear)\n{\n    var actor = Graph.Node<Person>(); var movie = Graph.Node<Movie>();\n    return db.Cypher().Match(actor).Where(actor.Property(p => p.RunId).Eq(runId))\n        .OptionalMatch(actor.Out(Graph.Edge<Credit>(), movie)).Where(movie.Property(p => p.Year).Gt(afterYear))\n        .Return(() => new OptionalMovieRow(actor.Value.Name, movie.Value.Title, (int?)movie.Value.Year))\n        .OrderBy(actor.Property(p => p.Name)).Limit(100);\n}"
+    },
+    {
+      "contractId": "movies.shared-movies.v1",
+      "text": "public static CypherResultQuery<ScoreRow> SharedMovies(DbContext db, string runId, string actorName)\n{\n    var actor = Graph.Node<Person>(); var coactor = Graph.Node<Person>(); var movie = Graph.Node<Movie>();\n    var count = Graph.CountDistinct(movie); var rows = Graph.CountRows();\n    return db.Cypher()\n        .Match(actor.Out(Graph.Edge<Credit>(), movie).In(Graph.Edge<Credit>(), coactor))\n        .Where(actor.Property(p => p.RunId).Eq(runId).And(actor.Property(p => p.Name).Eq(actorName))\n            .And(actor.Property(p => p.Id).Ne(coactor.Property(p => p.Id))))\n        .With(coactor, count, rows).Where(count.Expression.Ge(1L))\n        .Return(() => new ScoreRow(coactor.Value.Name, count.Value, rows.Value))\n        .OrderByDescending(count.Expression).ThenBy(coactor.Property(p => p.Name)).Limit(100);\n}"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+.env
+.env.*
+eng/.fixture.env
+eng/enterprise/.fixture.env
+eng/enterprise/.operation.lock
+!.env.example
+.research/
+.artifacts/
+TestResults/
+__pycache__/
+# Maintainer-local design, strategy, internal records and benchmark reports.
+/strategy/
+# Independent private GraphRAG repository, including Workbench.
+/PrivateGraphRag/
+*.user
+*.suo
+**/node_modules/
+/extensions/*/dist/
+*.vsix

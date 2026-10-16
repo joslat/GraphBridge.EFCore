@@ -1,0 +1,30 @@
+:root { color-scheme: light dark; font-family: var(--vscode-font-family, system-ui); font-size: var(--vscode-font-size, 13px); color: var(--vscode-editor-foreground, #d8e1eb); background: var(--vscode-editor-background, #101821); }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1560px; margin: auto; padding: 28px; }
+header { border-left: 4px solid var(--vscode-textLink-foreground, #65d7bf); padding: 4px 0 8px 22px; margin-bottom: 20px; }
+h1 { font-size: clamp(23px, 3vw, 36px); letter-spacing: -.03em; margin: 8px 0; }
+h2 { margin-top: 28px; } h3 { font-size: 15px; } p { line-height: 1.65; } small { display: block; line-height: 1.5; }
+.eyebrow { letter-spacing: .16em; font-size: 11px; font-weight: 700; }
+.muted, .versions { color: var(--vscode-descriptionForeground, #9fafbe); }
+.notice { background: var(--vscode-textBlockQuote-background, #192733); border: 1px solid var(--vscode-textBlockQuote-border, #3e5365); padding: 14px; line-height: 1.7; }
+nav, .clauses, .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
+button, select, input { font: inherit; color: var(--vscode-input-foreground, #e1e8f0); background: var(--vscode-input-background, #233342); border: 1px solid var(--vscode-input-border, #566e80); padding: 9px 13px; border-radius: 4px; }
+button { cursor: pointer; } button:hover { background: var(--vscode-button-hoverBackground, #31526a); }
+button[aria-pressed=true] { color: var(--vscode-button-foreground, white); background: var(--vscode-button-background, #126f68); border-color: var(--vscode-focusBorder, #66dbbf); }
+:focus-visible { outline: 2px solid var(--vscode-focusBorder, #66dbbf); outline-offset: 3px; }
+label { display: flex; flex-direction: column; gap: 6px; } .picker { max-width: 650px; }
+.badge, .tag { display: inline-block; padding: 4px 9px; border: 1px solid currentColor; border-radius: 20px; font-size: 12px; margin: 3px 7px 3px 0; white-space: nowrap; }
+.pass { color: var(--vscode-testing-iconPassed, #67dca5); }.fail { color: var(--vscode-testing-iconFailed, #ff8b91); }.blocked { color: var(--vscode-editorWarning-foreground, #f1c45b); }.unsupported, .not-run { color: var(--vscode-descriptionForeground, #a3b2c1); }
+.metrics, .split { display: grid; gap: 16px; margin: 20px 0; }.metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }.split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.card, .metrics article, .finding { border: 1px solid var(--vscode-panel-border, #354b5c); padding: 18px; border-radius: 6px; min-width: 0; margin-bottom: 16px; }
+.metrics article { margin-bottom: 0; } .metrics strong { font-size: 25px; }
+pre { overflow: auto; padding: 15px; background: var(--vscode-textCodeBlock-background, #0b121b); font-family: var(--vscode-editor-font-family, monospace); font-size: 12px; line-height: 1.7; max-height: 460px; tab-size: 4; }
+code { font-family: var(--vscode-editor-font-family, monospace); }
+.cypher code > span { display: block; min-height: 1.7em; white-space: pre; }.selected-line { background: var(--vscode-editor-selectionBackground, #23534f); }.line-number { display: inline-block; width: 3em; opacity: .65; user-select: none; }
+.graph-scroll, .table-scroll { overflow: auto; margin: 12px 0; }.pattern { border-top: 1px solid var(--vscode-panel-border, #354b5c); padding-top: 4px; }
+svg { display: block; } svg circle { fill: var(--vscode-textBlockQuote-background, #1c3748); stroke: var(--vscode-textLink-foreground, #65d7bf); stroke-width: 2; } svg text { fill: var(--vscode-editor-foreground, #d8e1eb); font-size: 12px; } svg .edge { fill: none; stroke: var(--vscode-textLink-foreground, #65d7bf); stroke-width: 2; } svg marker path { fill: var(--vscode-textLink-foreground, #65d7bf); }
+table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid var(--vscode-panel-border, #354b5c); text-align: left; vertical-align: top; padding: 13px; } caption { text-align: left; margin-bottom: 12px; }.plan { padding-left: 25px; line-height: 2; }
+details { padding: 12px 0; } summary { cursor: pointer; } dl > div { display: grid; grid-template-columns: 100px 1fr; gap: 12px; margin-top: 9px; } dd { margin: 0; overflow-wrap: anywhere; }.versions { border-top: 1px solid var(--vscode-panel-border, #354b5c); margin-top: 25px; overflow-wrap: anywhere; }
+@media (max-width: 760px) { main { padding: 16px; }.split, .metrics { grid-template-columns: 1fr; } }
+@media (forced-colors: active) { .badge, button, .card, .finding { border: 1px solid CanvasText; } svg circle, svg .edge { stroke: CanvasText; } svg text, svg marker path { fill: CanvasText; } }
