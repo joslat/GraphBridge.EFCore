@@ -6,7 +6,7 @@ This page takes you from an empty console application to a saved node and the Cy
 
 - .NET SDK 10 and a `net10.0` project. GraphBridge is built and tested with SDK 10.0.401.
 - A Neo4j server you can write to and create a constraint in. GraphBridge is tested on Neo4j 2026.09 Community; see [compatibility](reference/COMPATIBILITY.md). For a disposable local server with Docker, follow the workshop's [Get a database](../workshop/GraphBridge.Workshop/README.md#get-a-database).
-- The GraphBridge packages. They are **not on nuget.org yet**: build them into a local feed first, as described in [Install from a local feed](#install-from-a-local-feed).
+- The GraphBridge packages, from [nuget.org](https://www.nuget.org/packages/GraphBridge.EntityFrameworkCore). To try changes that are not released yet, build them from source instead: see [Install from a local feed](#install-from-a-local-feed).
 
 ## 1. Install the packages
 
@@ -20,7 +20,7 @@ Reference the provider and pin the EF Core and driver versions it is tested with
 </ItemGroup>
 ```
 
-Use the GraphBridge version you packed into your local feed. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
+`0.1.0-preview.2` is the current preview on nuget.org; pin it exactly, because previews may change. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
 
 ## 2. Map an entity and configure the context
 
@@ -135,7 +135,7 @@ To see a complete application run without writing code, `pwsh eng/scripts/Run-Bl
 
 ## Install from a local feed
 
-> **The packages are not published to nuget.org yet.** Build them from a clone of this repository into a folder, and use that folder as a NuGet source.
+> **Only for unreleased changes.** Published previews install from nuget.org, as in step 1. To try changes that are not released yet, build the packages from a clone of this repository into a folder, and use that folder as a NuGet source.
 
 From the repository root, with .NET SDK 10.0.401, pack the provider with a version of your own. Use a new version every time you pack: NuGet caches packages by version, so repacking the same version can keep giving you the old bytes.
 

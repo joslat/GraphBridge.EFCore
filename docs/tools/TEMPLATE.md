@@ -1,6 +1,13 @@
 # `dotnet new graphbridge` template
 
-The `GraphBridge.Templates` package adds a `dotnet new graphbridge` template that creates a small solution referencing GraphBridge from **packages**, not from a source checkout: a console application and offline query contract tests. Use it to start a fresh project against a locally packed preview and to confirm that the packages restore, build and translate queries. GraphBridge is not yet published to nuget.org, so you pack the provider and the template into a local feed first.
+The `GraphBridge.Templates` package adds a `dotnet new graphbridge` template that creates a small solution referencing GraphBridge from **packages**, not from a source checkout: a console application and offline query contract tests. Use it to start a fresh project and to confirm that the packages restore, build and translate queries. Install it from nuget.org:
+
+```powershell
+dotnet new install GraphBridge.Templates::0.1.0-preview.2
+dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.2
+```
+
+To try changes that are not released yet, pack the provider and the template into a local feed instead:
 
 ```powershell
 # From the repository root: pack the provider and the template into one local feed.
@@ -13,13 +20,13 @@ dotnet new install (Join-Path $feed 'GraphBridge.Templates.0.1.0-preview.2.nupkg
 dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.2
 ```
 
-This creates a `MyGraph` folder. Both packages take the source version `0.1.0-preview.2` unless you pack with `-p:PackageVersion=…`; `--provider-version` must name a provider version that exists in your feed.
+Either way, this creates a `MyGraph` folder. `--provider-version` must name a provider version that exists on nuget.org or in your feed; locally packed packages take the source version `0.1.0-preview.2` unless you pack with `-p:PackageVersion=…`.
 
 ## Options
 
 | Option | Required | Meaning |
 |---|---|---|
-| `--provider-version` | Yes | Exact `GraphBridge.EntityFrameworkCore` version available in your local or private feed. It is pinned with `[version]`. |
+| `--provider-version` | Yes | Exact `GraphBridge.EntityFrameworkCore` version available on nuget.org or in your feed. It is pinned with `[version]`. |
 | `--name`, `--output` | No | Standard `dotnet new` options. `--name` replaces `GraphBridgeStarter` in file names, namespaces and content. |
 
 The template has no post-actions: it does not restore, build, start Docker or add migrations.
@@ -40,11 +47,10 @@ The template has no post-actions: it does not restore, build, start Docker or ad
 
 ## Build and run
 
-From the new folder, add your local feed, then restore, build and test:
+From the new folder, restore, build and test. If you packed into a local feed, first add it with `dotnet nuget add source $feed --name GraphBridgePreview --configfile NuGet.Config`.
 
 ```powershell
 cd MyGraph
-dotnet nuget add source $feed --name GraphBridgePreview --configfile NuGet.Config
 dotnet restore MyGraph.slnx --configfile NuGet.Config
 dotnet build MyGraph.slnx --no-restore
 dotnet test Tests/MyGraph.Tests.csproj --no-build
@@ -62,7 +68,7 @@ To point the application at your own database, replace the guards and the demo w
 
 ## Limits
 
-- Not published to a public template feed; install it from a locally packed `.nupkg`. Remove it with `dotnet new uninstall GraphBridge.Templates`.
+- Published on nuget.org as `GraphBridge.Templates`. Remove it with `dotnet new uninstall GraphBridge.Templates`.
 - The template contains no binaries and declares no package dependencies; the generated projects reference packages that must be in your feed or on nuget.org.
 - Only the provider package is referenced. Add `GraphBridge.Tooling` or `GraphBridge.Generators` yourself if you need them.
 

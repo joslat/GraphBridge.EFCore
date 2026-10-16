@@ -8,7 +8,7 @@ GraphBridge is a **developer preview** (`0.1.0-preview.2`; see the [changelog](.
 
 - It is not production-supported. Use it to evaluate, learn and give feedback.
 - Public APIs, generated source, supported model shapes and persisted mapping contracts may change between previews. Pin the exact preview.
-- The packages are not on nuget.org yet; [Getting started](../GETTING_STARTED.md#install-from-a-local-feed) shows how to use a local feed.
+- The packages are prereleases on nuget.org: [GraphBridge.EntityFrameworkCore](https://www.nuget.org/packages/GraphBridge.EntityFrameworkCore) and three optional packages (see [packages and components](PACKAGES_AND_COMPONENTS.md)). [Getting started](../GETTING_STARTED.md#install-from-a-local-feed) shows how to try unreleased changes from a local feed.
 - "Supported" below means implemented and tested within the stated boundary, on the stack below. It is not a promise for other versions, editions or deployments.
 
 Report problems through the repository's issue templates with exact versions, a small synthetic model, the LINQ or Fluent query and the sanitized generated Cypher. Never attach credentials or private data.

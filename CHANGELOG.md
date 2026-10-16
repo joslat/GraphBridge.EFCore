@@ -2,11 +2,11 @@
 
 All notable changes to GraphBridge. Every version so far is a developer preview; the [compatibility contract](docs/reference/COMPATIBILITY.md) describes what may change between previews.
 
-## 0.1.0-preview.2 (draft)
+## 0.1.0-preview.2 (2026-10-16)
 
-**Developer preview; not production-supported.** Prepared 2026-10-16. This is a reviewable draft, not an announcement of a published NuGet package or GitHub release. Publication remains the maintainer's decision.
+**Developer preview; not production-supported.** The first published preview: [nuget.org](https://www.nuget.org/packages/GraphBridge.EntityFrameworkCore/0.1.0-preview.2) and the [GitHub release](https://github.com/joslat/GraphBridge.EFCore/releases/tag/v0.1.0-preview.2), 2026-10-16.
 
-Changes since [0.1.0-preview.1](#010-preview1-draft):
+Changes since the unpublished [0.1.0-preview.1](#010-preview1-draft):
 
 ### Fluent Cypher v2
 
@@ -41,7 +41,7 @@ The repository layout changed: the workshop moved to `workshop/` (project `Graph
 
 ### Verification
 
-Local evidence for this draft is recorded in the [Fluent Cypher acceptance record](tests/verification/FLUENT_CYPHER_ACCEPTANCE.md) and the [verification summary](tests/verification/VERIFICATION_SUMMARY.md). A fresh release-candidate qualification is required before any publication.
+Evidence is recorded in the [Fluent Cypher acceptance record](tests/verification/FLUENT_CYPHER_ACCEPTANCE.md) and the [verification summary](tests/verification/VERIFICATION_SUMMARY.md). The release workflow built, tested and packed the published packages from the tagged commit, with trusted publishing and attached checksums.
 
 ## 0.1.0-preview.1 (draft)
 

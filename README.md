@@ -5,7 +5,7 @@
 
 <p align="center"><a href="docs/README.md"><img src="docs/images/graphbridge-hero.svg" alt="A graph database, no second ORM. A real Entity Framework Core provider for Neo4j." width="100%"></a></p>
 
-> **Developer preview. Not production-supported yet.** APIs, mappings and generated artifacts may change between previews; pin exact versions and read the [changelog and breaking-change policy](CHANGELOG.md) before upgrading. No package has been published to NuGet yet.
+> **Developer preview. Not production-supported yet.** APIs, mappings and generated artifacts may change between previews; pin exact versions and read the [changelog and breaking-change policy](CHANGELOG.md) before upgrading. Install it from nuget.org with `dotnet add package GraphBridge.EntityFrameworkCore --prerelease`.
 >
 > **Async only.** Use `SaveChangesAsync()` and async query methods; synchronous persistence and entity-query enumeration are refused ([why](docs/architecture/adr/ADR-0037.md)).
 

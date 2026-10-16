@@ -52,7 +52,7 @@ Reference the provider as usual and the generator as an analyzer, so no generato
 <ProjectReference Include="../GraphBridge.Generators/GraphBridge.Generators.csproj"
                   OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
-<!-- From a locally packed package (not published to nuget.org) -->
+<!-- From nuget.org -->
 <PackageReference Include="GraphBridge.Generators" Version="0.1.0-preview.2" PrivateAssets="all" />
 ```
 
