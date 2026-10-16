@@ -51,9 +51,11 @@ jobs:
           dotnet test tests/GraphBridge.Generators.Tests --no-build -c Release
       - name: Check the compiled query gallery
         run: dotnet run --project samples/05-FluentCypher/FluentCypher.Sample.csproj --no-build --no-restore -c Release -- --check
-      - name: Pack
+      - name: Pack the four packages
         run: |
-          dotnet pack GraphBridge.sln --no-build --no-restore -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
+          for project in src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj src/GraphBridge.Tooling/GraphBridge.Tooling.csproj src/GraphBridge.Generators/GraphBridge.Generators.csproj; do
+            dotnet pack "$project" --no-build --no-restore -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
+          done
           dotnet pack templates/GraphBridge.Templates.csproj -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
       - name: Verify the four packages
         shell: pwsh
