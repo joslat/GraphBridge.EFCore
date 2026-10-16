@@ -15,8 +15,8 @@ theme:
   name: material
   # System fonts: the site makes no third-party font requests.
   font: false
-  # Official logo (logos/GraphBridge-logo.png). The header is the logo's navy, so the light-navy mark variant is used.
-  logo: images/graphbridge-mark-dark.png
+  # Official mark (logos/GraphBridge-logo.png): the wide crop in the header, the square one as favicon.
+  logo: images/graphbridge-logo.png
   favicon: images/graphbridge-mark.png
   palette:
     - media: "(prefers-color-scheme: light)"

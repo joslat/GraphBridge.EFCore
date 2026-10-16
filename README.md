@@ -1,8 +1,6 @@
 <h1 align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/graphbridge-logo-dark.png">
-    <img src="docs/images/graphbridge-logo.png" alt="GraphBridge" width="340">
-  </picture>
+  <img src="docs/images/graphbridge-logo.png" alt="" width="220"><br>
+  GraphBridge
 </h1>
 
 <p align="center"><a href="docs/README.md"><img src="docs/images/graphbridge-hero.svg" alt="A graph database, no second ORM. A real Entity Framework Core provider for Neo4j." width="100%"></a></p>
