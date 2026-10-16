@@ -2,6 +2,8 @@
 
 This public repository starts at 0.1.0-preview.2. Earlier development history, including the hosted runs and commits cited in older evidence, is kept in a private repository.
 
+Report security problems privately, never in a public issue: see the [security policy](SECURITY.md).
+
 Start with [testing and validation](tests/README.md), [supported behavior](docs/reference/COMPATIBILITY.md), [known limits](docs/reference/KNOWN_LIMITATIONS.md) and the [architecture decisions](docs/architecture/ARCHITECTURE_DECISIONS.md). Follow [AGENTS.md](AGENTS.md) for repository engineering and resource rules.
 
 `GraphBridge.sln` includes the provider, optional tooling/generator, samples, repository tests and executable benchmarks. Tests and benchmarks are development assets; they are not bundled in runtime NuGet packages. No ignored maintainer planning pack is required to build or run the supported test entry points.

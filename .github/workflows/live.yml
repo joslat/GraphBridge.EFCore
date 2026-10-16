@@ -1,0 +1,121 @@
+name: Live Neo4j acceptance
+
+# Manual. Runs the live suites on a fresh GitHub-hosted VM against a disposable Neo4j, and checks the published
+# packages from nuget.org. Use it for release acceptance; it never publishes anything.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, tag or branch to test
+        type: string
+        default: v0.1.0-preview.2
+        required: true
+      version:
+        description: Published GraphBridge version to fetch from nuget.org
+        type: string
+        default: 0.1.0-preview.2
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      # Fresh GitHub-hosted VM; the local and self-hosted 5 GiB reserve remains the default.
+      GRAPHBRIDGE_DEDICATED_HOSTED_RUNNER: '1'
+      PUBLISHED_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+      - name: Restore locked dependencies
+        run: dotnet restore GraphBridge.sln --locked-mode --disable-parallel
+      - name: Build
+        run: dotnet build GraphBridge.sln --no-restore -m:1 -p:UseSharedCompilation=false
+      - name: Start disposable Neo4j
+        id: fixture
+        shell: pwsh
+        run: ./eng/scripts/Start-Neo4jFixture.ps1
+      - name: Live integration tests
+        shell: pwsh
+        run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild
+      - name: Selected upstream EF specification tests
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        shell: pwsh
+        run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite Specification
+      - name: Live database-first tooling tests
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        shell: pwsh
+        run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite Tooling
+      - name: Live workshop tests
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        shell: pwsh
+        run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite Workshop
+      - name: Published template and provider from nuget.org, live CRUD
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        shell: pwsh
+        run: |
+          $feed = Join-Path $env:RUNNER_TEMP 'nuget-org'
+          New-Item -ItemType Directory -Force $feed | Out-Null
+          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Templates') {
+            $lower = $id.ToLowerInvariant()
+            $url = "https://api.nuget.org/v3-flatcontainer/$lower/$env:PUBLISHED_VERSION/$lower.$env:PUBLISHED_VERSION.nupkg"
+            Invoke-WebRequest -Uri $url -OutFile (Join-Path $feed "$id.$env:PUBLISHED_VERSION.nupkg")
+          }
+          ./eng/scripts/Test-TemplatePackage.ps1 -Live -CandidateFeed $feed -CandidateVersion $env:PUBLISHED_VERSION
+      - name: Stop disposable Neo4j
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path eng/.fixture.env) {
+            ./eng/scripts/Stop-Neo4jFixture.ps1
+          }
+
+  nuget-org:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PUBLISHED_VERSION: ${{ inputs.version }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 10.0.401
+      - name: New project from the published template, restored only from nuget.org
+        shell: pwsh
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP 'nuget-org-consumer'
+          New-Item -ItemType Directory -Force $work | Out-Null
+          Set-Location $work
+          dotnet new install "GraphBridge.Templates::$env:PUBLISHED_VERSION"
+          if ($LASTEXITCODE) { throw 'Installing the template from nuget.org failed.' }
+          dotnet new graphbridge --name NuGetCheck --provider-version $env:PUBLISHED_VERSION
+          if ($LASTEXITCODE) { throw 'Creating the project from the template failed.' }
+          Set-Location NuGetCheck
+          dotnet restore NuGetCheck.slnx --configfile NuGet.Config
+          if ($LASTEXITCODE) { throw 'Restoring the provider from nuget.org failed.' }
+          dotnet build NuGetCheck.slnx --no-restore
+          if ($LASTEXITCODE) { throw 'Building the template project failed.' }
+          dotnet test Tests/NuGetCheck.Tests.csproj --no-build
+          if ($LASTEXITCODE) { throw 'The offline query tests failed.' }
+      - name: Optional packages from nuget.org
+        shell: pwsh
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP 'nuget-org-optional'
+          New-Item -ItemType Directory -Force $work | Out-Null
+          Set-Location $work
+          dotnet new console --name OptionalCheck --framework net10.0
+          if ($LASTEXITCODE) { throw 'Creating the console project failed.' }
+          Set-Location OptionalCheck
+          dotnet add package GraphBridge.Tooling --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
+          if ($LASTEXITCODE) { throw 'Adding GraphBridge.Tooling from nuget.org failed.' }
+          dotnet add package GraphBridge.Generators --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
+          if ($LASTEXITCODE) { throw 'Adding GraphBridge.Generators from nuget.org failed.' }
+          dotnet build
+          if ($LASTEXITCODE) { throw 'Building with the optional packages failed.' }
