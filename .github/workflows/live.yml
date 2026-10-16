@@ -38,6 +38,13 @@ jobs:
         run: dotnet restore GraphBridge.sln --locked-mode --disable-parallel
       - name: Build
         run: dotnet build GraphBridge.sln --no-restore -m:1 -p:UseSharedCompilation=false
+      # The live Query Lab editor-host test bundles the host with the extension's own esbuild.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.21.0
+      - name: Install the Query Lab extension's locked packages
+        working-directory: extensions/graphbridge-query-lab
+        run: npm ci --no-audit --no-fund
       - name: Start disposable Neo4j
         id: fixture
         shell: pwsh

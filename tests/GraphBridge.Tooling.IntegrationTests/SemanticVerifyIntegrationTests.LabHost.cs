@@ -30,8 +30,8 @@ public sealed partial class SemanticVerifyIntegrationTests
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
             try { await process.WaitForExitAsync(timeout.Token); }
             catch { if (!process.HasExited) process.Kill(entireProcessTree: true); throw; }
-            await stderr;
-            Assert.Equal(0, process.ExitCode);
+            var errors = await stderr;
+            Assert.True(process.ExitCode == 0, $"live-host.mjs exited with code {process.ExitCode}: {errors}");
             Assert.Contains("Live bridge assertions passed", await stdout);
             Assert.Equal(before, await State(run));
         }

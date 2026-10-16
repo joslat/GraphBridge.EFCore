@@ -29,6 +29,8 @@ The offline runner selects provider, tooling, generator and benchmark-validation
 
 Use the [owned Community fixture](../eng/README.md); startup checks ownership and RAM. Keep fixture creation and all test runs serial.
 
+The Tooling suite's live Query Lab editor-host test runs Node.js 24 with the extension's packages: run `npm ci --prefix extensions/graphbridge-query-lab` once first. To run every live suite on a fresh GitHub-hosted machine instead, start the manual **Live Neo4j acceptance** workflow (`.github/workflows/live.yml`).
+
 ```powershell
 pwsh eng/scripts/Start-Neo4jFixture.ps1
 try {
