@@ -63,10 +63,17 @@ jobs:
         if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
         shell: pwsh
         run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite Workshop
+      # Published packages are checked against the reviewed attribution files of the commit they were built from, so this
+      # step runs only when the checkout has the published version: after publishing, not on the run before it.
       - name: Published template and provider from nuget.org, live CRUD
         if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
         shell: pwsh
         run: |
+          $checkout = (Select-Xml -Path src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj -XPath '/Project/PropertyGroup/Version').Node.InnerText | Select-Object -First 1
+          if ($checkout -cne $env:PUBLISHED_VERSION) {
+            "::notice title=Published template check skipped::This commit is $checkout; $env:PUBLISHED_VERSION on nuget.org was built from another commit. Run again with version $checkout after publishing."
+            exit 0
+          }
           $feed = Join-Path $env:RUNNER_TEMP 'nuget-org'
           New-Item -ItemType Directory -Force $feed | Out-Null
           foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Templates') {
