@@ -74,6 +74,7 @@ nav:
       - Fluent Cypher: features/FLUENT_CYPHER.md
       - Bounded paths: features/BOUNDED_PATHS.md
       - Graph search: features/GRAPH_SEARCH.md
+      - VectorData search: features/VECTOR_DATA.md
       - Bulk mutations: features/BULK_MUTATIONS.md
       - Transactions and concurrency: features/TRANSACTIONS_AND_CONCURRENCY.md
       - Nulls, types and time: features/NULLS_TYPES_AND_TIME.md

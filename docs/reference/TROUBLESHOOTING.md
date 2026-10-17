@@ -24,7 +24,7 @@ When you report a problem, include exact versions, the sanitized URI scheme and 
 | Exception | Cause | What to do |
 |---|---|---|
 | `Neo4jQueryTranslationException` with a `GBQ` code | A LINQ shape outside the supported subset | See [refusal codes](KNOWN_LIMITATIONS.md#refusal-codes) for the alternative |
-| `NotSupportedException`: "GraphBridge fluent Cypher [GBFC...]" | A Fluent query GraphBridge refuses; the code is also in `Exception.Data["GraphBridge.FluentDiagnostic"]` | See the codes in [Fluent Cypher](../features/FLUENT_CYPHER.md#predicates-as-c-lambdas) |
+| `FluentCypherException` (a `NotSupportedException`): "GraphBridge fluent Cypher [GBFC...]" | A Fluent query GraphBridge refuses; the code is in `Code` and in `Exception.Data["GraphBridge.FluentDiagnostic"]` | See the codes in [Fluent Cypher](../features/FLUENT_CYPHER.md#predicates-as-c-lambdas) |
 | `NotSupportedException` asking for async operations | `SaveChanges()`, `ToList()`, synchronous transaction calls | Use the async API and `await using` |
 | `InvalidOperationException`: "GraphBridge requires an existing uniqueness constraint" | A key constraint is missing | Deploy the reviewed constraint ([schema and migrations](../features/SCHEMA_AND_MIGRATIONS.md)) |
 | `DbUpdateConcurrencyException` | Someone else changed or deleted the element since you loaded it | Reload in a fresh context and decide ([optimistic concurrency](../features/TRANSACTIONS_AND_CONCURRENCY.md#optimistic-concurrency)) |

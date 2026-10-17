@@ -20,7 +20,7 @@ GraphBridge supports a tested subset of EF Core and Cypher. Anything outside it 
 
 ## Refusal codes
 
-A refused LINQ query throws `Neo4jQueryTranslationException` before any database work. Its message names the shape in LINQ terms, a stable code and a supported alternative, for example `GraphBridge cannot translate GroupBy [GBQ101]. Group in Fluent Cypher with With(...) ...`. The code is also in `Exception.Data["GraphBridge.QueryDiagnostic"]`, and Doctor reports it as the `subcode` of `GBD-QUERY-001`. Match on the code, not the message text. Fluent Cypher refusals use `GBFC` codes ([Fluent Cypher](../features/FLUENT_CYPHER.md#predicates-as-c-lambdas)).
+A refused LINQ query throws `Neo4jQueryTranslationException` before any database work. Its message names the shape in LINQ terms, a stable code and a supported alternative, for example `GraphBridge cannot translate GroupBy [GBQ101]. Group in Fluent Cypher with With(...) ...`. The code is in the exception's `Code` property and in `Exception.Data["GraphBridge.QueryDiagnostic"]`, and Doctor reports it as the `subcode` of `GBD-QUERY-001`. Match on the code, not the message text. Fluent Cypher refusals throw `FluentCypherException` with `GBFC` codes ([Fluent Cypher](../features/FLUENT_CYPHER.md#predicates-as-c-lambdas)).
 
 | Code | Refused | Supported alternative |
 |---|---|---|

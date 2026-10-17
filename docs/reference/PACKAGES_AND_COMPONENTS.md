@@ -1,10 +1,11 @@
 # Packages and components
 
-GraphBridge has one runtime provider package and three optional packages. The diagnostic tools (Doctor, Verify and Query Lab) are components inside the optional `GraphBridge.Tooling` package, not separate packages. The packages are not on nuget.org yet: [Getting started](../GETTING_STARTED.md#install-from-a-local-feed) shows how to build and use them from a local feed.
+GraphBridge has one runtime provider package and four optional packages. The diagnostic tools (Doctor, Verify and Query Lab) are components inside the optional `GraphBridge.Tooling` package, not separate packages. The packages are prereleases on nuget.org; `GraphBridge.EntityFrameworkCore.VectorData` is first published with 0.1.0-preview.3. [Getting started](../GETTING_STARTED.md#install-from-a-local-feed) shows how to try unreleased changes from a local feed.
 
 | Package ID | Purpose | Dependency / installation boundary |
 |---|---|---|
 | `GraphBridge.EntityFrameworkCore` | Non-relational EF Core provider: LINQ, tracked async persistence, graph mapping, Fluent Cypher, native access and explicit schema/plan APIs | Application runtime; depends on EF Core and Neo4j.Driver. Does not depend on the other GraphBridge packages. |
+| [`GraphBridge.EntityFrameworkCore.VectorData`](../features/VECTOR_DATA.md) | Optional `Microsoft.Extensions.VectorData` adapter: search existing vector indexes through `IVectorSearchable<TRecord>` | References the provider and `Microsoft.Extensions.VectorData.Abstractions` 10.11.0 or later. The provider itself never takes this dependency. |
 | `GraphBridge.Tooling` | Optional model authoring, ontology/schema-first generation, database-first inspection/scaffolding, design-time helpers and diagnostic evidence | References the provider and RDF/YAML/Roslyn libraries. Install in a trusted application or development host when needed. No CLI executable is bundled. |
 | [`GraphBridge.Generators`](../tools/MAPPING_GENERATOR.md) | Optional incremental mapping generator and build-time authoring diagnostics | Roslyn analyzer asset; not an application runtime assembly or runtime provider dependency. |
 | [`GraphBridge.Templates`](../tools/TEMPLATE.md) | Optional `dotnet new` starter with a package-based application and contract tests | Template content; generated applications reference the provider separately. No server or runtime libraries are bundled in the template. |

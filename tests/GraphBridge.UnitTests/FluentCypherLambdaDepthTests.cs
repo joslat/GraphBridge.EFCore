@@ -233,7 +233,7 @@ public sealed class FluentCypherLambdaDepthTests
         // Reference equality in C# is not value equality in Cypher.
         var blob = Graph.Node<Blob>();
         byte[] hash = [1];
-        Assert.Equal("GBFC105", Assert.Throws<NotSupportedException>(() => CypherPredicateTranslator.Translate(() => blob.Value.Hash == hash))
+        Assert.Equal("GBFC105", Assert.Throws<FluentCypherException>(() => CypherPredicateTranslator.Translate(() => blob.Value.Hash == hash))
             .Data["GraphBridge.FluentDiagnostic"]);
         Assert.IsType<CypherNullTerm>(CypherPredicateTranslator.Translate(() => blob.Value.Hash == null).Term);
     }
@@ -297,7 +297,7 @@ public sealed class FluentCypherLambdaDepthTests
 
     private static object?[] List(object? value) => Assert.IsAssignableFrom<System.Collections.IEnumerable>(value).Cast<object?>().ToArray();
     private static string? Code(Action action)
-        => Assert.Throws<NotSupportedException>(action).Data["GraphBridge.FluentDiagnostic"] as string;
+        => Assert.Throws<FluentCypherException>(action).Data["GraphBridge.FluentDiagnostic"] as string;
     private static string? CompileCode(Func<string> compile)
-        => Assert.Throws<NotSupportedException>(() => compile()).Data["GraphBridge.FluentDiagnostic"] as string;
+        => Assert.Throws<FluentCypherException>(() => compile()).Data["GraphBridge.FluentDiagnostic"] as string;
 }

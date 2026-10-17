@@ -44,7 +44,7 @@ public sealed class FluentCypherAggregateTests
             + "RETURN n0.`Name` AS c0, count(DISTINCT n1) AS c1, min(n1.`Founded`) AS c2, collect(n1.`Title`)[..$p0] AS c3\n"
             + "ORDER BY c1 ASC\nLIMIT $p1", command.Text.Replace("\r", ""));
         // Without WITH, an aggregate does not exist yet where WHERE runs; the message lists what is in scope.
-        var error = Assert.Throws<NotSupportedException>(() => db.Cypher().Match(member.Out<Membership>(club))
+        var error = Assert.Throws<FluentCypherException>(() => db.Cypher().Match(member.Out<Membership>(club))
             .Where(() => clubs.Value > 1).Return(() => member.Value.Name).ToQueryString());
         Assert.Equal("GBFC303", error.Data["GraphBridge.FluentDiagnostic"]);
         Assert.Contains("In scope here: n0 (Member), n1 (Club), r2 (Membership).", error.Message);
@@ -81,10 +81,10 @@ public sealed class FluentCypherAggregateTests
         var earliest = Graph.Min(club.Property(c => c.Founded));
         var grouped = db.Cypher().Match(member.Out<Membership>(club)).With(member, earliest);
         // min can be null (all-null group), so C# != would keep rows native <> drops.
-        Assert.Equal("GBFC110", Assert.Throws<NotSupportedException>(() => grouped.Where(() => earliest.Value != 1990)
+        Assert.Equal("GBFC110", Assert.Throws<FluentCypherException>(() => grouped.Where(() => earliest.Value != 1990)
             .Return(() => member.Value.Id).ToQueryString()).Data["GraphBridge.FluentDiagnostic"]);
         var codes = Graph.Min(member.Property(m => m.Code));
-        Assert.Equal("GBFC406", Assert.Throws<NotSupportedException>(() => db.Cypher().Match(member).With(codes)
+        Assert.Equal("GBFC406", Assert.Throws<FluentCypherException>(() => db.Cypher().Match(member).With(codes)
             .Return(() => codes.Value).ToQueryString()).Data["GraphBridge.FluentDiagnostic"]);
         Assert.Throws<ArgumentOutOfRangeException>(() => Graph.Collect(club.Property(c => c.Title), 0));
         Assert.Throws<ArgumentOutOfRangeException>(() => Graph.Collect(club.Property(c => c.Title), 10_001));

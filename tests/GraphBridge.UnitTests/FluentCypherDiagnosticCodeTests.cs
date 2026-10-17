@@ -24,12 +24,29 @@ public sealed class FluentCypherDiagnosticCodeTests
         Assert.Equal("GBFC403", Code(() => db.Cypher().Match(member).Return(() => member.Value.Name.ToUpperInvariant()).ToQueryString()));
         Assert.Equal("GBFC404", Code(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString()));
         Assert.Equal("GBFC405", Code(() => db.Cypher().Match(member).Return(() => member.Value.Id).OrderBy(member.Property(m => m.Name)).ToQueryString()));
-        var error = Assert.Throws<NotSupportedException>(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString());
+        var error = Assert.Throws<FluentCypherException>(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString());
         Assert.StartsWith("GraphBridge fluent Cypher [GBFC404]:", error.Message);
     }
 
-    private static string? Code(Action action)
-        => Assert.Throws<NotSupportedException>(action).Data["GraphBridge.FluentDiagnostic"] as string;
-    private static string? Code(Func<object> action)
-        => Assert.Throws<NotSupportedException>(() => action()).Data["GraphBridge.FluentDiagnostic"] as string;
+    [Fact]
+    public void Refusals_are_typed_and_still_caught_as_NotSupportedException()
+    {
+        using var db = Context();
+        var member = Graph.Node<Member>();
+        var caught = Assert.ThrowsAny<NotSupportedException>(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString());
+        Assert.Equal("GBFC404", Coded(Assert.IsType<FluentCypherException>(caught)));
+        Assert.Throws<ArgumentException>(() => new FluentCypherException("message", " "));
+        Assert.Throws<ArgumentNullException>(() => new FluentCypherException("message", null!));
+    }
+
+    private static string Code(Action action) => Coded(Assert.Throws<FluentCypherException>(action));
+    private static string Code(Func<object> action) => Coded(Assert.Throws<FluentCypherException>(() => action()));
+
+    // The typed property, Exception.Data and the message carry the same code.
+    private static string Coded(FluentCypherException error)
+    {
+        Assert.Equal(error.Code, error.Data["GraphBridge.FluentDiagnostic"]);
+        Assert.Contains($"[{error.Code}]", error.Message);
+        return error.Code;
+    }
 }

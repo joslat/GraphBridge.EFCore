@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Package version; must equal <Version> in the four packable projects (for example 0.1.0-preview.2)
+        description: Package version; must equal <Version> in the five packable projects (for example 0.1.0-preview.2)
         required: true
         type: string
       publish:
@@ -34,6 +34,7 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           $projects = 'src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj',
+            'src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj',
             'src/GraphBridge.Tooling/GraphBridge.Tooling.csproj', 'src/GraphBridge.Generators/GraphBridge.Generators.csproj',
             'templates/GraphBridge.Templates.csproj'
           foreach ($project in $projects) {
@@ -44,27 +45,27 @@ jobs:
         run: dotnet restore GraphBridge.sln --locked-mode --disable-parallel
       - name: Build
         run: dotnet build GraphBridge.sln --no-restore -c Release -m:1 -p:UseSharedCompilation=false -p:ContinuousIntegrationBuild=true -nodeReuse:false
-      - name: Offline tests (live database suites run before release on the maintainer fixture)
+      - name: Offline tests (the live suites run in live.yml on the same commit before publishing)
         run: |
           dotnet test tests/GraphBridge.UnitTests --no-build -c Release
           dotnet test tests/GraphBridge.ToolingTests --no-build -c Release
           dotnet test tests/GraphBridge.Generators.Tests --no-build -c Release
       - name: Check the compiled query gallery
         run: dotnet run --project samples/05-FluentCypher/FluentCypher.Sample.csproj --no-build --no-restore -c Release -- --check
-      - name: Pack the four packages
+      - name: Pack the five packages
         run: |
-          for project in src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj src/GraphBridge.Tooling/GraphBridge.Tooling.csproj src/GraphBridge.Generators/GraphBridge.Generators.csproj; do
+          for project in src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj src/GraphBridge.Tooling/GraphBridge.Tooling.csproj src/GraphBridge.Generators/GraphBridge.Generators.csproj; do
             dotnet pack "$project" --no-build --no-restore -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
           done
           dotnet pack templates/GraphBridge.Templates.csproj -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
-      - name: Verify the four packages
+      - name: Verify the five packages
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           . ./eng/scripts/Assert-PackageMetadata.ps1
-          $ids = 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates'
+          $ids = 'GraphBridge.EntityFrameworkCore', 'GraphBridge.EntityFrameworkCore.VectorData', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates'
           $found = @(Get-ChildItem artifacts/packages -Filter *.nupkg | ForEach-Object Name | Sort-Object)
           $expected = @($ids | ForEach-Object { "$_.$env:RELEASE_VERSION.nupkg" } | Sort-Object)
           if (Compare-Object $found $expected) { throw "Expected exactly $($expected -join ', '); found $($found -join ', ')." }
@@ -113,7 +114,7 @@ jobs:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
-          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates') {
+          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.EntityFrameworkCore.VectorData', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates') {
             dotnet nuget push "packages/$id.$env:RELEASE_VERSION.nupkg" --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
             if ($LASTEXITCODE) { throw "Pushing $id failed." }
           }

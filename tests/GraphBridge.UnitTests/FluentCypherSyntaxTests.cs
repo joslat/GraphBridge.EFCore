@@ -70,9 +70,9 @@ public sealed class FluentCypherSyntaxTests
     {
         var actor = Graph.Node<Person>();
         Assert.Throws<InvalidOperationException>(() => actor.Value);
-        Assert.Throws<NotSupportedException>(() => actor.Property(p => p.Name.ToUpperInvariant()));
-        Assert.Throws<NotSupportedException>(() => actor.Property(p => (long)p.Id));
-        Assert.Throws<NotSupportedException>(() => actor.Property(p => p.Name.Length));
+        Assert.Throws<FluentCypherException>(() => actor.Property(p => p.Name.ToUpperInvariant()));
+        Assert.Throws<FluentCypherException>(() => actor.Property(p => (long)p.Id));
+        Assert.Throws<FluentCypherException>(() => actor.Property(p => p.Name.Length));
         Assert.Throws<ArgumentNullException>(() => actor.Property<string>(null!));
     }
 
@@ -92,7 +92,7 @@ public sealed class FluentCypherSyntaxTests
         using var context = new DbContext(new DbContextOptions<DbContext>());
         var actor = Graph.Node<Person>(); var other = Graph.Node<Person>();
         Assert.Throws<InvalidOperationException>(() => context.Cypher().Where(actor.Property(p => p.Id).Eq(1)));
-        Assert.Throws<NotSupportedException>(() => context.Cypher().OptionalMatch(actor.Pattern()));
+        Assert.Throws<FluentCypherException>(() => context.Cypher().OptionalMatch(actor.Pattern()));
         Assert.Throws<ArgumentException>(() => context.Cypher().Match([]));
         var patterns = new[] { actor.Pattern() };
         var query = context.Cypher().Match(patterns);

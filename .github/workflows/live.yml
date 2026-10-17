@@ -1,19 +1,18 @@
 name: Live Neo4j acceptance
 
 # Manual. Runs the live suites on a fresh GitHub-hosted VM against a disposable Neo4j, and checks the published
-# packages from nuget.org. Use it for release acceptance; it never publishes anything.
+# packages from nuget.org. Run it before and after each release (eng/release/README.md); it never publishes anything.
 on:
   workflow_dispatch:
     inputs:
       ref:
         description: Commit, tag or branch to test
         type: string
-        default: v0.1.0-preview.2
+        default: main
         required: true
       version:
-        description: Published GraphBridge version to fetch from nuget.org
+        description: GraphBridge version on nuget.org to check (before a release, the newest one already published)
         type: string
-        default: 0.1.0-preview.2
         required: true
 
 permissions:
@@ -124,5 +123,11 @@ jobs:
           if ($LASTEXITCODE) { throw 'Adding GraphBridge.Tooling from nuget.org failed.' }
           dotnet add package GraphBridge.Generators --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
           if ($LASTEXITCODE) { throw 'Adding GraphBridge.Generators from nuget.org failed.' }
+          # The VectorData adapter is first published with 0.1.0-preview.3; earlier versions skip it.
+          $vectorData = try { (Invoke-RestMethod 'https://api.nuget.org/v3-flatcontainer/graphbridge.entityframeworkcore.vectordata/index.json').versions } catch { @() }
+          if ($vectorData -contains $env:PUBLISHED_VERSION) {
+            dotnet add package GraphBridge.EntityFrameworkCore.VectorData --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
+            if ($LASTEXITCODE) { throw 'Adding GraphBridge.EntityFrameworkCore.VectorData from nuget.org failed.' }
+          } else { "GraphBridge.EntityFrameworkCore.VectorData $env:PUBLISHED_VERSION is not on nuget.org; skipped." }
           dotnet build
           if ($LASTEXITCODE) { throw 'Building with the optional packages failed.' }

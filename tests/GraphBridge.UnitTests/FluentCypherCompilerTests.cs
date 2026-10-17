@@ -67,8 +67,8 @@ public sealed class FluentCypherCompilerTests
         Assert.Contains("WITH n0, count(DISTINCT n1) AS v3", text);
         Assert.Contains("WHERE v3 > $p0", text);
         Assert.Contains("ORDER BY c1 DESC, c0 ASC", text);
-        Assert.Contains("outside", Assert.Throws<NotSupportedException>(() => query.Return(() => movie.Value.Title).ToQueryString()).Message);
-        Assert.Contains("rebound", Assert.Throws<NotSupportedException>(() => query.Match(movie).Return(() => movie.Value.Title).ToQueryString()).Message);
+        Assert.Contains("outside", Assert.Throws<FluentCypherException>(() => query.Return(() => movie.Value.Title).ToQueryString()).Message);
+        Assert.Contains("rebound", Assert.Throws<FluentCypherException>(() => query.Match(movie).Return(() => movie.Value.Title).ToQueryString()).Message);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public sealed class FluentCypherCompilerTests
         var text = query.Return(() => person.Value.Name).ToQueryString();
         Assert.Contains("NOT EXISTS { MATCH (n0:`FluentPerson`)-[r2:`FLUENT_FRIEND`]->(n1:`FluentPerson`)", text);
         Assert.Contains("n1.`display_name` = $p0", text);
-        Assert.Throws<NotSupportedException>(() => query.Return(() => friend.Value.Name).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => friend.Value.Name).ToQueryString());
     }
 
     [Fact]
@@ -144,23 +144,23 @@ public sealed class FluentCypherCompilerTests
     {
         using var filtered = Context(b => b.Entity<Person>().HasQueryFilter(p => p.Id > 0));
         var person = Graph.Node<Person>(); var movie = Graph.Node<Movie>();
-        Assert.Contains("query filters", Assert.Throws<NotSupportedException>(() => filtered.Cypher().Match(person).Return(() => person.Value.Id).ToQueryString()).Message);
+        Assert.Contains("query filters", Assert.Throws<FluentCypherException>(() => filtered.Cypher().Match(person).Return(() => person.Value.Id).ToQueryString()).Message);
         using var db = Context();
-        Assert.Contains("roles", Assert.Throws<NotSupportedException>(() => db.Cypher().Match(movie.Out(Graph.Edge<Credit>(), person)).Return(() => person.Value.Id).ToQueryString()).Message);
+        Assert.Contains("roles", Assert.Throws<FluentCypherException>(() => db.Cypher().Match(movie.Out(Graph.Edge<Credit>(), person)).Return(() => person.Value.Id).ToQueryString()).Message);
         var missing = Graph.Node<Unmapped>();
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(missing).Return(() => missing.Value.Id).ToQueryString());
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(person.Out(Graph.Edge<Person>(), person)).Return(() => person.Value.Id).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(missing).Return(() => missing.Value.Id).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(person.Out(Graph.Edge<Person>(), person)).Return(() => person.Value.Id).ToQueryString());
     }
 
     [Fact]
     public void Unsupported_projection_computation_entities_and_hidden_sort_reject()
     {
         using var db = Context(); var person = Graph.Node<Person>(); var query = db.Cypher().Match(person);
-        Assert.Throws<NotSupportedException>(() => query.Return(() => person.Value.Name.ToUpper()).ToQueryString());
-        Assert.Throws<NotSupportedException>(() => query.Return(() => person.Value).ToQueryString());
-        Assert.Throws<NotSupportedException>(() => query.Return(() => new Person { Id = person.Value.Id }).ToQueryString());
-        Assert.Throws<NotSupportedException>(() => query.Return(() => person.Value.Id + 1).ToQueryString());
-        Assert.Throws<NotSupportedException>(() => query.ReturnDistinct(() => person.Value.Name).OrderBy(person.Property(p => p.Id)).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => person.Value.Name.ToUpper()).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => person.Value).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => new Person { Id = person.Value.Id }).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => person.Value.Id + 1).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.ReturnDistinct(() => person.Value.Name).OrderBy(person.Property(p => p.Id)).ToQueryString());
     }
 
     [Fact]

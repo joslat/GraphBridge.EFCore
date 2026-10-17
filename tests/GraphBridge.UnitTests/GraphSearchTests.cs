@@ -156,16 +156,19 @@ public sealed class GraphSearchTests
         Assert.False(projected); Assert.Equal(1, script.Rollbacks);
     }
 
-    private sealed class Script
+    // Also drives the VectorData adapter tests.
+    internal sealed class Script
     {
         public bool FullText, Relationship, Empty;
+        public List<(string Id, double Score)>? Hits;
         public double Score = 0.75;
         public Action? OnRun;
         public Action<Dictionary<string, object>>? IndexOverride;
         public Action<List<Dictionary<string, object>>>? ComponentsOverride;
         public int Commits, Rollbacks, Disposals, Sessions;
         public List<(string Text, IDictionary<string, object> Parameters)> Commands { get; } = [];
-        public DbContext Context()
+        public DbContext Context() => new(Options<DbContext>());
+        public DbContextOptions<T> Options<T>() where T : DbContext
         {
             var transaction = NativeQueryTests.Proxy.For<IAsyncTransaction>((m, a) =>
             {
@@ -191,7 +194,9 @@ public sealed class GraphSearchTests
                 if (m.Name != "AsyncSession") throw new InvalidOperationException(m.Name);
                 Sessions++; return session;
             });
-            return new DbContext(new DbContextOptionsBuilder().UseNeo4j(driver).Options);
+            var builder = new DbContextOptionsBuilder<T>();
+            builder.UseNeo4j(driver);
+            return builder.Options;
         }
         private List<Dictionary<string, object>> Rows(string text)
         {
@@ -213,6 +218,11 @@ public sealed class GraphSearchTests
                 IndexOverride?.Invoke(row); return [row];
             }
             if (Empty) return [];
+            if (Hits is not null)
+                return Hits.Select(hit => new Dictionary<string, object> { ["entity"] = Relationship
+                    ? NativeQueryTests.Proxy.For<IRelationship>((m, _) => m.Name == "get_ElementId" ? hit.Id : throw new InvalidOperationException(m.Name))
+                    : NativeQueryTests.Proxy.For<INode>((m, _) => m.Name == "get_ElementId" ? hit.Id : throw new InvalidOperationException(m.Name)),
+                    ["score"] = hit.Score }).ToList();
             var node = NativeQueryTests.Proxy.For<INode>((m, _) => m.Name == "get_ElementId" ? "node-id" : throw new InvalidOperationException(m.Name));
             return [new() { ["entity"] = node, ["score"] = Score }];
         }

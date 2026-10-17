@@ -26,6 +26,8 @@ Console.WriteLine(similar.Provenance.SimilarityFunction);   // as configured on 
 
 Each returns `GraphSearchResults<T>`: `Results`, a list of `GraphScoredResult<T>` (`Value`, `Score`, `ElementId`), and `Provenance`. Provenance is present even for an empty result: server version and edition, index name and provider, labels or types, properties, vector dimensions and similarity function or full-text analyzer and consistency, and the requested limit. `ElementId` is a diagnostic store identity, not an application key.
 
+To search the same indexes through `Microsoft.Extensions.VectorData`'s `IVectorSearchable<TRecord>`, use the optional [VectorData adapter](VECTOR_DATA.md).
+
 ## Requirements
 
 - **Create the index yourself and wait until it is ONLINE.** GraphBridge never creates schema. Before each search it reads the database's server components and index metadata in the same transaction; a missing index, the wrong kind or target, or a vector of the wrong dimensions fails. There is no fallback scan and no retry.
@@ -39,7 +41,7 @@ Each returns `GraphSearchResults<T>`: `Results`, a list of `GraphScoredResult<T>
 | Vector | 1 to 4,096 finite coordinates in float32 range, copied before I/O, matching the index's dimensions. Cosine needs a nonzero vector. No embedding generation or normalization. |
 | Full-text query | Lucene syntax, including fields, phrases and operators; not a substring search. Nonblank, at most 16,384 characters; invalid syntax is a server error. The index's analyzer and eventual-consistency setting affect results. |
 | `limit` | 1 to 10,000, default 10. Applied in the search itself, the returned rows and the client buffer. It bounds rows, not index work or property bytes. |
-| Vector score | Native approximate similarity in [0, 1]. |
+| Vector score | Native approximate similarity in [0, 1]. Neo4j 2026 vector indexes use binary quantization by default. Observed on 2026.09: scores at limits of 3 and 100 equal the exact similarity, but at a limit of 10,000 they are approximations (off by up to about 0.01), and near-ties can swap order. |
 | Full-text score | Native relevance. |
 
 Results are sorted by descending score; ties have no promised order. Scores from different indexes, queries or search kinds are not comparable, and no hybrid ranking or exact nearest-neighbor guarantee is implied. Query text and vectors are parameters.

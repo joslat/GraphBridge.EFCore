@@ -37,7 +37,7 @@ public sealed class FluentCypherReviewTests
         var command = query.Return(() => person.Value.Name).ToCommand();
         Assert.Equal(2, command.Text.Split("EXISTS {").Length - 1);
         Assert.Equal(2, command.Parameters.Count);
-        Assert.Throws<NotSupportedException>(() => query.Return(() => friend.Value.Name).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => friend.Value.Name).ToQueryString());
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public sealed class FluentCypherReviewTests
         var outer = Graph.Exists(person.Out(Graph.Edge<Friendship>(), friend), inner.Or(inner.Not()));
         var query = db.Cypher().Match(person).Where(outer.And(outer));
         Assert.Equal(6, query.Return(() => person.Value.Id).ToQueryString().Split("EXISTS {").Length - 1);
-        Assert.Throws<NotSupportedException>(() => query.With(friend).Return(() => friend.Value.Name).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.With(friend).Return(() => friend.Value.Name).ToQueryString());
     }
 
     [Fact]
@@ -57,11 +57,11 @@ public sealed class FluentCypherReviewTests
     {
         using var db = FluentCypherCompilerTests.Context(); var person = Graph.Node<Person>();
         var calls = new CaptureSource();
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(person)
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(person)
             .Return(() => calls.GetHolder().Alias.Value.Name).ToQueryString());
         Assert.Equal(0, calls.Calls);
         CaptureHolder? missing = null;
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(person)
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(person)
             .Return(() => missing!.Alias.Value.Name).ToQueryString());
     }
 

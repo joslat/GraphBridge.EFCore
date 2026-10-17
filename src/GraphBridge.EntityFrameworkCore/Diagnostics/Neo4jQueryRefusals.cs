@@ -1,7 +1,8 @@
 namespace GraphBridge.EntityFrameworkCore.Diagnostics;
 
-/// <summary>Builds every LINQ translation refusal: the refused shape in LINQ terms, a stable GBQ code (in the message and in
-/// <c>Exception.Data["GraphBridge.QueryDiagnostic"]</c>) and a supported alternative. The thrown type is unchanged.</summary>
+/// <summary>Builds every LINQ translation refusal: the refused shape in LINQ terms, a stable GBQ code (in
+/// <see cref="Neo4jQueryTranslationException.Code"/>, the message and <c>Exception.Data["GraphBridge.QueryDiagnostic"]</c>)
+/// and a supported alternative.</summary>
 internal static class Neo4jQueryRefusals
 {
     internal const string DataKey = "GraphBridge.QueryDiagnostic";
@@ -66,9 +67,7 @@ internal static class Neo4jQueryRefusals
     internal static Neo4jQueryTranslationException Create(string feature, string? alternative = null)
     {
         var (code, shape, rule) = Classify(feature);
-        var error = new Neo4jQueryTranslationException($"GraphBridge cannot translate {shape} [{code}]. {alternative ?? rule}");
-        error.Data[DataKey] = code;
-        return error;
+        return new Neo4jQueryTranslationException($"GraphBridge cannot translate {shape} [{code}]. {alternative ?? rule}", code);
     }
 
     internal static (string Code, string Shape, string Alternative) Classify(string feature)

@@ -124,7 +124,7 @@ internal static class CypherPredicateTranslator
             throw CypherDiagnostics.Create("GBFC102", "Cypher.Is(...) accepts a captured CypherPredicate or one built inline from Fluent Cypher methods and captured symbols. Build it in a local variable first.");
         CypherPredicate? predicate;
         try { predicate = Expression.Lambda<Func<CypherPredicate>>(expression).Compile(preferInterpretation: true)(); }
-        catch (Exception error) when (error is not NotSupportedException { Data: var data } || !data.Contains(CypherDiagnostics.DataKey))
+        catch (Exception error) when (error is not FluentCypherException)
         {
             throw CypherDiagnostics.Create("GBFC102", $"Building the predicate passed to Cypher.Is failed: {error.Message} Build it in a local variable first.");
         }

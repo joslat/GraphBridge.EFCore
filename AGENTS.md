@@ -1,11 +1,11 @@
 # AGENTS.md — GraphBridge agent rules
 
-When the local strategy pack is present, read `strategy/design/START_HERE.md` and its four specification files before writing provider code. In a clean clone without that pack, use the public supported contracts, `docs/architecture`, `tests/README.md` and source. Do not require ignored files for builds or contribution. This file controls autonomous coding behavior; the design pack describes intended scope, while the implementation tracker records verified behavior.
+When the local strategy pack is present, read `strategy/design/START_HERE.md`, its three specification files and the active plan `strategy/PLAN.md` before writing provider code. In a clean clone without that pack, use the public supported contracts, `docs/architecture`, `tests/README.md` and source. Do not require ignored files for builds or contribution. This file controls autonomous coding behavior; the design pack describes intended scope, while the implementation tracker records verified behavior.
 
 ## Priorities
 
 1. Correctness against actual EF Core + Neo4j, then simple design, then performance, then optional tooling.
-2. Implement milestone tickets in `strategy/design/04_IMPLEMENTATION.md` in dependency order; M0 + source-map before query provider.
+2. Implement the tasks in `strategy/PLAN.md` in priority and dependency order. The original M0–M7 blueprint is complete and archived in `strategy/design/archive/`.
 3. Keep GraphBridge a real EF Core **non-relational provider**. Don't substitute a hand-written `IQueryable` or a second ORM.
 4. EF Core is the single entity state owner and finalized EF `IModel` is runtime model authority. Neo4j.Driver owns transport.
 5. Node and relationship storage are explicitly different; join-entity→edge lowering is an unproven hypothesis until tested.
@@ -16,7 +16,7 @@ When the local strategy pack is present, read `strategy/design/START_HERE.md` an
 - The user authorizes reordering, modifying, removing or adding tasks when evidence or sound engineering judgment justifies it. Routine plan adjustments do not require renewed permission.
 - Prioritize finishing incomplete earlier phases whenever feasible before advancing later phases. Audit the earliest open acceptance gates first, close missing verification or implementation, and record any external blocker explicitly. Passing a supported subset does not close all remaining work in its phase; keep partial and full completion distinct.
 - Preserve the intended outcome, architectural constraints and real prerequisites. The milestone dependency order is the default; adjust it only with a recorded reason and revised dependencies. Never bypass a correctness gate or remove work merely to claim completion.
-- Keep `strategy/design/04_IMPLEMENTATION.md` and `strategy/docs/implementation/IMPLEMENTATION_STATUS.md` consistent when the roadmap changes. Record what changed, why, dependency impacts and any effect on scope or validation in the tracking table. Mark removed or superseded tasks explicitly so their history remains reviewable.
+- Keep `strategy/PLAN.md` and `strategy/docs/implementation/IMPLEMENTATION_STATUS.md` consistent when the roadmap changes. Record what changed, why, dependency impacts and any effect on scope or validation in the tracking table. Mark removed or superseded tasks explicitly so their history remains reviewable.
 
 ## Engineering rules
 
@@ -36,7 +36,13 @@ When the local strategy pack is present, read `strategy/design/START_HERE.md` an
 ## Local strategy boundary
 
 - `strategy/` is intentionally ignored. It contains maintainer-local design, planning, raw benchmark results, internal verification records and launch drafts. Never force-add it or introduce public build, package or CI dependencies on it. `GraphBridge.sln` owns the public source, samples, tests and benchmarks.
+- `strategy/` is its own Git repository with a separate private remote, nested inside this ignored folder. Commit and push strategy changes there, by path, after each tracking update; this repository never records them.
 - Keep implementation architecture/ADRs, conformance contracts, tests, executable benchmarks and reusable engineering/verification tools tracked alongside public source and guides (user restoration approval, 2026-10-12). Keep raw media, traces, installers, generated results, credentials and editorial/progress tooling private or ignored. Public documentation must not link to ignored strategy files. Restoring source does not authorize publishing private evidence or enabling automatic CI.
+
+## Public repository
+
+- Development happens in the private repository (`origin`). The public repository receives snapshots only, through `eng/release/Publish-PublicSnapshot.ps1`; never push private history or branches to it, and never add it as a normal remote. Run the script with `-Status` to see what isn't public yet.
+- Don't merge public pull requests on GitHub. Bring them, and anything else changed directly in the public repository, into the private repository with `eng/release/Import-PublicChange.ps1`. The procedure is in `eng/release/README.md`.
 
 ## Shared machine and resource limits
 

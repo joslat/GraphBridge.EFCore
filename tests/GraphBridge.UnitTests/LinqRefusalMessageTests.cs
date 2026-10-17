@@ -19,6 +19,10 @@ public sealed class LinqRefusalMessageTests
         var error = Assert.Throws<Neo4jQueryTranslationException>(() => people.GroupBy(p => p.Name).Select(g => g.Key).ToQueryString());
         Assert.StartsWith("GraphBridge cannot translate GroupBy [GBQ101]. ", error.Message);
         Assert.DoesNotContain("TranslateGroupBy", error.Message);
+        Assert.Equal("GBQ101", error.Code);
+        Assert.Equal(error.Code, error.Data["GraphBridge.QueryDiagnostic"]);
+        Assert.Null(new Neo4jQueryTranslationException("message").Code);
+        Assert.Throws<ArgumentException>(() => new Neo4jQueryTranslationException("message", " "));
     }
 
     [Fact]

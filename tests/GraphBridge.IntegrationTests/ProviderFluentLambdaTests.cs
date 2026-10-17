@@ -149,9 +149,9 @@ public sealed class ProviderFluentLambdaTests(DisposableNeo4jFixture fixture)
         // People without a nickname: C# keeps them, native Cypher drops them. The lambda form is therefore rejected.
         Assert.Equal(new[] { "Ada", "Bob", "Cara", "Dan", "Fay" }, csharp);
         Assert.Equal(new[] { "Ada", "Bob", "Fay" }, native);
-        var error = Assert.Throws<NotSupportedException>(() => db.Cypher().Match(person)
+        var error = Assert.Throws<FluentCypherException>(() => db.Cypher().Match(person)
             .Where(() => person.Value.RunId == runId && person.Value.Nickname != "Bob").Return(() => person.Value.Name).ToQueryString());
-        Assert.Equal("GBFC110", error.Data["GraphBridge.FluentDiagnostic"]);
+        Assert.Equal("GBFC110", error.Code);
         // The explicit combinators state either meaning on the server.
         var nativeMeaning = await db.Cypher().Match(person).Where(() => person.Value.RunId == runId)
             .Where(person.Property(p => p.Nickname).Ne("Bob")).Return(() => person.Value.Name).OrderBy(() => person.Value.Name).Limit(100).ToListAsync();

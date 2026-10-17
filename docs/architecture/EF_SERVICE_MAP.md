@@ -312,6 +312,7 @@ Mongo's notes highlight exact projection-member/shaper agreement, strict support
 | `Metadata.Internal` join detection, private reflection | No planned use | Use explicit annotations and GB-009 actual-entry evidence |
 | Experimental precompiled query entry points (E) | Deferred | Do not advertise NativeAOT/precompiled-query support |
 | Cosmos/Mongo internal implementations | Source reference only | No runtime dependency or wholesale implementation copying |
+| `IDatabaseFacadeDependenciesAccessor.Context`, `DbContext.ContextId.Lease` (P) | VectorData adapter: the borrowed context and its pool lease, captured when the adapter is created and compared before each search | A re-leased pooled context must still change `Lease` (unit and live pooled-context tests in `VectorDataAdapterTests` and `ProviderVectorDataTests`) |
 
 The required sequence was GB-001 live direct-driver baseline → GB-002 source map → GB-003 options → GB-004 binding → GB-005/006 server translation and EF shaping. The node-query gate has now passed (section 10). Next dependency-ordered work is **GB-007/008**, node persistence and transaction/concurrency proofs; source inspection alone cannot close those tickets.
 

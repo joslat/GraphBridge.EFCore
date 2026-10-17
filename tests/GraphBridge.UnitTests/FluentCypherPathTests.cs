@@ -1,3 +1,4 @@
+using GraphBridge.EntityFrameworkCore.FluentCypher;
 using GraphBridge.EntityFrameworkCore.Paths;
 using Microsoft.EntityFrameworkCore;
 using Neo4j.Driver;
@@ -38,11 +39,11 @@ public sealed class FluentCypherPathTests
         Assert.Throws<ArgumentOutOfRangeException>(() => step.Repeat(-1, 3));
         Assert.Throws<ArgumentOutOfRangeException>(() => step.Repeat(1, 65));
         Assert.Throws<ArgumentOutOfRangeException>(() => step.Repeat(3, 2));
-        Assert.Throws<NotSupportedException>(() => step.Repeat(1, 2).Out(Graph.Edge<Friendship>(), start));
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(step.Repeat(1, 2)).Return(() => end.Value.Id).ToQueryString());
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(path, step.Repeat(1, 2)).Return(() => edge.Value.SourceId).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => step.Repeat(1, 2).Out(Graph.Edge<Friendship>(), start));
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(step.Repeat(1, 2)).Return(() => end.Value.Id).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(path, step.Repeat(1, 2)).Return(() => edge.Value.SourceId).ToQueryString());
         var movie = Graph.Node<FluentCypherCompilerTests.Movie>();
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(path, start.Out(Graph.Edge<FluentCypherCompilerTests.Credit>(), movie).Repeat(1, 2)).Return(() => path.Value).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(path, start.Out(Graph.Edge<FluentCypherCompilerTests.Credit>(), movie).Repeat(1, 2)).Return(() => path.Value).ToQueryString());
     }
 
     [Fact]
@@ -99,7 +100,7 @@ public sealed class FluentCypherPathTests
     {
         using var db = FluentCypherCompilerTests.Context();
         var person = Graph.Node<Person>(); var friend = Graph.Node<Person>();
-        var error = Assert.Throws<NotSupportedException>(() => db.Cypher()
+        var error = Assert.Throws<FluentCypherException>(() => db.Cypher()
             .Match(person.Undirected(Graph.Edge<Friendship>(), friend))
             .Return(() => friend.Value.Name).ToQueryString());
         Assert.Contains("GBFC202", error.Message);
@@ -116,7 +117,7 @@ public sealed class FluentCypherPathTests
         Assert.Equal("MATCH path3=(n0:`FluentPerson`)-[r2:`FLUENT_FRIEND`*1..1]-(n1:`FluentPerson`)\nWHERE n0.`display_name` = $p0\nRETURN n1.`display_name` AS c0",
             query.Return(() => friend.Value.Name).ToQueryString().Replace("\r", ""));
         // A repeated edge variable is a list in Cypher, so its scalar properties are refused even for one hop.
-        Assert.Throws<NotSupportedException>(() => query.Return(() => edge.Value.SourceId).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => query.Return(() => edge.Value.SourceId).ToQueryString());
     }
 
     private static INode Node(string id, string label = "FluentPerson") => NativeQueryTests.Proxy.For<INode>((m, _) => m.Name switch

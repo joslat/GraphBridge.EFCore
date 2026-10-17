@@ -123,7 +123,7 @@ public sealed class FluentCypherLambdaTests
         Assert.Equal("GBFC112", Code(() => query.Where(() => member.Value.Joined > since)));
         Assert.Equal("GBFC111", CompileCode(() => query.Where(() => member.Value.Token > token).Return(() => member.Value.Id).ToQueryString()));
         Assert.Equal("GBFC150", Code(() => query.Return(() => member.Value.Id).OrderBy(() => member.Value)));
-        var error = Assert.Throws<NotSupportedException>(() => query.Where(() => !(member.Value.Born > 1960)).Return(() => member.Value.Id).ToQueryString());
+        var error = Assert.Throws<FluentCypherException>(() => query.Where(() => !(member.Value.Born > 1960)).Return(() => member.Value.Id).ToQueryString());
         Assert.StartsWith("GraphBridge fluent Cypher [GBFC104]:", error.Message);
         Assert.Contains(".Not()", error.Message);
     }
@@ -161,7 +161,7 @@ public sealed class FluentCypherLambdaTests
         var member = Graph.Node<Member>(); var club = Graph.Node<Club>(); var other = Graph.Node<Member>();
         var text = db.Cypher().Match(member.Out<Membership>(club).In<Membership>(other)).Return(() => other.Value.Id).ToQueryString();
         Assert.Contains("-[r2:`LAMBDA_MEMBER_OF`]->(n1:`LambdaClub`)<-[r4:`LAMBDA_MEMBER_OF`]-", text);
-        Assert.Throws<NotSupportedException>(() => db.Cypher().Match(club.Out<Membership>(member)).Return(() => member.Value.Id).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => db.Cypher().Match(club.Out<Membership>(member)).Return(() => member.Value.Id).ToQueryString());
     }
 
     private static (string Where, IReadOnlyDictionary<string, object?> Parameters) Where(DbContext db, CypherNode<Member> member,
@@ -173,9 +173,9 @@ public sealed class FluentCypherLambdaTests
     }
 
     private static string? Code(Action action)
-        => Assert.Throws<NotSupportedException>(action).Data["GraphBridge.FluentDiagnostic"] as string;
+        => Assert.Throws<FluentCypherException>(action).Data["GraphBridge.FluentDiagnostic"] as string;
     private static string? CompileCode(Func<string> compile)
-        => Assert.Throws<NotSupportedException>(() => compile()).Data["GraphBridge.FluentDiagnostic"] as string;
+        => Assert.Throws<FluentCypherException>(() => compile()).Data["GraphBridge.FluentDiagnostic"] as string;
 
     internal static ProviderModelContext Context() => new(ProviderTestDriver.Create(), b =>
     {

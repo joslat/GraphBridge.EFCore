@@ -175,8 +175,8 @@ public sealed class GraphSnapshotTests
         using var db = new Context();
         var person = Graph.Node<Person>(); var movie = Graph.Node<Movie>();
         var query = db.Cypher().Match(person.Out(Graph.Edge<Credit>(), movie)).With(person).Return(() => movie.Value.Title);
-        Assert.Throws<NotSupportedException>(() => query.ToCommand());
-        Assert.Throws<NotSupportedException>(() => query.Inspect());
+        Assert.Throws<FluentCypherException>(() => query.ToCommand());
+        Assert.Throws<FluentCypherException>(() => query.Inspect());
     }
 
     [Fact]

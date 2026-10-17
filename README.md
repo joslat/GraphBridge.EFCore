@@ -50,7 +50,7 @@ Shapes that cannot be translated faithfully are refused with a code (GBQ for LIN
 | Area | What you get |
 |---|---|
 | Writing | Atomic `SaveChangesAsync`, explicit transactions shared with every query surface, optimistic concurrency, restrictive deletes: [transactions and concurrency](docs/features/TRANSACTIONS_AND_CONCURRENCY.md), [bulk update and delete](docs/features/BULK_MUTATIONS.md) |
-| Graph-native reads | [Bounded paths](docs/features/BOUNDED_PATHS.md), [vector and full-text search](docs/features/GRAPH_SEARCH.md) with native scores |
+| Graph-native reads | [Bounded paths](docs/features/BOUNDED_PATHS.md), [vector and full-text search](docs/features/GRAPH_SEARCH.md) with native scores, also through `IVectorSearchable<TRecord>` with the optional [VectorData adapter](docs/features/VECTOR_DATA.md) |
 | Types | Explicit [null, type and time semantics](docs/features/NULLS_TYPES_AND_TIME.md), including Guid, enum and `DateTimeOffset` |
 | Schema and change | A storage manifest, read-only schema inspection with reviewed proposals, typed migration plans with a journal and recovery: [schema and migrations](docs/features/SCHEMA_AND_MIGRATIONS.md) |
 | Observability | [Query inspection](docs/features/QUERY_INSPECTION.md) with `ToQueryString` and server EXPLAIN, and [command tracing](docs/features/COMMAND_TRACING.md) without leaking values |

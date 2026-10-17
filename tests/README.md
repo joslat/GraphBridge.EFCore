@@ -49,7 +49,7 @@ Enterprise acceptance has its own [fixture, license and permission prerequisites
 
 - [Benchmark methodology and runner](../benchmarks/GraphBridge.Benchmarks/README.md): measurements are opt-in; a build is not a benchmark run.
 - Package consumers: `eng/scripts/Test-ProviderPackage.ps1`, `Test-ToolingPackage.ps1`, `Test-GeneratorPackage.ps1`, `Test-CombinedPackages.ps1` and `Test-TemplatePackage.ps1`; add `-Live` only where supported and after fixture setup.
-- [Release qualification](../eng/release/README.md): explicit candidate/version, immutable receipts and no publication.
+- [Releasing a version](../eng/release/README.md#releasing-a-version): the build, offline tests and live tests that must pass on GitHub-hosted machines before publishing.
 - [Conformance matrix](verification/EF_CONFORMANCE_MATRIX.md), [upstream inventory](verification/EF_UPSTREAM_INVENTORY.md), [Fluent semantics](verification/FLUENT_SEMANTIC_MATRIX.md).
 - `python eng/release/Check-PublicDocuments.py` checks public Markdown paths. Dependency inventory: `pwsh eng/scripts/Export-DependencyInventory.ps1 -Check` after locked restore.
 

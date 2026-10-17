@@ -305,7 +305,7 @@ public sealed class ProviderFluentCypherTests(DisposableNeo4jFixture fixture)
         var oracle = await Native(db, "MATCH (a:FGQPerson {RunId:$run}) WHERE EXISTS { MATCH (a)-[:FGQ_FRIEND]->(f:FGQPerson) WHERE EXISTS { MATCH (f)-[:FGQ_FRIEND]->(:FGQPerson {Name:'Dan'}) } } RETURN a.Name AS name ORDER BY name LIMIT 100", r => r["name"].As<string>());
         Assert.Equal(new[] { "Ada", "Bob" }, oracle); Assert.Equal(oracle, actual);
         Assert.Equal(oracle, await FluentMovieQueries.FriendsReaching(db, db.RunId, "Dan").ToListAsync());
-        Assert.Throws<NotSupportedException>(() => root.Return(() => friend.Value.Name).ToQueryString());
+        Assert.Throws<FluentCypherException>(() => root.Return(() => friend.Value.Name).ToQueryString());
         // Explicitly matching the same API symbol outside the subquery creates a new outer binding.
         var fresh = await root.Match(friend).Where(friend.Property(p => p.RunId).Eq(db.RunId).And(friend.Property(p => p.Name).Eq("Eve")))
             .Return(() => friend.Value.Name).Limit(100).ToListAsync();

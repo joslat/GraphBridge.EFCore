@@ -128,7 +128,7 @@ Lambda and explicit forms combine: repeated `Where` calls AND together, so `.Whe
 
 `Graph.Is(...)` reads a captured predicate, or builds an inline one by running only Fluent Cypher builder methods over captured symbols and values. Any other call inside it is rejected without being run.
 
-Rejected shapes throw `NotSupportedException` with a code in the message and in `Exception.Data["GraphBridge.FluentDiagnostic"]`:
+Rejected shapes throw `FluentCypherException` (namespace `GraphBridge.EntityFrameworkCore.FluentCypher`, derived from `NotSupportedException`). Its `Code` property holds the stable code, which is also in the message and in `Exception.Data["GraphBridge.FluentDiagnostic"]`. Match on `Code`, not the message text:
 
 | Code | Rejected shape | Use instead |
 |---|---|---|
@@ -144,7 +144,7 @@ Rejected shapes throw `NotSupportedException` with a code in the message and in 
 | GBFC112 | `DateTimeOffset` and other temporal comparisons or `Contains` over temporal members | Explicit predicate methods, which keep native temporal semantics |
 | GBFC150 | An ordering lambda that is not `alias.Value.Member` or a WITH value | `OrderBy(alias.Property(...))` |
 
-Every other Fluent refusal is coded the same way, by family. The exception type stays `NotSupportedException`, and builder misuse such as a missing `Limit` stays `InvalidOperationException` or `ArgumentException`:
+Every other Fluent refusal is coded the same way, by family, and throws `FluentCypherException` too. A `catch (NotSupportedException)` still catches it. Builder misuse such as a missing `Limit` stays `InvalidOperationException` or `ArgumentException`:
 
 | Code | Refused | Use instead |
 |---|---|---|

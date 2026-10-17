@@ -2,6 +2,20 @@
 
 All notable changes to GraphBridge. Every version so far is a developer preview; the [compatibility contract](docs/reference/COMPATIBILITY.md) describes what may change between previews.
 
+## Unreleased
+
+### VectorData adapter (new optional package)
+
+- **`GraphBridge.EntityFrameworkCore.VectorData`:** `AsNodeVectorSearchable` and `AsRelationshipVectorSearchable` expose an existing Neo4j vector index as `Microsoft.Extensions.VectorData`'s `IVectorSearchable<TRecord>` ([guide](docs/features/VECTOR_DATA.md), [sample 06](samples/06-VectorSearch/README.md)). The adapter accepts `ReadOnlyMemory<float>`, `float[]` and `Embedding<float>` and passes native scores through unchanged. It refuses every non-default search option before database work, and detects a pooled context that was leased to another scope. The core provider takes no VectorData dependency. Design proposed by Luis Quintanilla in [issue #1](https://github.com/joslat/GraphBridge.EFCore/issues/1).
+
+### Fluent Cypher
+
+- **Typed refusals:** a refused Fluent query now throws `FluentCypherException`, derived from `NotSupportedException`, with the `GBFC###` code in its `Code` property ([ADR 0047, Amendment 2](docs/architecture/adr/ADR-0047.md#amendment-2-a-typed-fluent-exception)). The message and `Exception.Data["GraphBridge.FluentDiagnostic"]` are unchanged, and `catch (NotSupportedException)` keeps working. Code that checks the exact type, such as xUnit's `Assert.Throws<NotSupportedException>`, should switch to `FluentCypherException`.
+
+### LINQ refusals
+
+- `Neo4jQueryTranslationException` exposes its `GBQ###` code as `Code`, alongside `Exception.Data["GraphBridge.QueryDiagnostic"]`.
+
 ## 0.1.0-preview.2 (2026-10-16)
 
 **Developer preview; not production-supported.** The first published preview: [nuget.org](https://www.nuget.org/packages/GraphBridge.EntityFrameworkCore/0.1.0-preview.2) and the [GitHub release](https://github.com/joslat/GraphBridge.EFCore/releases/tag/v0.1.0-preview.2), 2026-10-16.

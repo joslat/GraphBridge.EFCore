@@ -194,7 +194,7 @@ catch (Neo4jQueryTranslationException error)
     Console.WriteLine(error.Message);
     // GraphBridge cannot translate GroupBy [GBQ101]. Group in Fluent Cypher with With(...) and
     // Graph.Count, Min, Max, Sum or Avg, or group a bounded list in memory.
-    var code = error.Data["GraphBridge.QueryDiagnostic"];   // "GBQ101"
+    var code = error.Code;   // "GBQ101", also in error.Data["GraphBridge.QueryDiagnostic"]
 }
 ```
 

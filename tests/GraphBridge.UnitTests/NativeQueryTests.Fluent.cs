@@ -1,3 +1,4 @@
+using GraphBridge.EntityFrameworkCore.FluentCypher;
 using Microsoft.EntityFrameworkCore;
 using Graph = GraphBridge.EntityFrameworkCore.FluentCypher.Cypher;
 
@@ -16,7 +17,7 @@ public sealed partial class NativeQueryTests
         var command = prepared.Command;
         Assert.Empty(script.Calls);
         person = Graph.Node<FluentPerson>();
-        Assert.Throws<NotSupportedException>(() => query.ToCommand()); // The captured expression now refers to an unbound alias.
+        Assert.Throws<FluentCypherException>(() => query.ToCommand()); // The captured expression now refers to an unbound alias.
         var results = await prepared.ToListAsync();
         Assert.Equal(2, results.Count);
         Assert.Equal(command.Text, script.Command);

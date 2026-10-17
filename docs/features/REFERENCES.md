@@ -114,7 +114,7 @@ Tracked results reuse EF instances and fix up inverse navigations. An absent ref
 
 ### Refused Include shapes
 
-A refused Include throws `Neo4jQueryTranslationException` before any database work, with the code in its message and in `Exception.Data["GraphBridge.QueryDiagnostic"]`.
+A refused Include throws `Neo4jQueryTranslationException` before any database work, with the code in its `Code` property, its message and `Exception.Data["GraphBridge.QueryDiagnostic"]`.
 
 | Shape | Example | Code |
 |---|---|---|

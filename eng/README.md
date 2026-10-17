@@ -9,7 +9,7 @@
 | `scripts/Test-FixtureResources.ps1`, `scripts/Test-ProcessEnvironment.ps1`, `scripts/Test-BloggingQuickstartPolicy.ps1`, `scripts/Test-BenchmarkPolicy.ps1` | Self-tests of those guards; they need no database |
 | `GraphBridge.Package.props`, `PACKAGE_NOTICES.md`, `dependencies/` | Shared package metadata, the notice file and the dependency inventory and license texts packed into every package |
 | `scripts/Export-DependencyInventory.ps1`, `scripts/Assert-PackageMetadata.ps1`, `scripts/Test-*Package.ps1`, `consumers/` | Regenerate or check the inventory, and prove each package from an isolated consumer (one consumer is also the template's `Program.cs`) |
-| `release/` | Release-candidate qualification; see [release/README](release/README.md) |
+| `release/` | Public snapshots and the release procedure; see [release/README](release/README.md) |
 | `enterprise/` | The opt-in Neo4j Enterprise permission suite; see [enterprise/README](enterprise/README.md) |
 | `scripts/Run-Benchmarks.ps1`, `scripts/Benchmark.Common.ps1`, `profiling/` | Benchmarks and allocation profiling; see [profiling/README](profiling/README.md). `Compare-BulkRuns.py` and `Compare-LiveQueryRuns.py` audit retained benchmark runs; `Measure-GeneratorBuild.ps1` times generator builds |
 | `scripts/Run-BloggingSample.ps1`, `scripts/Run-BloggingQuickstart.ps1` | Sample 01 and the package quickstart, end to end |
@@ -46,7 +46,7 @@ Never stop another developer's resources or shut down shared Docker/WSL.
 
 The explicitly opted-in dedicated GitHub-hosted profile uses a 2 GiB reserve. This requires
 both GitHub Actions and a fresh hosted runner; local/self-hosted execution retains 5 GiB.
-Public workflows currently start no databases.
+Only the manual Live Neo4j acceptance workflow starts a database.
 
 `Start-Neo4jFixture.ps1` generates credentials and a safety marker in ignored
 `eng/.fixture.env`, waits for health, and writes the fixture marker. Never print or commit
