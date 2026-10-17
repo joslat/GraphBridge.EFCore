@@ -84,7 +84,7 @@ Nine people, five movies, four reviews and the relationships between them:
 | 17 ★ | [Fluent Cypher II: optional matches and counts](Lessons/17-FluentOptionalAndCounts/README.md) | ◇● | Predicate ownership, rows vs distinct counts, aggregates, a refused predicate |
 | 18 | [Fluent Cypher III: existence](Lessons/18-FluentExists/README.md) | ◇● | Correlated `EXISTS` and `NOT EXISTS`, and EXISTS inside a lambda with `Graph.Is` |
 | 19 | [Bounded paths](Lessons/19-BoundedPaths/README.md) | ◇● | Repeated patterns, cycles, `QueryPathsAsync`, `HasMorePaths` |
-| 20 | [Full-text and vector search](Lessons/20-Search/README.md) | ● | Explicit indexes, scores, provenance (Neo4j 2026.09+) |
+| 20 | [Full-text and vector search](Lessons/20-Search/README.md) | ● | Explicit indexes, scores, provenance, and the same search through `IVectorSearchable` (Neo4j 2026.09+) |
 | 21 | [Bulk update and delete](Lessons/21-BulkMutations/README.md) | ● | `ExecuteUpdateAsync`, `ExecuteDeleteAsync`, stale tracked entities |
 | 22 ★ | [Capstone: one question, three query surfaces](Lessons/22-ThreeSurfaces/README.md) | ◇● | LINQ, Fluent and native Cypher side by side |
 | **E** | **Operating the graph** | | |

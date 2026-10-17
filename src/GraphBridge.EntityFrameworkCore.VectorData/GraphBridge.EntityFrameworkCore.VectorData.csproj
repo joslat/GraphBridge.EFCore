@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Optional Microsoft.Extensions.VectorData adapter for GraphBridge: search an existing Neo4j node or relationship vector index through IVectorSearchable&lt;TRecord&gt;. The core provider does not depend on it.</Description>
-    <Version>0.1.0-preview.2</Version>
+    <Version>0.1.0-preview.3</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>

@@ -109,7 +109,7 @@ $references
     Invoke-CheckedDotnet -Arguments @('restore', $projectPath, '--configfile', $configPath, '--locked-mode', '--disable-parallel', '-m:1', '-nodeReuse:false')
     $assets = Get-Content -LiteralPath (Join-Path $consumer 'obj/project.assets.json') -Raw | ConvertFrom-Json
     $libraries = @($assets.libraries.PSObject.Properties.Name)
-    $required = @($packages | ForEach-Object { "$_/$version" }) + @('Microsoft.EntityFrameworkCore/10.0.12', 'Neo4j.Driver/6.3.0')
+    $required = @($packages | ForEach-Object { "$_/$version" }) + @('Microsoft.EntityFrameworkCore/10.0.13', 'Neo4j.Driver/6.3.0')
     foreach ($name in $required) { if ($libraries -notcontains $name) { throw "Unexpected resolved package: $name" } }
     if (@($assets.libraries.PSObject.Properties | Where-Object { $_.Value.type -ne 'package' }).Count) { throw 'Consumer has a non-package dependency.' }
     if ($libraries -match '^Microsoft.EntityFrameworkCore.Relational/') { throw 'Combined consumer unexpectedly has relational EF dependencies.' }

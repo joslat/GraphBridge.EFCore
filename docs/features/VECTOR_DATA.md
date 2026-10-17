@@ -85,6 +85,6 @@ No `VectorStore` or collection API, no record writes or deletes, no index creati
 
 ## Try it
 
-[Sample 06](https://github.com/joslat/GraphBridge.EFCore/tree/main/samples/06-VectorSearch) creates a small index, registers the adapter in dependency injection and searches through a `MovieFinder` that knows only `IVectorSearchable<MovieHit>`.
+[Sample 06](https://github.com/joslat/GraphBridge.EFCore/tree/main/samples/06-VectorSearch) creates a small index, registers the adapter in dependency injection and searches through a `MovieFinder` that knows only `IVectorSearchable<MovieHit>`. Workshop lesson [20 · Full-text and vector search](../../workshop/GraphBridge.Workshop/Lessons/20-Search/README.md) ends with the same search through the interface and checks it against typed vector search.
 
 The design was proposed by Luis Quintanilla in [issue #1](https://github.com/joslat/GraphBridge.EFCore/issues/1).

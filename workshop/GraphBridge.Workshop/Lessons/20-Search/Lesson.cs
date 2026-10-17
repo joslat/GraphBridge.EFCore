@@ -1,5 +1,6 @@
 using GraphBridge.Workshop.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.VectorData;
 using Neo4j.Driver;
 
 namespace GraphBridge.Workshop.Lessons;
@@ -73,6 +74,21 @@ public sealed class Lesson20Search : ILesson
             lesson.Table(similar.Results.Select(r => new { Title = r.Value, Score = Math.Round(r.Score, 3) }));
             lesson.Expect("Cloud Atlas is the closest", "Cloud Atlas", similar.Results[0].Value);
             lesson.Expect("cosine similarity, as declared by the index", "cosine", similar.Provenance.SimilarityFunction?.ToLowerInvariant());
+
+            lesson.Step("The same index through Microsoft.Extensions.VectorData");
+            lesson.Code("VectorData");
+            // workshop:start VectorData
+            IVectorSearchable<string> search = db.Database.AsNodeVectorSearchable(VectorIndex, node => node["title"].As<string>());
+            var matches = new List<VectorSearchResult<string>>();
+            await foreach (var match in search.SearchAsync(new[] { 0.1f, 1.0f, 0.9f }, top: 2, cancellationToken: cancellationToken))
+                matches.Add(match);
+            // workshop:end VectorData
+            lesson.Table(matches.Select(m => new { Title = m.Record, Score = Math.Round(m.Score ?? 0, 3) }));
+            lesson.ExpectSequence("the interface returns the same movies in the same order",
+                similar.Results.Select(r => r.Value), matches.Select(m => m.Record));
+            lesson.Check("with the same native scores", matches.Count == similar.Results.Count
+                && matches.Zip(similar.Results).All(p => p.First.Score is { } score && Math.Abs(score - p.Second.Score) < 1e-6));
+            lesson.Note("Code that knows only IVectorSearchable<T> just searched the graph without a Neo4j or GraphBridge type. The application decides which store it gets.");
         }
         catch (NotSupportedException error) when (error.Message.StartsWith("Typed graph SEARCH", StringComparison.Ordinal))
         {
@@ -83,6 +99,6 @@ public sealed class Lesson20Search : ILesson
             // Clean up even when canceled.
             await WorkshopData.ExecuteAsync(connection, "MATCH (m:Movie) REMOVE m.embedding", CancellationToken.None);
         }
-        lesson.Limit("Search reads existing ONLINE indexes only and returns untracked results. Scores are native and not comparable across index types.");
+        lesson.Limit("Search reads existing ONLINE indexes only and returns untracked results. Scores are native and not comparable across index types. The VectorData adapter refuses filters, paging and thresholds instead of imitating them.");
     }
 }

@@ -57,7 +57,22 @@ try {
         $reader = [IO.StreamReader]::new($archive.GetEntry('content/graphbridge/App/Program.cs').Open())
         try { $program = $reader.ReadToEnd() } finally { $reader.Dispose() }
         if ($program -cne [IO.File]::ReadAllText((Join-Path $templateRepo 'eng/consumers/ProviderLiveConsumer.cs'))) { throw 'Template demo differs from maintained package consumer.' }
+        $reader = [IO.StreamReader]::new($archive.GetEntry('content/graphbridge/App/GraphBridgeStarter.csproj').Open())
+        try { [xml] $starter = $reader.ReadToEnd() } finally { $reader.Dispose() }
     } finally { $archive.Dispose() }
+    # A template is checked against the exact EF Core and driver versions it pins, so a published template keeps passing
+    # after the repository moves on. A template packed from this checkout must pin the repository's central versions.
+    $templatePins = @($starter.Project.ItemGroup.PackageReference | Where-Object Include -cne 'GraphBridge.EntityFrameworkCore' |
+        ForEach-Object { '{0}/{1}' -f $_.Include, $_.Version.Trim('[', ']') })
+    if (($templatePins | ForEach-Object { $_.Split('/')[0] } | Sort-Object) -join ',' -cne 'Microsoft.EntityFrameworkCore,Neo4j.Driver') { throw 'Template application must pin exactly EF Core and Neo4j.Driver.' }
+    if (-not $CandidateFeed) {
+        [xml] $central = Get-Content -LiteralPath (Join-Path $templateRepo 'Directory.Packages.props') -Raw
+        foreach ($pin in $templatePins) {
+            $id, $version = $pin.Split('/')
+            $tested = @($central.Project.ItemGroup.PackageVersion | Where-Object Include -ceq $id)[0].Version
+            if ($tested -cne $version) { throw "Template pins $pin, but the repository tests $id $tested." }
+        }
+    }
     Invoke-TemplateDotnet new install $templatePackage --debug:custom-hive $templateHive
     if ($LASTEXITCODE) { throw 'Isolated template installation failed.' }
     Invoke-TemplateDotnet new graphbridge --name $templateName --provider-version $templateVersion --output $templateConsumer --debug:custom-hive $templateHive
@@ -74,7 +89,7 @@ try {
     Invoke-TemplateDotnet restore $solution --configfile $config --disable-parallel '-m:1' '-nodeReuse:false' --locked-mode
     if ($LASTEXITCODE) { throw 'Fresh template locked restore failed.' }
     $assets = Get-Content -LiteralPath (Join-Path $templateConsumer 'App/obj/project.assets.json') -Raw | ConvertFrom-Json
-    foreach ($required in @("GraphBridge.EntityFrameworkCore/$templateVersion", 'Microsoft.EntityFrameworkCore/10.0.12', 'Neo4j.Driver/6.3.0')) {
+    foreach ($required in @("GraphBridge.EntityFrameworkCore/$templateVersion") + $templatePins) {
         if ($assets.libraries.PSObject.Properties.Name -cnotcontains $required) { throw 'Generated application did not resolve a tested exact package version.' }
     }
     if (@($assets.libraries.PSObject.Properties | Where-Object { $_.Value.type -eq 'project' }).Count) { throw 'Generated application references checkout source.' }

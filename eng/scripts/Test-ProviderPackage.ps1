@@ -53,7 +53,7 @@ try {
             throw 'Provider package identity does not match this invocation.'
         }
         $dependencies = @($manifest.SelectNodes("//*[local-name()='dependency']"))
-        $expected = @{ 'Microsoft.EntityFrameworkCore' = '10.0.12'; 'Neo4j.Driver' = '6.3.0' }
+        $expected = @{ 'Microsoft.EntityFrameworkCore' = '10.0.13'; 'Neo4j.Driver' = '6.3.0' }
         if ($dependencies.Count -ne $expected.Count) { throw 'Provider must have exactly EF Core and Neo4j.Driver direct dependencies.' }
         foreach ($dependency in $dependencies) {
             $id = $dependency.GetAttribute('id')
@@ -224,7 +224,7 @@ public class RejectTransport : DispatchProxy
 
     $assets = Get-Content -LiteralPath (Join-Path $consumerRoot 'obj/project.assets.json') -Raw | ConvertFrom-Json
     $libraries = @($assets.libraries.PSObject.Properties.Name)
-    foreach ($required in @("GraphBridge.EntityFrameworkCore/$packageVersion", 'Microsoft.EntityFrameworkCore/10.0.12', 'Neo4j.Driver/6.3.0')) {
+    foreach ($required in @("GraphBridge.EntityFrameworkCore/$packageVersion", 'Microsoft.EntityFrameworkCore/10.0.13', 'Neo4j.Driver/6.3.0')) {
         if ($libraries -notcontains $required) { throw "Clean consumer did not resolve tested package '$required'." }
     }
     if (@($libraries | Where-Object { $_ -match '^(GraphBridge\.(Tooling|Tool|Generators)|Microsoft\.CodeAnalysis[^/]*|Microsoft\.EntityFrameworkCore\.Relational|dotNetRdf[^/]*|YamlDotNet)/' }).Count -ne 0) {
@@ -263,7 +263,7 @@ public class RejectTransport : DispatchProxy
         version = $packageVersion
         runtimeAsset = 'lib/net10.0/GraphBridge.EntityFrameworkCore.dll'
         nuspecDependencies = $dependencyVersions
-        resolvedEfCore = '10.0.12'
+        resolvedEfCore = '10.0.13'
         resolvedDriver = '6.3.0'
         databaseAccess = [bool]$Live
         liveCrudPassed = [bool]$Live

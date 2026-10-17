@@ -7,6 +7,8 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Benchmark.Common.ps1')
 if ((Get-FixtureAvailableMemoryBytes) -lt 6GB) { throw 'Work deferred: reserve 5 GiB plus 1 GiB workload headroom.' }
 $start = [Diagnostics.ProcessStartInfo]::new('dotnet')
+# Run where the caller is: PowerShell's location, not the directory the PowerShell process started in.
+$start.WorkingDirectory = (Get-Location -PSProvider FileSystem).ProviderPath
 $start.UseShellExecute = $false
 $start.CreateNoWindow = $true
 $start.RedirectStandardOutput = $true

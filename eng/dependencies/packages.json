@@ -459,8 +459,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore.Abstractions",
-      "version": "10.0.12",
-      "lockedContentHash": "kDrux7T6C3V/YYYe2LXr7x6AEsVyq5Y2YoTE9er1SwbDtap3z1g8RgxNh5eKQVyB4T+DKvBBJ4Ezd/VZzJQJZg==",
+      "version": "10.0.13",
+      "lockedContentHash": "ARw+tZ3eiTosnK5nJPUGEzeUQcjyqCqs3qKA3lPtIRH5yJo3qIgxm7AvkZVIT9iWkS2083UsWe3Rj1MysW3p5A==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -497,8 +497,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore.Analyzers",
-      "version": "10.0.12",
-      "lockedContentHash": "Kd4o2oO1A6dfKxjz5LS16QyLtpCFTUiFWwmBABETAXRsSImBdRdWeKjSgbbRhAMiV3a3/nWr95ZtzClT4uaADQ==",
+      "version": "10.0.13",
+      "lockedContentHash": "zBx6VeEz/hkhlm0BJ2V+9xebUuDDIszcKvurJceQHuZPEXuXubrL6Lneo9VZiliRyJbQlB2oNKLkJXd3gHteQA==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -535,8 +535,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore.Design",
-      "version": "10.0.12",
-      "lockedContentHash": "I/IwEkUEUoa62UMJHh2+04oAs+gZz4QEunpZ3MGtAf12PZUcTduZLuGZEp3FAZ7wkmkSThZez41P8tgFj8QYKQ==",
+      "version": "10.0.13",
+      "lockedContentHash": "cxYpgXy9/5+ddwlKY7K196zV0W2W+N7JkPyAK0LVgf4XSJT4exfUURjsgcLHA4KOwWYQtyKZfIHpmTqDrkkCpg==",
       "projects": [
         "samples/04-DesignTime/DesignTime.App",
         "tests/GraphBridge.SpecificationTests"
@@ -551,8 +551,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore.Proxies",
-      "version": "10.0.12",
-      "lockedContentHash": "ijG6j04UjYCugQyuj3L804oa6AuwetuLavCY6xPFfAA/Q84gaSvtSe5KGYy4buF6fuL5YRc4fz4Q93UCvhTamA==",
+      "version": "10.0.13",
+      "lockedContentHash": "91bO4jN/Dmqz09G5Ab0GsI7OlXKkDbLWKDRGB2fTCEzOG0hsX47BdKiHP8b/U2mo7Np0HY8+IvGNjN+3U/TDJw==",
       "projects": [
         "tests/GraphBridge.SpecificationTests"
       ],
@@ -566,8 +566,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore.Relational",
-      "version": "10.0.12",
-      "lockedContentHash": "OiHmr8XzX96dbgMsYGe8qoqg4KxibdZG2r0QUVJBGktFInOp8IrABe8jvcbo5hrqeWfbwpK7fCEBiEPbY/ik4A==",
+      "version": "10.0.13",
+      "lockedContentHash": "QU/sbTtDR5wVAJRVecC1GwM7mwH8bvKOZNm+lulzMr5rhjdb8DDEFIqqdhF08JIo51DPv5uQdZ1nXoZsD5pTag==",
       "projects": [
         "samples/04-DesignTime/DesignTime.App",
         "tests/GraphBridge.SpecificationTests"
@@ -582,8 +582,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore.Specification.Tests",
-      "version": "10.0.12",
-      "lockedContentHash": "VBqvrPrlpNQ51+QoQQuJDaLS7Jq2baG80US/VSpEEMliojAZPDZQM5vFsbqzzAaqDw0R5JG73sgfdKJ9WlI+Tw==",
+      "version": "10.0.13",
+      "lockedContentHash": "eEKdtkx5s6GkQy17v0ql8rXN2KZT/ZwlRrRL5Qg/4He/LkcaW3HITV07XdLG/si2XfXZp3hG8e6rJg9dGaSs0Q==",
       "projects": [
         "tests/GraphBridge.SpecificationTests"
       ],
@@ -597,8 +597,8 @@
     },
     {
       "id": "Microsoft.EntityFrameworkCore",
-      "version": "10.0.12",
-      "lockedContentHash": "e7OrVN8U5yr4kuwdTHWBHGVQIVsGfMkAr0Ej1/BnrS989Q0XBVANpIzNZ2bc1GvMZ0/XwMt5InTnmKskxGy99Q==",
+      "version": "10.0.13",
+      "lockedContentHash": "u/z4nTQUJ5nJEXAQekgQEQZkh0delp4gL+ESHn7Z6k037c8HC5mSNu1/YdBgxGm7DtLjhOxktNl+aQMzw6wN7A==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -643,7 +643,9 @@
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
         "tests/GraphBridge.Tooling.IntegrationTests",
-        "tests/GraphBridge.UnitTests"
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",
@@ -655,8 +657,8 @@
     },
     {
       "id": "Microsoft.Extensions.Caching.Abstractions",
-      "version": "10.0.12",
-      "lockedContentHash": "sI3A6MUAyZwccLnwq0cXuRmC3WBtXieimBWafXSfhRJ4jnM2uGVXrqImDDVyW27u4vVaTOGlJxNJd8d1FGvCNQ==",
+      "version": "10.0.13",
+      "lockedContentHash": "UOJqcdNMoFcV/5RUcOlVKq9pPmbrcmbpLx5iYz9QtrmMcWRQzlL5Q/NZRfbPPLNyIEc1HWjjs5Z7nIwqewU1sg==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -698,8 +700,8 @@
     },
     {
       "id": "Microsoft.Extensions.Caching.Memory",
-      "version": "10.0.12",
-      "lockedContentHash": "fhC3DHcBcFF4bXvHIxFtXJYNut7q7ZItqNFcgWfrIgmpVImlcEKNHhE7ztpNSPJYMHYYStS5QGND2I5mC26yeA==",
+      "version": "10.0.13",
+      "lockedContentHash": "q+At65RACuCtGwUDVI08TmmrC73YFouimMkJAtlhsGhFcU/dVpqYEKpNBOF9TUxkJ6aefEOShqe7StLK7q3NqA==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -741,8 +743,8 @@
     },
     {
       "id": "Microsoft.Extensions.Configuration.Abstractions",
-      "version": "10.0.12",
-      "lockedContentHash": "8xaGcvS/qZ1otoxPQCEJkNva389CVL/plNcvIETZhQTETYdRkYDPEYhUMoAGONo4FU45ufdfE0j29AfWVVj0wA==",
+      "version": "10.0.13",
+      "lockedContentHash": "DY4C2qzTt2lOIY3VoscBH/TCwTolI5DKOfgJLuI+k1QUvRNT5vTMS58AOerNiihdVRStO0wEpLeRWA8jytzHBQ==",
       "projects": [
         "samples/04-DesignTime/DesignTime.App",
         "tests/GraphBridge.SpecificationTests"
@@ -817,8 +819,8 @@
     },
     {
       "id": "Microsoft.Extensions.DependencyInjection.Abstractions",
-      "version": "10.0.12",
-      "lockedContentHash": "9/qymSh7hVDMGTGwrLz8MRp5zRyXy9adGDOs4HwRdnLil3oZGYuWeZjbmHgCQ9BL1qBroVfgUK3U/nb61617Cw==",
+      "version": "10.0.13",
+      "lockedContentHash": "G2GrGWNAPZBsii2F6AU8n+JT2tC1/I0Ml/e9ZyNCgPjf3hZqronP7o0X91aAynCmVeae8KkSIUNXXeXCNRmdVQ==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -860,8 +862,8 @@
     },
     {
       "id": "Microsoft.Extensions.DependencyInjection",
-      "version": "10.0.12",
-      "lockedContentHash": "lXyK2O5GoYvfxW8eCFcD16JFbcoSTM1sJkAM0UHS1jZyl9NYMW64Tqm6OQFT0IDBjZi+xHt95/Zg+nxZhGFhZg==",
+      "version": "10.0.13",
+      "lockedContentHash": "4tnWU9vrU/A8NwYe9Z6wvieZ0EBb/uM82LAT+edNhdepOBWREZ7M7mzb941EIDPJaeOFdbVrDd5+7s9e89U6bQ==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -903,8 +905,8 @@
     },
     {
       "id": "Microsoft.Extensions.DependencyModel",
-      "version": "10.0.12",
-      "lockedContentHash": "rDPQVTxh/zMTDF7wHlRqL/jjZbwjAP6315ydBxj51pZW7qkAwGwjoSiMutxYI91xmOE3ZXjAGHbYRqzyJV7Urw==",
+      "version": "10.0.13",
+      "lockedContentHash": "6TyllZsToy3S/Ziu67GddljRTttuVJ8bbrbVUrsdHqH5678Oax5MpaEubxLoPoWLvgUBYo4KfcAig0mkBtktXQ==",
       "projects": [
         "samples/04-DesignTime/DesignTime.App",
         "tests/GraphBridge.SpecificationTests"
@@ -924,8 +926,8 @@
     },
     {
       "id": "Microsoft.Extensions.Logging.Abstractions",
-      "version": "10.0.12",
-      "lockedContentHash": "+24lC4plfbEDNfLAdTV/SWKS7dW+16X4HdydO3R++134kSNTzcbYA4KpR1Hdh6uWisB8Za3AzwyOn+K+NxWIug==",
+      "version": "10.0.13",
+      "lockedContentHash": "aSZEhEig4fvNiw2zs8Z6NyDlniKtq6YjcF3DyHuqTEHcZ2VKA/6itMPZ+dW+yWABWExlDcQwwdbqX1Rcb7W8WQ==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -967,8 +969,8 @@
     },
     {
       "id": "Microsoft.Extensions.Logging",
-      "version": "10.0.12",
-      "lockedContentHash": "6I46fTPfgYkrjRYfRXbho9WOvOelTnNjWuZws/hzGHDASH1LEJeA4VKK9k3wJvido8o7jJSB5WkMTonX7HM1bA==",
+      "version": "10.0.13",
+      "lockedContentHash": "fqbiPy4nUp4H2XHKAVQXKN2y3T2h4cFIx1DAAgE6iY9OHkN/OA1cKFi+geJKRWGuX6pS5SFbsjIPWHJqrxE0eg==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -1010,8 +1012,8 @@
     },
     {
       "id": "Microsoft.Extensions.Options",
-      "version": "10.0.12",
-      "lockedContentHash": "TDYD33TSRpXKZWlmTXNlj5kCihxatmv2Ec1u6C+bMYLphCS7PoSLE9Pjd/nunDoE7yETk+LLKjVJX78HYtWjpA==",
+      "version": "10.0.13",
+      "lockedContentHash": "tmMJgdrE4uhf1JcNs9CV9moAHW+hmDuvgMiPpnQxarKaUxqI2eN33sYK5S4l9Uw+rG9PJvlm4qPxMhvolTDTaQ==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -1053,8 +1055,8 @@
     },
     {
       "id": "Microsoft.Extensions.Primitives",
-      "version": "10.0.12",
-      "lockedContentHash": "dYfCLR52UA+3DL7C4I/pvSaRPkNqxrUAQmbFL2u0zvYKKzqgrFCJl08Df+F1aYc8leu9JvpC9bsURUdpExcBXQ==",
+      "version": "10.0.13",
+      "lockedContentHash": "ZjTwxzhiw2TMEzIbUDkMF0dfDB2I4NQgIfKD0ELu9/5Mk+SRGdKZcD0/lvBrRCAPo6KN2r0BW86MRancoyJkoA==",
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
@@ -1104,7 +1106,9 @@
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
         "tests/GraphBridge.Tooling.IntegrationTests",
-        "tests/GraphBridge.UnitTests"
+        "tests/GraphBridge.UnitTests",
+        "tests/GraphBridge.Workshop.Tests",
+        "workshop/GraphBridge.Workshop"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",

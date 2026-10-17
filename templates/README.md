@@ -23,7 +23,7 @@ The tests run offline and need no database.
 | Path | Content |
 |---|---|
 | `MyGraph.slnx` | The solution |
-| `App/` | A console application pinned to the provider version you chose, EF Core `[10.0.12]` and Neo4j.Driver `[6.3.0]`, with a guarded demo: create, query, update with row version, a Fluent Cypher read, a rolled-back transaction and delete |
+| `App/` | A console application pinned to the provider version you chose, EF Core `[10.0.13]` and Neo4j.Driver `[6.3.0]`, with a guarded demo: create, query, update with row version, a Fluent Cypher read, a rolled-back transaction and delete |
 | `Tests/` | Two offline xUnit tests: a LINQ query translates to parameterized Cypher, and an unsupported query is refused |
 | `Directory.Build.props`, `global.json`, `NuGet.Config` | `net10.0`, warnings as errors, lock files, the pinned SDK and nuget.org as the package source |
 

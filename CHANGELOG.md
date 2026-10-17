@@ -2,11 +2,18 @@
 
 All notable changes to GraphBridge. Every version so far is a developer preview; the [compatibility contract](docs/reference/COMPATIBILITY.md) describes what may change between previews.
 
-## Unreleased
+## 0.1.0-preview.3 (2026-10-17)
+
+**Developer preview; not production-supported.** Five packages: the provider, the new VectorData adapter, Tooling, Generators and Templates.
+
+### Thanks
+
+The VectorData adapter is Luis Quintanilla's idea. In [issue #1](https://github.com/joslat/GraphBridge.EFCore/issues/1) he proposed exposing GraphBridge's vector search through `Microsoft.Extensions.VectorData`, with a complete design and acceptance criteria, and the new package follows that design. Thank you, Luis!
 
 ### VectorData adapter (new optional package)
 
 - **`GraphBridge.EntityFrameworkCore.VectorData`:** `AsNodeVectorSearchable` and `AsRelationshipVectorSearchable` expose an existing Neo4j vector index as `Microsoft.Extensions.VectorData`'s `IVectorSearchable<TRecord>` ([guide](docs/features/VECTOR_DATA.md), [sample 06](samples/06-VectorSearch/README.md)). The adapter accepts `ReadOnlyMemory<float>`, `float[]` and `Embedding<float>` and passes native scores through unchanged. It refuses every non-default search option before database work, and detects a pooled context that was leased to another scope. The core provider takes no VectorData dependency. Design proposed by Luis Quintanilla in [issue #1](https://github.com/joslat/GraphBridge.EFCore/issues/1).
+- **Workshop:** [lesson 20](workshop/GraphBridge.Workshop/Lessons/20-Search/README.md) ends with the same vector search through `IVectorSearchable` and checks that it returns the same movies and scores.
 
 ### Fluent Cypher
 
@@ -15,6 +22,18 @@ All notable changes to GraphBridge. Every version so far is a developer preview;
 ### LINQ refusals
 
 - `Neo4jQueryTranslationException` exposes its `GBQ###` code as `Code`, alongside `Exception.Data["GraphBridge.QueryDiagnostic"]`.
+
+### Dependencies
+
+- **EF Core 10.0.13** (was 10.0.12). Between the two, EF's core library changed only complex-collection change tracking, which GraphBridge does not use ([source check](docs/architecture/EF_SERVICE_MAP.md)). Pin `Microsoft.EntityFrameworkCore` to `[10.0.13]` in your application; new projects from the template already do. Neo4j.Driver stays at 6.3.0.
+
+### Documentation site
+
+- The site's theme is updated to Material for MkDocs 9.7.7, which fixes a cross-site scripting flaw in search suggestions ([GHSA-xvg9-69gf-fjrf](https://github.com/advisories/GHSA-xvg9-69gf-fjrf)). No package is affected.
+
+### Repository
+
+- Pull requests to the public repository are imported into development with the contributor credited, then published in the next snapshot ([CONTRIBUTING](CONTRIBUTING.md)).
 
 ## 0.1.0-preview.2 (2026-10-16)
 

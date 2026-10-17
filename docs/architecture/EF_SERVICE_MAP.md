@@ -6,6 +6,8 @@ Readonly-navigation correction (2026-10-11): `GraphIncludeBinding.CompileFixup` 
 
 Source inspection date: 2026-10-11. Target: **Microsoft.EntityFrameworkCore 10.0.12**, .NET 10. The EF source tag is [`v10.0.12`](https://github.com/dotnet/efcore/tree/v10.0.12), resolved by `git ls-remote` and shallow clone to **`001bfac21c1910cdf1110ca256c9ea0a06f374ca`**. All EF links below use that tag. Do not substitute signatures from `main`, older tutorials, or another EF package version.
 
+Patch update to **10.0.13** (2026-10-17): tag [`v10.0.13`](https://github.com/dotnet/efcore/tree/v10.0.13) resolves to **`4c96c90aa32d1d339911d82609f80200248c64f1`**. `git diff v10.0.12 v10.0.13` changes one file under `src/EFCore`: `ChangeTracking/Internal/InternalEntryBase.InternalComplexCollectionEntry.cs`, which reuses tracked complex-collection entries (EF issue 38632, switch `Microsoft.EntityFrameworkCore.Issue38632`). GraphBridge maps no complex types and calls none of it. `EFCore.Abstractions`, `EFCore.Design` and `test/EFCore.Specification.Tests` are unchanged; the other changes are build files, Sqlite and relational or Cosmos tests. Every signature and link in this map therefore holds for 10.0.13, and the links keep the `v10.0.12` tag they were inspected at.
+
 Sections 1–9 record the source evidence established **before provider code**. Section 10 records the subsequently implemented GB-003–006 adapter and executed query tests. Persistence, relationship materialization, and wider EF compatibility are separate gates; see `IMPLEMENTATION_STATUS.md` and the relevant tests.
 
 ## 1. Registration and lifetime authority

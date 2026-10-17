@@ -17,7 +17,7 @@ Generation reads restored metadata without fetching packages, accepting terms or
 
 | Artifact | Actual included assets at reviewed checkpoint | Dependency distinction |
 |---|---|---|
-| Provider `.nupkg` | GraphBridge provider DLL, README, MIT license, inventory and preserved notices | EF Core 10.0.12 and Neo4j.Driver 6.3.0 are references restored separately; no dependency DLL embedded |
+| Provider `.nupkg` | GraphBridge provider DLL, README, MIT license, inventory and preserved notices | EF Core 10.0.13 and Neo4j.Driver 6.3.0 are references restored separately; no dependency DLL embedded |
 | Generator `.nupkg` | GraphBridge analyzer DLL, README, MIT license, inventory and preserved notices | Roslyn is private build tooling, not a bundled DLL or published dependency |
 | Optional tooling library | GraphBridge tooling DLL, README, MIT license, inventory and preserved notices | Provider and five tooling dependencies are references; no dependency DLL embedded. Compiled CLI/application bundles remain outside this distribution. |
 | Starter template | Original starter source, SDK pin, license and attribution payloads | Package references restored by generated applications; no dependency DLL embedded |

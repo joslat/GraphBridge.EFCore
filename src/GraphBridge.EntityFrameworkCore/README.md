@@ -24,7 +24,7 @@ dotnet add package GraphBridge.EntityFrameworkCore --prerelease
 Pin the EF Core and driver versions GraphBridge is tested with:
 
 ```xml
-<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.12]" />
+<PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.13]" />
 <PackageReference Include="Neo4j.Driver" Version="[6.3.0]" />
 ```
 
@@ -119,7 +119,7 @@ A query that cannot be translated faithfully is refused before it reaches the da
 | | Version |
 |---|---|
 | .NET SDK | 10.0.401 |
-| EF Core | 10.0.12 |
+| EF Core | 10.0.13 |
 | Neo4j.Driver | 6.3.0 |
 | Neo4j | 2026.09 Community; Enterprise reader/writer permissions verified separately |
 

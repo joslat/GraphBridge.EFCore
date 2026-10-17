@@ -5,7 +5,7 @@ This fourth sample demonstrates tooling around the three [model-authoring workfl
 Run from the repository root with the pinned SDK and restored dependencies:
 
 ```powershell
-dotnet tool install dotnet-ef --version 10.0.12 --tool-path .artifacts/tools/ef
+dotnet tool install dotnet-ef --version 10.0.13 --tool-path .artifacts/tools/ef
 dotnet restore samples/04-DesignTime/DesignTime.App --locked-mode
 dotnet build samples/04-DesignTime/DesignTime.App --no-restore -m:1 -p:UseSharedCompilation=false -nodeReuse:false
 # Stop if restore/build fails. Windows local-tool executable shown; omit .exe on Unix.

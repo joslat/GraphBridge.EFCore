@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Package version; must equal <Version> in the five packable projects (for example 0.1.0-preview.2)
+        description: Package version; must equal <Version> in the five packable projects (for example 0.1.0-preview.3)
         required: true
         type: string
       publish:

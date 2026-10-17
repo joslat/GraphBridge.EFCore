@@ -4,7 +4,7 @@ This is GraphBridge's support contract: the exact stack it is built and tested o
 
 ## Developer preview
 
-GraphBridge is a **developer preview** (`0.1.0-preview.2`; see the [changelog](../../CHANGELOG.md)). That means:
+GraphBridge is a **developer preview** (`0.1.0-preview.3`; see the [changelog](../../CHANGELOG.md)). That means:
 
 - It is not production-supported. Use it to evaluate, learn and give feedback.
 - Public APIs, generated source, supported model shapes and persisted mapping contracts may change between previews. Pin the exact preview.
@@ -19,11 +19,11 @@ Report problems through the repository's issue templates with exact versions, a 
 |---|---|---|
 | .NET SDK | **10.0.401** | Pinned in [global.json](../../global.json) with roll-forward disabled |
 | Target framework | `net10.0` | Tested on runtime 10.0.12; other runtimes are unverified |
-| Entity Framework Core | **10.0.12** | Exact central pin; signatures checked against EF source tag `v10.0.12` |
+| Entity Framework Core | **10.0.13** | Exact central pin; signatures checked against EF source tags `v10.0.12` and `v10.0.13` |
 | Neo4j.Driver | **6.3.0** | The package reports assembly version 6.3.11.0; the informational version identifies 6.3.0 |
 | Optional tooling libraries | dotNetRdf 3.5.2, YamlDotNet 18.1.0, Roslyn 5.9.0, AngleSharp 1.5.0 | Used by `GraphBridge.Tooling` and the generator only; never by the provider at run time |
 
-The provider package declares minimum dependency versions. NuGet may resolve newer EF Core or driver versions; that is not a compatibility claim. Pin EF Core 10.0.12 and Neo4j.Driver 6.3.0 in your application, and use matching GraphBridge versions for the provider, `GraphBridge.Tooling` and `GraphBridge.Generators`.
+The provider package declares minimum dependency versions. NuGet may resolve newer EF Core or driver versions; that is not a compatibility claim. Pin EF Core 10.0.13 and Neo4j.Driver 6.3.0 in your application, and use matching GraphBridge versions for the provider, `GraphBridge.Tooling` and `GraphBridge.Generators`.
 
 ## Neo4j servers and editions
 

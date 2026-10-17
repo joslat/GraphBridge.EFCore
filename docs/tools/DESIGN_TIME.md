@@ -59,7 +59,7 @@ Status is an observation, not permission to apply or a lock against concurrent c
 
 ## Actual EF CLI behavior and boundaries
 
-The tested CLI is **dotnet-ef 10.0.12**, matching EF Core **10.0.12** on **.NET 10**. In the sample, an `IDesignTimeDbContextFactory<DesignContext>` supplies the model without reading credentials. It builds a lazy driver aimed at `bolt://127.0.0.1:1`, so the supported metadata commands never contact a server, create schema or seed data. The context owns and disposes that driver. Your own factories and startup code run as application code; the provider cannot make them offline or side-effect free.
+The tested CLI is **dotnet-ef 10.0.13**, matching EF Core **10.0.13** on **.NET 10**. In the sample, an `IDesignTimeDbContextFactory<DesignContext>` supplies the model without reading credentials. It builds a lazy driver aimed at `bolt://127.0.0.1:1`, so the supported metadata commands never contact a server, create schema or seed data. The context owns and disposes that driver. Your own factories and startup code run as application code; the provider cannot make them offline or side-effect free.
 
 `dbcontext info --json` reports provider `GraphBridge.EntityFrameworkCore`. EF reports database and connection details only for relational providers; their absence does not mean GraphBridge lost its configuration. Check your application configuration instead.
 
