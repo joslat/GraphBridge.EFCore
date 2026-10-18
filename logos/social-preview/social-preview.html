@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GraphBridge social preview</title>
+<style>
+  /* 1280×640 GitHub social preview. Rendered to ../GraphBridge-social-preview.png; see README.md. */
+  :root {
+    --bg-1: #06101f;
+    --bg-2: #0a1c38;
+    --blue: #106ffd;
+    --sky: #21d1fc;
+    --cyan: #3bfafc;
+    --text: #ffffff;
+    --muted: #a9bdd8;
+    --chip-bg: rgba(33, 209, 252, 0.09);
+    --chip-border: rgba(59, 250, 252, 0.45);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    position: relative;
+    background: radial-gradient(1100px 620px at 78% 18%, #0f2c56 0%, rgba(15, 44, 86, 0) 60%),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color: var(--text);
+    font-family: "Segoe UI", "Segoe UI Variable Display", Inter, "Helvetica Neue", Arial, sans-serif;
+  }
+  /* Background graph motif: loose nodes and edges in the logo's colours, kept faint and away from the text. */
+  .motif { position: absolute; inset: 0; width: 1280px; height: 640px; }
+  /* Everything that matters sits inside a central 1100×540 safe area. */
+  .safe { position: absolute; left: 90px; top: 50px; width: 1100px; height: 540px; }
+  .head { display: flex; align-items: center; gap: 44px; margin-top: 34px; }
+  .mark { position: relative; width: 300px; height: 159px; overflow: hidden; flex: none; }
+  /* The official logo, unmodified: its transparent padding is cropped by scaling and offset only. */
+  .mark img { position: absolute; width: 514px; height: 171px; left: -107px; top: -6px; }
+  .name { font-size: 112px; font-weight: 800; letter-spacing: -2.5px; line-height: 1; }
+  .name .bridge {
+    background: linear-gradient(90deg, var(--sky) 0%, var(--cyan) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .value { font-size: 46px; font-weight: 600; color: var(--text); margin-top: 18px; letter-spacing: -0.3px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 16px 18px; margin-top: 52px; }
+  .chip {
+    font-size: 33px; font-weight: 600; color: #dff9ff;
+    padding: 10px 26px 12px; border-radius: 999px;
+    background: var(--chip-bg); border: 2px solid var(--chip-border);
+  }
+  .foot {
+    position: absolute; left: 0; right: 0; bottom: 6px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 25px; color: var(--muted);
+  }
+  .foot code { font-family: "Cascadia Code", Consolas, "Courier New", monospace; color: #cfe9ff; font-size: 25px; }
+  .foot .tag { font-weight: 600; letter-spacing: 0.4px; }
+</style>
+</head>
+<body>
+  <svg class="motif" viewBox="0 0 1280 640" aria-hidden="true">
+    <defs>
+      <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#106ffd"/>
+        <stop offset="1" stop-color="#3bfafc"/>
+      </linearGradient>
+    </defs>
+    <g stroke="url(#edge)" stroke-width="3" opacity="0.22" fill="none">
+      <line x1="1010" y1="40" x2="1150" y2="120"/>
+      <line x1="1150" y1="120" x2="1240" y2="40"/>
+      <line x1="1150" y1="120" x2="1215" y2="250"/>
+      <line x1="1215" y1="250" x2="1260" y2="360"/>
+      <line x1="1215" y1="250" x2="1160" y2="330"/>
+    </g>
+    <g opacity="0.30">
+      <circle cx="1010" cy="40" r="9" fill="#106ffd"/>
+      <circle cx="1150" cy="120" r="12" fill="#21d1fc"/>
+      <circle cx="1240" cy="40" r="8" fill="#3bfafc"/>
+      <circle cx="1215" cy="250" r="10" fill="#21d1fc"/>
+      <circle cx="1260" cy="360" r="7" fill="#3bfafc"/>
+      <circle cx="1160" cy="330" r="7" fill="#106ffd"/>
+    </g>
+  </svg>
+
+  <div class="safe">
+    <div class="head">
+      <div class="mark"><img src="../GraphBridge-logo.png" alt="GraphBridge logo"></div>
+      <div>
+        <div class="name">Graph<span class="bridge">Bridge</span></div>
+        <div class="value">A real EF Core provider for Neo4j</div>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip">LINQ · Fluent Cypher · native Cypher</span>
+      <span class="chip">Nodes &amp; relationships</span>
+      <span class="chip">Vector search · VectorData</span>
+    </div>
+    <div class="foot">
+      <code>dotnet add package GraphBridge.EntityFrameworkCore</code>
+      <span class="tag">Developer preview · MIT</span>
+    </div>
+  </div>
+</body>
+</html>

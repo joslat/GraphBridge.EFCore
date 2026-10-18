@@ -129,6 +129,8 @@ public sealed class ConnectedDoctorTests
         public Func<string, IDictionary<string, object>, IResultCursor>? Explain { get; init; }
         public Func<string, IDictionary<string, object>, IResultCursor>? Native { get; init; }
         public Action<string>? OnCleanup { get; init; }
+        /// <summary>Rows returned for SHOW INDEXES ... WHERE name = $index, keyed by index name; absent means no such index.</summary>
+        public Dictionary<string, Dictionary<string, object>> SearchIndexes { get; } = new(StringComparer.Ordinal);
         public List<string> Calls { get; } = [];
         public List<string> Queries { get; } = [];
         public Protocol()
@@ -146,6 +148,8 @@ public sealed class ConnectedDoctorTests
                 if (!query.StartsWith("CALL dbms.components()", StringComparison.Ordinal)
                     && !query.StartsWith("SHOW ", StringComparison.Ordinal) && Native is not null)
                     return Task.FromResult(Native(query, parameters));
+                if (query.StartsWith("SHOW INDEXES", StringComparison.Ordinal) && parameters.TryGetValue("index", out var name))
+                    return Task.FromResult(Rows(SearchIndexes.TryGetValue((string)name, out var row) ? [row] : []));
                 return Task.FromResult(Cursor(query));
             });
             var session = Proxy.For<IAsyncSession>((method, _) =>
@@ -179,6 +183,10 @@ public sealed class ConnectedDoctorTests
                     ? IncludeConstraint ? [new() { ["name"] = "private_constraint", ["type"] = "NODE_PROPERTY_UNIQUENESS", ["entityType"] = "NODE",
                         ["labelsOrTypes"] = new[] { "PrivateDoctorLabel" }, ["properties"] = new[] { "id" }, ["propertyType"] = null! }] : []
                     : query.StartsWith("SHOW INDEXES", StringComparison.Ordinal) ? [] : throw new InvalidOperationException("Unexpected non-metadata query.");
+            return Rows(rows);
+        }
+        internal static IResultCursor Rows(Dictionary<string, object>[] rows)
+        {
             var index = -1;
             return Proxy.For<IResultCursor>((method, _) => method.Name switch
             {

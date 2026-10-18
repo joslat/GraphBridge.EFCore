@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 $source = (Resolve-Path "$PSScriptRoot/../..").Path
 $scanner = Join-Path $source '.artifacts/tools/gitleaks-8.30.1'
 if (-not (Test-Path $scanner)) { throw "Install gitleaks 8.30.1 under $scanner first." }
-git -C $source fetch --quiet https://github.com/joslat/GraphBridge.EFCore.git '+refs/heads/main:refs/public/main'
+git -C $source fetch --quiet --no-tags https://github.com/joslat/GraphBridge.EFCore.git '+refs/heads/main:refs/public/main'
 if ($LASTEXITCODE) { throw 'Could not fetch the public main branch.' }
 $t = Join-Path ([IO.Path]::GetTempPath()) ('gb-snapshot-test-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $t | Out-Null

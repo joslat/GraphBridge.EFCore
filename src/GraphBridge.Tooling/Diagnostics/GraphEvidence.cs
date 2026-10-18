@@ -124,30 +124,38 @@ public sealed class GraphEvidenceReport
     };
 
     public GraphEvidenceReport(GraphEvidenceMode mode, IEnumerable<GraphQueryEvidence> queries,
-        IEnumerable<GraphDiagnosticResult> diagnostics, GraphModelEvidence? model = null, GraphDatabaseEvidence? database = null)
+        IEnumerable<GraphDiagnosticResult> diagnostics, GraphModelEvidence? model = null, GraphDatabaseEvidence? database = null,
+        IEnumerable<GraphSearchIndexEvidence>? searchIndexes = null)
     {
         if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
         ArgumentNullException.ThrowIfNull(queries);
         ArgumentNullException.ThrowIfNull(diagnostics);
         var querySnapshot = queries.Take(257).ToArray();
         var diagnosticSnapshot = diagnostics.Take(1025).ToArray();
+        var indexSnapshot = (searchIndexes ?? []).Take(65).ToArray();
         if (querySnapshot.Length > 256 || querySnapshot.Any(q => q is null)
             || querySnapshot.Select(q => q.ContractId).Distinct(StringComparer.Ordinal).Count() != querySnapshot.Length)
             throw new ArgumentException("Reports require at most 256 queries with distinct contract IDs.", nameof(queries));
         if (diagnosticSnapshot.Length > 1024 || diagnosticSnapshot.Any(d => d is null))
             throw new ArgumentException("Reports require at most 1024 non-null diagnostics.", nameof(diagnostics));
+        if (indexSnapshot.Length > 64 || indexSnapshot.Any(i => i is null)
+            || indexSnapshot.Select(i => i.Id).Distinct(StringComparer.Ordinal).Count() != indexSnapshot.Length)
+            throw new ArgumentException("Reports require at most 64 search index observations with distinct IDs.", nameof(searchIndexes));
         Mode = mode;
         Queries = Array.AsReadOnly(querySnapshot.OrderBy(q => q.ContractId, StringComparer.Ordinal).ToArray());
         Diagnostics = Array.AsReadOnly(diagnosticSnapshot.OrderBy(d => d.Code, StringComparer.Ordinal).ThenBy(d => d.Phase).ToArray());
         Versions = GraphEvidenceVersions.Loaded();
         Model = model;
         Database = database;
+        SearchIndexes = indexSnapshot.Length == 0 ? null : Array.AsReadOnly(indexSnapshot.OrderBy(i => i.Id, StringComparer.Ordinal).ToArray());
     }
     public int FormatVersion => 1;
     public GraphEvidenceMode Mode { get; }
     public GraphEvidenceVersions Versions { get; }
     public GraphModelEvidence? Model { get; }
     public GraphDatabaseEvidence? Database { get; }
+    /// <summary>Declared search indexes and what connected Doctor observed; null when none are declared.</summary>
+    public IReadOnlyList<GraphSearchIndexEvidence>? SearchIndexes { get; }
     public IReadOnlyList<GraphQueryEvidence> Queries { get; }
     public IReadOnlyList<GraphDiagnosticResult> Diagnostics { get; }
     public bool ParameterValuesIncluded => false;

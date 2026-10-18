@@ -1,0 +1,61 @@
+name: API proposal
+description: Propose a concrete public API, with its motivation, usage and risks.
+title: "[API Proposal]: "
+labels: ["api-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A good proposal makes it easy to say yes. [Issue #1](https://github.com/joslat/GraphBridge.EFCore/issues/1), the proposal behind the VectorData adapter, is a model to follow.
+        Accepted proposals are credited in the changelog and the release notes.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Background and motivation
+      description: The problem, who has it, and why the current APIs don't solve it well.
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API
+      description: The public surface, as C# signatures.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: usage
+    attributes:
+      label: Usage example
+      description: How an application would call it.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative designs
+      description: Other shapes you considered, and why this one is better.
+    validations:
+      required: false
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks
+      description: Compatibility, semantics such as nulls, ordering, transactions and cancellation, performance, security, and dependencies the package would take on.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete, testable statements that would show the feature is done.
+    validations:
+      required: false
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to help implement or review this.
+          required: false

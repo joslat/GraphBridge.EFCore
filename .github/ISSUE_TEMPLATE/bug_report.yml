@@ -1,0 +1,74 @@
+name: Bug report
+description: A reproducible GraphBridge failure.
+title: "[Bug] "
+labels: ["bug", "needs-repro"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please use synthetic data: **never** attach passwords, tokens, connection strings, fixture environment files, production records or raw parameter values. Replace sensitive values with synthetic examples.
+        Security problems go to a [private report](https://github.com/joslat/GraphBridge.EFCore/security/advisories/new), not an issue.
+  - type: input
+    id: package
+    attributes:
+      label: GraphBridge package and version
+      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.3
+    validations:
+      required: true
+  - type: input
+    id: efcore
+    attributes:
+      label: EF Core version
+      placeholder: "10.0.13"
+    validations:
+      required: true
+  - type: input
+    id: neo4j
+    attributes:
+      label: Neo4j version and edition
+      placeholder: 2026.09.0 Community, Enterprise or Aura
+    validations:
+      required: true
+  - type: input
+    id: dotnet
+    attributes:
+      label: .NET SDK and runtime, Neo4j.Driver version, operating system
+      placeholder: SDK 10.0.401, runtime 10.0.x, Neo4j.Driver 6.3.0, Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: A small synthetic model, mappings, seed and the exact command or LINQ query, runnable on a disposable graph. State the tracking mode and whether an explicit transaction is active.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include the exception type and a sanitized message. If a write failed, say whether the rollback is confirmed or the commit outcome is unknown.
+    validations:
+      required: true
+  - type: textarea
+    id: cypher
+    attributes:
+      label: Generated Cypher and evidence
+      description: "`ToQueryString()` output if translation succeeds, relevant run links and sanitized logs."
+      render: cypher
+    validations:
+      required: false
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope check
+      description: Link the compatibility or limitation entry that applies, and say whether this behavior is documented as supported.
+    validations:
+      required: false

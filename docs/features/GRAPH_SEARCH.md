@@ -30,7 +30,7 @@ To search the same indexes through `Microsoft.Extensions.VectorData`'s `IVectorS
 
 ## Requirements
 
-- **Create the index yourself and wait until it is ONLINE.** GraphBridge never creates schema. Before each search it reads the database's server components and index metadata in the same transaction; a missing index, the wrong kind or target, or a vector of the wrong dimensions fails. There is no fallback scan and no retry.
+- **Create the index yourself and wait until it is ONLINE.** GraphBridge never creates schema. Before each search it reads the database's server components and index metadata in the same transaction; a missing index, the wrong kind or target, or a vector of the wrong dimensions fails. There is no fallback scan and no retry. To catch these before the first search, and to find stored values the index silently skips, declare your indexes for [Doctor](../tools/DOCTOR.md#search-indexes).
 - **Server:** queries use Cypher 25 vector `SEARCH` and the full-text query procedures. The capability check admits known Neo4j 2026 releases for vector search, and 2026.09 or later for full-text; other servers get `NotSupportedException`. On those, write the search as [native Cypher](NATIVE_CYPHER.md). Tested profiles are in the [version and capability matrix](../reference/COMPATIBILITY.md#neo4j-servers-and-editions).
 - **Index names** follow the identifier rule `[A-Za-z_][A-Za-z0-9_]*` and must match observed metadata.
 

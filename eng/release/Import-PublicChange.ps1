@@ -17,11 +17,12 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Resolve-Path "$PSScriptRoot/../..")
 git fetch origin main --quiet
 if ($LASTEXITCODE) { throw 'Could not fetch the private origin.' }
-git fetch $PublicUrl "+refs/heads/main:refs/public/main" --quiet
+# --no-tags: public release tags must never land here and be pushed to the private origin (see Publish-PublicSnapshot.ps1).
+git fetch --no-tags $PublicUrl "+refs/heads/main:refs/public/main" --quiet
 if ($LASTEXITCODE) { throw 'Could not fetch the public main branch.' }
 
 if ($PullRequest) {
-    git fetch $PublicUrl "+refs/pull/$PullRequest/head:refs/public/pr/$PullRequest" --quiet
+    git fetch --no-tags $PublicUrl "+refs/pull/$PullRequest/head:refs/public/pr/$PullRequest" --quiet
     if ($LASTEXITCODE) { throw "Could not fetch pull request #$PullRequest." }
     $head = "refs/public/pr/$PullRequest"
     $base = (git merge-base refs/public/main $head).Trim()

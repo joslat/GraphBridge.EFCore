@@ -1,0 +1,61 @@
+name: EF behavior mismatch
+description: Supported GraphBridge behavior differs from what EF Core specifies.
+title: "[EF mismatch] "
+labels: ["bug", "area: linq"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use synthetic data only. Remove credentials, connection environment files and application parameter values.
+        A query GraphBridge **refuses** is not a mismatch: use the "Unsupported graph query" form for that.
+  - type: input
+    id: package
+    attributes:
+      label: GraphBridge package and version
+      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.3
+    validations:
+      required: true
+  - type: input
+    id: efcore
+    attributes:
+      label: EF Core version
+      placeholder: "10.0.13"
+    validations:
+      required: true
+  - type: input
+    id: neo4j
+    attributes:
+      label: Neo4j version and edition
+      placeholder: 2026.09.0 Community
+    validations:
+      required: true
+  - type: input
+    id: dotnet
+    attributes:
+      label: .NET and Neo4j.Driver versions
+      placeholder: .NET 10.0.x, Neo4j.Driver 6.3.0
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected EF behavior
+      description: Link the EF documentation or the exact upstream test class and method. Say whether it is a general EF contract or relational-provider behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Synthetic entities and configuration, seed, the LINQ or save operation, tracking mode, transaction scope, and the expected versus actual entity or graph state. If you compared another provider, name its version.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: cypher
+    attributes:
+      label: Generated Cypher and diagnostics
+      description: Generated Cypher when available, and the sanitized exception or log details.
+      render: cypher
+    validations:
+      required: false

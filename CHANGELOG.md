@@ -2,6 +2,23 @@
 
 All notable changes to GraphBridge. Every version so far is a developer preview; the [compatibility contract](docs/reference/COMPATIBILITY.md) describes what may change between previews.
 
+## Unreleased
+
+### Doctor: early warnings for search indexes
+
+- **Declare the indexes your searches use** with `GraphSearchIndexExpectation.Vector(...)` or `.FullText(...)` in a `GraphQueryCatalog`. Connected Doctor then checks each one before the first search ([guide](docs/tools/DOCTOR.md#search-indexes)), using the new codes `GBD-SEARCH-000` to `GBD-SEARCH-011`. It reports:
+  - **Failures:** a missing, not-yet-ONLINE or FAILED index; the wrong kind; different labels or properties; different vector dimensions.
+  - **Warnings:** a different similarity function; stored values that Neo4j silently leaves out of the index (wrong dimensions, non-numeric values, zero vectors on cosine); an index with nothing to search.
+  - **Other:** servers that can't run typed search, and eventually consistent full-text indexes.
+- **No changes to the database, nothing retained:** Doctor reads metadata and a bounded sample in its own rolled-back read transaction and never creates or changes an index. The report holds only the declared ID, finding codes and counts: never index names, labels, properties or values.
+- **Public API additions (preview):** `GraphQueryCatalog` takes an optional list of search index declarations, `GraphEvidenceReport` has `SearchIndexes`, and its constructor gains an optional `searchIndexes` parameter. The Query Lab HTML report lists the declared indexes.
+
+### Repository
+
+- **Issue forms:** new issues use forms with required version fields, and there is a new API proposal form. Blank issues are off; questions go to [Discussions](https://github.com/joslat/GraphBridge.EFCore/discussions).
+- **[Roadmap](ROADMAP.md):** what's next, what's deliberately not planned, the proposed criteria for leaving preview, and how to influence it.
+- **Release tooling:** public fetches use `--no-tags`, and the post-release live check waits until nuget.org search lists the new version.
+
 ## 0.1.0-preview.3 (2026-10-17)
 
 **Developer preview; not production-supported.** Five packages: the provider, the new VectorData adapter, Tooling, Generators and Templates.

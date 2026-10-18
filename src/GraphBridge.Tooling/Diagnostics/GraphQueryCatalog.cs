@@ -163,14 +163,21 @@ internal sealed record GraphPreparedContract(CypherCommand Command,
 /// <summary>An immutable, deterministically ordered set of trusted application registrations.</summary>
 public sealed class GraphQueryCatalog
 {
-    public GraphQueryCatalog(IEnumerable<GraphQueryContract> contracts)
+    /// <param name="searchIndexes">Search indexes the application depends on; connected Doctor checks them. Offline inspection only lists them.</param>
+    public GraphQueryCatalog(IEnumerable<GraphQueryContract> contracts, IEnumerable<GraphSearchIndexExpectation>? searchIndexes = null)
     {
         ArgumentNullException.ThrowIfNull(contracts);
         var snapshot = contracts.Take(257).ToArray();
         if (snapshot.Length > 256 || snapshot.Any(c => c is null)
             || snapshot.Select(c => c.Definition.Id).Distinct(StringComparer.Ordinal).Count() != snapshot.Length)
             throw new ArgumentException("Catalogs allow at most 256 non-null contracts with distinct IDs.", nameof(contracts));
+        var indexes = (searchIndexes ?? []).Take(65).ToArray();
+        if (indexes.Length > 64 || indexes.Any(i => i is null)
+            || indexes.Select(i => i.Id).Distinct(StringComparer.Ordinal).Count() != indexes.Length)
+            throw new ArgumentException("Catalogs allow at most 64 non-null search index declarations with distinct IDs.", nameof(searchIndexes));
         Contracts = Array.AsReadOnly(snapshot.OrderBy(c => c.Definition.Id, StringComparer.Ordinal).ToArray());
+        SearchIndexes = Array.AsReadOnly(indexes.OrderBy(i => i.Id, StringComparer.Ordinal).ToArray());
     }
     public IReadOnlyList<GraphQueryContract> Contracts { get; }
+    public IReadOnlyList<GraphSearchIndexExpectation> SearchIndexes { get; }
 }

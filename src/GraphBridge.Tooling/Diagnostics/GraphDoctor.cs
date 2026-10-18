@@ -24,6 +24,7 @@ public static class GraphDoctor
         var offline = capture.Report;
         var diagnostics = offline.Diagnostics.ToList();
         GraphDatabaseEvidence? database = null;
+        var searchIndexes = offline.SearchIndexes;
         if (offline.Model is not null)
         {
             try
@@ -45,7 +46,21 @@ public static class GraphDoctor
                 diagnostics.Add(GraphDiagnosticCatalog.Classify(error, GraphDiagnosticPhase.Schema));
             }
         }
-        return capture with { Report = new(GraphEvidenceMode.Inspect, offline.Queries, diagnostics, offline.Model, database) };
+        // Search indexes are checked only against a completely observed profile; partial metadata stays not-run.
+        if (database is not null && catalog.SearchIndexes.Count != 0)
+        {
+            try
+            {
+                var observed = await GraphSearchIndexInspection.InspectAsync(context, catalog.SearchIndexes, database, cancellationToken).ConfigureAwait(false);
+                searchIndexes = observed.Indexes;
+                diagnostics.AddRange(observed.Diagnostics);
+            }
+            catch (Exception error) when (error is not OutOfMemoryException)
+            {
+                diagnostics.Add(GraphDiagnosticCatalog.Classify(error, GraphDiagnosticPhase.Schema));
+            }
+        }
+        return capture with { Report = new(GraphEvidenceMode.Inspect, offline.Queries, diagnostics, offline.Model, database, searchIndexes) };
     }
 
     /// <summary>Finalizes the model, captures its storage fingerprint and compiles trusted factories without executing results.</summary>
@@ -62,6 +77,7 @@ public static class GraphDoctor
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(catalog);
         var queries = catalog.Contracts.Select(c => GraphQueryEvidence.Unobserved(c.Definition)).ToArray();
+        var searchIndexes = catalog.SearchIndexes.Select(GraphSearchIndexEvidence.NotObserved).ToArray();
         var diagnostics = new List<GraphDiagnosticResult>();
         var commands = new Dictionary<string, CypherCommand>(StringComparer.Ordinal);
         var prepared = new Dictionary<string, GraphPreparedContract>(StringComparer.Ordinal);
@@ -75,7 +91,7 @@ public static class GraphDoctor
         catch (Exception error) when (error is not OutOfMemoryException)
         {
             diagnostics.Add(GraphDiagnosticCatalog.Classify(error, GraphDiagnosticPhase.Model));
-            return new(new(GraphEvidenceMode.Offline, queries, diagnostics), commands, prepared);
+            return new(new(GraphEvidenceMode.Offline, queries, diagnostics, searchIndexes: searchIndexes), commands, prepared);
         }
 
         for (var i = 0; i < catalog.Contracts.Count; i++)
@@ -99,7 +115,7 @@ public static class GraphDoctor
                 if (error is OperationCanceledException) break;
             }
         }
-        return new(new(GraphEvidenceMode.Offline, queries, diagnostics, model), commands, prepared);
+        return new(new(GraphEvidenceMode.Offline, queries, diagnostics, model, searchIndexes: searchIndexes), commands, prepared);
     }
 }
 

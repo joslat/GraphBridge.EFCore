@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/joslat/GraphBridge.EFCore/discussions
+    about: Ask how to do something, share what you built, or float an idea before it becomes an issue.
+  - name: Documentation
+    url: https://joslat.github.io/GraphBridge.EFCore/
+    about: Getting started, features, tools, limitations and troubleshooting.
+  - name: Report a security vulnerability
+    url: https://github.com/joslat/GraphBridge.EFCore/security/advisories/new
+    about: Report security problems privately. Never open a public issue for them.

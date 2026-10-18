@@ -1,0 +1,63 @@
+name: Unsupported graph query
+description: A useful LINQ or Fluent Cypher shape is refused.
+title: "[Unsupported query] "
+labels: ["enhancement", "area: linq"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This report becomes a regression candidate, not an automatic support commitment.
+        Do not attach credentials, connection strings, fixture environment files, production data, raw parameter values or unsanitized logs. Generated query text and model identifiers can be sensitive too: replace domain names with synthetic ones while keeping the failing shape.
+  - type: textarea
+    id: intent
+    attributes:
+      label: Intended result
+      description: The graph question, and why the supported LINQ, Fluent Cypher or native Cypher APIs don't meet it. Link the current supported contract or limitation if you can.
+    validations:
+      required: true
+  - type: input
+    id: package
+    attributes:
+      label: GraphBridge package and version
+      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.3
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: EF Core, Neo4j.Driver, .NET, operating system, Neo4j version and edition
+      placeholder: EF Core 10.0.13, Neo4j.Driver 6.3.0, .NET 10.0.x, Linux, Neo4j 2026.09.0 Community
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Query surface
+      options:
+        - LINQ
+        - Fluent Cypher
+        - Both
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal synthetic reproduction
+      description: Small entity and mapping definitions, synthetic seed rows and edges, and the exact query. Include direction, optional edges, nulls, duplicate or parallel edges, ordering and row limits where they matter. State the expected and actual results, or the phase that refuses the query.
+      render: csharp
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics
+      description: The diagnostic code (GBQ### or GBFC###) if there is one, the exception type and phase, and `ToQueryString()` output if compilation succeeds. If it fails before a query exists, say so; don't invent output. A small handwritten native Cypher reference and its expected result helps.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Scope and alternatives tried
+      description: Is this a documented unsupported operation, a regression of supported behavior, or an unclear mapping or permission failure? Name any native alternative that works, and the smallest additional shape that would unblock you.
+    validations:
+      required: false

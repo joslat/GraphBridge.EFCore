@@ -131,6 +131,15 @@ public static partial class GraphQueryLab
         }
         html.Append("</dl>");
         foreach (var diagnosis in (evidence?.Diagnostics ?? []).Concat(input.Semantic?.Diagnostics ?? [])) Diagnosis(html, diagnosis);
+        if (evidence?.SearchIndexes is { } indexes)
+        {
+            html.Append("<table><caption>Declared search indexes</caption><thead><tr><th>Index</th><th>Kind</th><th>Outcome</th><th>Findings</th><th>Sampled / unusable</th></tr></thead><tbody>");
+            foreach (var index in indexes)
+                html.Append("<tr><td>").Append(H(index.Id)).Append("</td><td>").Append(H(index.Kind + " " + index.EntityKind.ToString().ToLowerInvariant()))
+                    .Append("</td><td>").Append(Badge(index.Status)).Append("</td><td>").Append(H(index.Findings.Count == 0 ? "none" : string.Join(", ", index.Findings)))
+                    .Append("</td><td>").Append(H(index.SampledValues is { } sampled ? sampled + " / " + (index.UnusableValues ?? 0) : "not sampled")).Append("</td></tr>");
+            html.Append("</tbody></table>");
+        }
         if (evidence is null && input.Semantic is { } absent)
         {
             html.Append("<table><caption>Required cases without compilation snapshots</caption><thead><tr><th>Contract</th><th>Outcome</th></tr></thead><tbody>");

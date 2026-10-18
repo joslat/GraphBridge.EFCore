@@ -75,7 +75,7 @@ var report = await GraphDoctor.InspectAsync(db, catalog, "myapp.staging.v1",
 Console.WriteLine(report.ToJson());
 ```
 
-Connected mode runs the offline checks, then calls `InspectGraphSchemaAsync()` to read server components, constraints and indexes (plus the current graph type on a recognized Enterprise profile) and compares them with the finalized model. It performs no DDL, no data scan and no registered query execution. If the context already has an EF transaction, Doctor borrows it unchanged; otherwise the inspector rolls back and disposes its own read transaction.
+Connected mode runs the offline checks, then calls `InspectGraphSchemaAsync()` to read server components, constraints and indexes (plus the current graph type on a recognized Enterprise profile) and compares them with the finalized model. It performs no DDL and no registered query execution, and it reads no data except the bounded sample for [declared search indexes](#search-indexes). If the context already has an EF transaction, Doctor borrows it unchanged; otherwise the inspector rolls back and disposes its own read transaction.
 
 | Parameter | Meaning |
 |---|---|
@@ -89,6 +89,41 @@ The report keeps the observed numeric server version, recognized edition (`commu
 Warnings stay visible even when required expectations pass: `database.schemaStatus` is `warn`, the findings list them and the report carries `GBD-SCHEMA-002`. Typical warnings are application-enforced properties on Community and optional missing indexes. A pass does not prove data integrity, a consistent metadata snapshot, query planability or result correctness. For full schema names and proposed DDL, call `InspectGraphSchemaAsync()` yourself in a private context; Doctor does not keep them.
 
 Use read-only credentials and select the intended database explicitly. Do not attach Doctor to every application request or run connected inspection on ordinary startup. Troubleshooting order: [Doctor decision tree](../reference/TROUBLESHOOTING.md#doctor-decision-tree).
+
+## Search indexes
+
+[Graph search](../features/GRAPH_SEARCH.md) and the [VectorData adapter](../features/VECTOR_DATA.md) check their index at every call, but only at the first call. Before that, a missing index, a different embedding model or a wrong property name can cost hours: searches fail, or quietly return nothing. Declare the indexes your application searches, and connected Doctor checks them before you deploy:
+
+```csharp
+var catalog = new GraphQueryCatalog(contracts,
+[
+    GraphSearchIndexExpectation.Vector("movie-taste", indexName: "movie_taste", labelOrType: "Movie",
+        property: "taste", dimensions: 1024, similarity: "cosine"),
+    GraphSearchIndexExpectation.FullText("movie-text", indexName: "movie_text", ["Movie"], ["title", "tagline"])
+]);
+var report = await GraphDoctor.InspectAsync(db, catalog, "myapp.staging.v1");
+```
+
+For each declared index, Doctor reads `SHOW INDEXES` and a bounded sample of stored values in its own read transaction, which it always rolls back. It never creates, repairs or drops an index. It catches these mistakes:
+
+| Code | What it means | Typical cause |
+|---|---|---|
+| GBD-SEARCH-001 | The index doesn't exist | Not created in this deployment, a typo in the name, or the wrong database selected |
+| GBD-SEARCH-002 | The index isn't ONLINE yet | Still populating after creation; searches fail until it's done |
+| GBD-SEARCH-003 | The index is FAILED | Population failed; read the Neo4j log, then drop and recreate it |
+| GBD-SEARCH-004 | Wrong kind | A vector index where full-text was expected, or a relationship index where a node index was expected |
+| GBD-SEARCH-005 | Different labels, types or properties | The index covers `embeddings` but the application writes `embedding` |
+| GBD-SEARCH-006 | Different vector dimensions | The embedding model changed (for example 1536 to 1024) but the index didn't; every search fails |
+| GBD-SEARCH-007 | Different similarity function (warning) | Scores mean something else than the application assumes |
+| GBD-SEARCH-008 | Stored values the index silently skips (warning) | Wrong dimensions, strings or other non-numeric values, or zero vectors on a cosine index |
+| GBD-SEARCH-009 | Nothing to search (warning) | No sampled entity has the property: ingestion or embedding hasn't run, or the name differs |
+| GBD-SEARCH-010 | Typed search unsupported on this server | Typed search needs Neo4j 2026 with Cypher 25 (full-text 2026.09+); native Cypher still works |
+| GBD-SEARCH-011 | Eventually consistent full-text index (information) | Recent writes appear after a delay; fine for bulk loads |
+| GBD-SEARCH-000 | Every declared index passes | |
+
+GBD-SEARCH-008 matters most because Neo4j raises no error: values it can't index are simply left out, and a search just returns fewer results. The live test for this feature checks it against the server: a real search returns exactly the values Doctor counted as usable.
+
+Each index appears in `searchIndexes[]` with its declared ID, kind, status, finding codes, how many values were sampled and how many are unusable. The report never contains the index name, labels, properties or any stored value. Sampling looks at no more than 10 times `sampleSize` entities (default 1,000 values) and reports counts only. Pass `sampleSize: 0` to check metadata only. Native `VECTOR` values are not dimension-checked. Offline Doctor lists the declarations as `not-run`.
 
 ## Report output
 
@@ -114,6 +149,7 @@ Use read-only credentials and select the intended database explicitly. Do not at
 | `versions` | Informational versions of the loaded provider, EF Core, driver and tooling assemblies. |
 | `model` | Storage fingerprint and counts; absent when the model failed. |
 | `database` | Connected mode only: profile ID, server version, edition, capabilities, `schemaStatus`, grouped findings and its own `status`. |
+| `searchIndexes[]` | Only when the catalog declares search indexes: ID, kind, entity kind, `status`, finding codes, `sampledValues` and `unusableValues`. See [search indexes](#search-indexes). |
 | `queries[]` | Contract ID, SHA-256 statement fingerprint, parameter positions and broad kinds (`string`, `integer`, `floating-point`, `boolean`, `bytes`, `array`, `null`, `opaque`), the declared definition, `compilation`, an optional `diagnostic`, and `execution: not-run`. |
 | `diagnostics[]` | Report-level diagnoses with explanation, suggested action and documentation link. |
 
@@ -138,6 +174,7 @@ Every diagnosis has a fixed code, status, severity, phase, explanation, suggeste
 | GBD-SCHEMA-000 | pass | The completed metadata comparison satisfies the schema expectations. |
 | GBD-SCHEMA-001 | fail | A required constraint or index is missing. Provision the reviewed change explicitly; Doctor never repairs. |
 | GBD-SCHEMA-002 | pass (warning) | Required expectations pass with warnings: application-enforced properties, optional indexes or unmanaged schema. |
+| GBD-SEARCH-000 … 011 | see [search indexes](#search-indexes) | Declared search indexes: missing (`001`), not ONLINE (`002`, blocked), failed (`003`), wrong kind (`004`), wrong labels or properties (`005`), wrong dimensions (`006`) fail; similarity (`007`), unusable values (`008`) and nothing to search (`009`) warn; `010` is unsupported; `011` is information. |
 | GBD-CAP-001 | blocked | A required capability is unknown. Check server version, edition and metadata permissions. |
 | GBD-CONN-001 | blocked | Connection or session failure. Check endpoint, database, TLS and server readiness. |
 | GBD-CONN-002 | blocked | Authentication or authorization prevented observation. Review credentials and grants privately. |
@@ -146,11 +183,11 @@ Every diagnosis has a fixed code, status, severity, phase, explanation, suggeste
 
 The `subcode` field appears only when the failure carried a `GraphBridge.QueryDiagnostic` or `GraphBridge.FluentDiagnostic` value in `Exception.Data`; it is omitted otherwise. `phase: Query` means local compilation, so server execution errors are never labeled as unsupported LINQ. Permission classification recognizes the driver's `AuthenticationException` and Neo4j's `Neo.ClientError.Security.*` [status codes](https://neo4j.com/docs/status-codes/current/errors/all-errors/). Schema, capability and model-pass diagnoses are added by the observing host; their presence in the catalog is not evidence that an observation ran.
 
-To report an unsupported query, use the [sanitized unsupported-query template](../../.github/ISSUE_TEMPLATE/unsupported_query.md).
+To report an unsupported query, use the [unsupported-query form](https://github.com/joslat/GraphBridge.EFCore/issues/new?template=unsupported_query.yml).
 
 ## Limits
 
-- Doctor observes. It never repairs schema, runs migrations, executes registered queries, retries or certifies production readiness.
+- Doctor observes. It never repairs schema, creates search indexes, runs migrations, executes registered queries, retries or certifies production readiness.
 - Budgets in a definition are declarations; Doctor does not enforce them.
 - There is no standalone `doctor` command and no assembly discovery: Doctor runs inside a host that knows how to build your context. `GraphBridge.Tool` does not include it.
 - `GraphBridge.Tooling` brings its authoring dependencies (RDF, YAML, Roslyn) with it. The core provider does not depend on Tooling.

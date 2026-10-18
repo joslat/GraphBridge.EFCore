@@ -46,9 +46,11 @@ A version is released when the build, the offline tests and the live tests pass 
 4. Run **Live Neo4j acceptance** (`live.yml`) with `ref` set to the public commit and `version` set to the newest version already on nuget.org. It runs every live suite against a disposable Neo4j: provider, selected EF Core specification tests, tooling and workshop. Its `nuget-org` job installs that published version from nuget.org. The published-template live check is skipped with a notice, because it compares packages with the files of the commit they were built from; it runs in step 7.
 5. Run **Source and dependency security checks** (`security.yml`). It scans the history and tree for secrets, checks the dependency inventory and audits every package for known advisories.
 6. When all three pass, run **Release packages** again with `publish` on and approve the `nuget` environment. That run builds and tests again, then pushes the packages it built.
-7. Run **Live Neo4j acceptance** again with `version` set to the new version: it installs the template and every package from nuget.org and runs a project against Neo4j.
-8. Create the GitHub release on the public commit, for example `gh release create v<version> --target <public sha> --prerelease -R joslat/GraphBridge.EFCore`.
-9. Tag the matching private commit with the same name and push the tag to `origin`.
+7. Run **Live Neo4j acceptance** again with `version` set to the new version: it installs the template and every package from nuget.org and runs a project against Neo4j. You can start it right after publishing. Its `nuget-org` job first waits, for up to 30 minutes, until nuget.org search lists the version, because `dotnet new install` reads search, which lags package storage by about ten minutes.
+8. Create the GitHub release on the public commit, for example `gh release create v<version> --target <public sha> --prerelease -R joslat/GraphBridge.EFCore`. This creates the public tag together with the release, on the public snapshot commit.
+9. Tag the matching private commit with the same name, as an annotated tag (`git tag -a v<version> <private sha> -m "..."`), and push only that tag to `origin`. Each repository keeps its own release tag, as for 0.1.0-preview.2 and 0.1.0-preview.3: the public one on the snapshot, the private one on the commit it came from.
+
+Fetch the public repository with `--no-tags`, as the scripts do, for example `git fetch --no-tags https://github.com/joslat/GraphBridge.EFCore.git "+refs/heads/main:refs/public/main"`. A plain fetch auto-follows the public release tag, and pushing tags afterwards would copy it into the private origin.
 
 If a run fails, read its log and fix the cause in private `main` before running anything again. The fix needs a new snapshot, and steps 3 to 5 run again on it: never publish from a commit those checks did not pass on.
 

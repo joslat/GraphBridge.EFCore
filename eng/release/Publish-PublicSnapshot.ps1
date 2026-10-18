@@ -16,7 +16,9 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Resolve-Path "$PSScriptRoot/../..")
 git fetch origin main --quiet
 if ($LASTEXITCODE) { throw 'Could not fetch the private origin.' }
-git fetch $PublicUrl "+refs/heads/main:refs/public/main" --quiet
+# --no-tags: a plain fetch auto-follows public release tags, which point at public commits; a later tag push would then
+# copy them into the private origin. Each repository keeps its own release tags.
+git fetch --no-tags $PublicUrl "+refs/heads/main:refs/public/main" --quiet
 if ($LASTEXITCODE) { throw 'Could not fetch the public main branch.' }
 $parent = (git rev-parse refs/public/main).Trim()
 

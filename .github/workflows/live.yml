@@ -92,7 +92,7 @@ jobs:
 
   nuget-org:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
       PUBLISHED_VERSION: ${{ inputs.version }}
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -100,6 +100,29 @@ jobs:
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.401
+      # `dotnet new install` finds templates through nuget.org search, which lists a new version about ten minutes after
+      # the package itself can be downloaded. Right after publishing, wait for search instead of failing on the lag.
+      - name: Wait until nuget.org search lists the version
+        shell: pwsh
+        run: |
+          $index = Invoke-RestMethod 'https://api.nuget.org/v3/index.json'
+          $search = @($index.resources | Where-Object { $_.'@type' -eq 'SearchQueryService' })[0].'@id'
+          if (-not $search) { throw 'nuget.org service index has no SearchQueryService.' }
+          $ids = @('GraphBridge.EntityFrameworkCore', 'GraphBridge.Templates', 'GraphBridge.Tooling', 'GraphBridge.Generators')
+          # The VectorData adapter is first published with 0.1.0-preview.3; earlier versions skip it, as below.
+          $vectorData = try { (Invoke-RestMethod 'https://api.nuget.org/v3-flatcontainer/graphbridge.entityframeworkcore.vectordata/index.json').versions } catch { @() }
+          if ($vectorData -contains $env:PUBLISHED_VERSION) { $ids += 'GraphBridge.EntityFrameworkCore.VectorData' }
+          $deadline = (Get-Date).AddMinutes(30)
+          while ($true) {
+            $missing = @($ids | Where-Object {
+              $result = try { Invoke-RestMethod "${search}?q=packageid:$($_)&prerelease=true&semVerLevel=2.0.0" } catch { $null }
+              @($result.data | ForEach-Object { $_.versions.version }) -notcontains $env:PUBLISHED_VERSION
+            })
+            if (-not $missing.Count) { "nuget.org search lists $env:PUBLISHED_VERSION for $($ids -join ', ')."; break }
+            if ((Get-Date) -gt $deadline) { throw "After 30 minutes nuget.org search still doesn't list $env:PUBLISHED_VERSION for $($missing -join ', ')." }
+            "Waiting for nuget.org search: $($missing -join ', ')"
+            Start-Sleep -Seconds 30
+          }
       - name: New project from the published template, restored only from nuget.org
         shell: pwsh
         run: |

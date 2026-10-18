@@ -67,6 +67,7 @@ Optional, built on the same EF model, never needed at runtime: [Doctor](docs/too
 | [Workshop](workshop/README.md) | 31 runnable lessons, about three hours for the core track |
 | [Samples](samples/README.md) | Code-first, ontology-first and database-first applications, design-time commands and a Fluent Cypher gallery |
 | [Documentation](docs/README.md) | Every feature, tool and reference page; it also builds as a site with `eng/scripts/Build-DocsSite.ps1` |
+| [Roadmap](ROADMAP.md) | What comes next, what is deliberately not planned, and how to influence it |
 
 ## Architecture
 

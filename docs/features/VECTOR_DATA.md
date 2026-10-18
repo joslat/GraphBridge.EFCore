@@ -22,7 +22,7 @@ services.AddScoped<IVectorSearchable<MovieHit>>(provider => provider.GetRequired
     .AsNodeVectorSearchable("movie_taste", movie => new MovieHit(movie["title"].As<string>(), movie["released"].As<long>())));
 ```
 
-`AsNodeVectorSearchable` binds a node vector index and `AsRelationshipVectorSearchable` a relationship vector index. Binding does no database work. A missing context or projector, or an index name that doesn't match `[A-Za-z_][A-Za-z0-9_]*`, throws right away. Whether the index exists is checked at each search.
+`AsNodeVectorSearchable` binds a node vector index and `AsRelationshipVectorSearchable` a relationship vector index. Binding does no database work. A missing context or projector, or an index name that doesn't match `[A-Za-z_][A-Za-z0-9_]*`, throws right away. Whether the index exists is checked at each search; to check it before deploying, declare it for [Doctor](../tools/DOCTOR.md#search-indexes).
 
 The projector turns each native match into your record, once per match; return application keys in it when you need graph queries afterwards. A projector that throws fails the search. If it returns `null` for any match, the whole search fails before any result is returned.
 

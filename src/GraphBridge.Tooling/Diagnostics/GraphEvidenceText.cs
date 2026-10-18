@@ -31,6 +31,20 @@ internal static class GraphEvidenceText
                 output.Append("  ").Append(finding.Code).Append(" | ").Append(finding.Status).Append(" | count: ")
                     .AppendLine(finding.Count.ToString(CultureInfo.InvariantCulture));
         }
+        if (report.SearchIndexes is { } indexes)
+        {
+            output.AppendLine("Declared search indexes:");
+            foreach (var index in indexes)
+            {
+                output.Append("  ").Append(index.Id).Append(" | ").Append(index.Kind.ToString().ToLowerInvariant()).Append(' ')
+                    .Append(index.EntityKind.ToString().ToLowerInvariant()).Append(" | ").Append(Status(index.Status))
+                    .Append(" | findings: ").Append(index.Findings.Count == 0 ? "none" : string.Join(", ", index.Findings));
+                if (index.SampledValues is { } sampled)
+                    output.Append(" | sampled: ").Append(sampled.ToString(CultureInfo.InvariantCulture))
+                        .Append(", unusable: ").Append((index.UnusableValues ?? 0).ToString(CultureInfo.InvariantCulture));
+                output.AppendLine();
+            }
+        }
         foreach (var query in report.Queries)
         {
             output.AppendLine().Append(query.ContractId).Append(" | compilation: ").Append(Status(query.Compilation))

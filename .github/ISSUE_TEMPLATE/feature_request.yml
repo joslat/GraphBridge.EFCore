@@ -1,0 +1,46 @@
+name: Feature request
+description: An application need that the supported APIs don't cover.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Proposing a concrete public API shape? The "API proposal" form fits better. Questions and open-ended ideas belong in [Discussions](https://github.com/joslat/GraphBridge.EFCore/discussions).
+        Avoid credentials and private data.
+  - type: textarea
+    id: need
+    attributes:
+      label: Application need
+      description: The use case, and why the supported LINQ, graph mappings, Fluent Cypher or native DTO queries aren't enough.
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Proposed behavior
+      description: Synthetic C# or LINQ, and the expected graph behavior. Include identity, null, concurrency, cancellation and bounding expectations where they matter.
+      render: csharp
+    validations:
+      required: false
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Current workaround
+      description: What do you do today?
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: How would we know it works?
+      description: A small, reproducible test that would show the feature works.
+    validations:
+      required: false
+  - type: input
+    id: versions
+    attributes:
+      label: Versions you use
+      placeholder: GraphBridge 0.1.0-preview.3, EF Core 10.0.13, Neo4j 2026.09.0 Community
+    validations:
+      required: false
