@@ -132,6 +132,22 @@ public static class FluentMovieQueries
             .Limit(100);
     }
 
+    /// <summary>Whole entities (ADR 0049): each person and a bounded list of their movies, read as untracked EF entities
+    /// instead of scalar columns. People without credits keep their row with an empty list.</summary>
+    public static CypherResultQuery<FilmographyRow> Filmographies(DbContext db, string runId)
+    {
+        var actor = Graph.Node<Person>();
+        var movie = Graph.Node<Movie>();
+        var movies = Graph.CollectDistinct(movie, max: 10);
+        return db.Cypher()
+            .Match(actor)
+            .Where(() => actor.Value.RunId == runId)
+            .OptionalMatch(actor.Out<Credit>(movie))
+            .Return(() => new FilmographyRow(actor.Value, movies.Value))
+            .OrderBy(() => actor.Value.Name)
+            .Limit(100);
+    }
+
     /// <summary>Finite homogeneous paths. The row/depth limits do not bound all server computation.</summary>
     public static CypherResultQuery<GraphPath<INode, IRelationship>> FriendPaths(DbContext db, string runId, string actorName,
         GraphTraversalDirection direction = GraphTraversalDirection.Outgoing)
@@ -171,6 +187,8 @@ public sealed record ScoreRow(string Name, long Score, long Rows);
 public sealed record OptionalMovieRow(string Name, string? Title, int? Year);
 /// <summary>Collected titles are unordered; at most ten per person.</summary>
 public sealed record CareerRow(string Name, int? FirstYear, int? LastYear, IReadOnlyList<string> Titles);
+/// <summary>A person and their movies as untracked entities; collected movies are unordered, at most ten.</summary>
+public sealed record FilmographyRow(Person Actor, IReadOnlyList<Movie> Movies);
 public sealed class Person { public Guid Id { get; set; } public string RunId { get; set; } = ""; public string Name { get; set; } = ""; public string? Nickname { get; set; } }
 public sealed class Movie { public Guid Id { get; set; } public string RunId { get; set; } = ""; public string Title { get; set; } = ""; public int Year { get; set; } }
 public sealed class Credit { public Guid Id { get; set; } public Guid PersonId { get; set; } public Guid MovieId { get; set; } public string Role { get; set; } = ""; public int Billing { get; set; } }

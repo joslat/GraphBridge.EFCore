@@ -44,6 +44,7 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0033](adr/ADR-0033.md) | Explicit typed native search with observed index provenance |
 | [ADR-0034](adr/ADR-0034.md) | Bounded native paths with typed projections and explicit direction |
 | [ADR-0038](adr/ADR-0038.md) | Bounded untracked bulk mutation batches |
+| [ADR-0051](adr/ADR-0051.md) | Typed batch upserts of nodes, keyed by a constrained EF key (extends 0038) |
 | [ADR-0045](adr/ADR-0045.md) | Native `DateTimeOffset` payloads with explicit query semantics |
 
 ## Fluent Cypher
@@ -53,6 +54,7 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0041](adr/ADR-0041.md) | Explicit native Cypher clauses beside EF LINQ |
 | [ADR-0047](adr/ADR-0047.md) | C# predicate lambdas under an agree-or-reject rule (amends 0041) |
 | [ADR-0048](adr/ADR-0048.md) | Aggregates and bounded `collect` (extends 0041) |
+| [ADR-0049](adr/ADR-0049.md) | Node and relationship entities returned untracked (amends 0041, extends 0048) |
 
 ## Transactions and observability
 
@@ -60,6 +62,7 @@ Each record states one decision, the alternatives that were considered and the e
 |---|---|
 | [ADR-0026](adr/ADR-0026.md) | Uncertain commit verification and replay contract |
 | [ADR-0028](adr/ADR-0028.md) | Correlated runtime tracing with value-free events |
+| [ADR-0050](adr/ADR-0050.md) | Query tags as Cypher comments, command timeouts and write counters |
 
 ## Authoring toolchains
 

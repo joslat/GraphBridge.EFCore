@@ -83,7 +83,8 @@ var statements = new SortedDictionary<string, string>(StringComparer.Ordinal)
     ["nested-exists"] = FluentMovieQueries.FriendsReaching(db, "inspection-run", "Dan").ToQueryString(),
     ["friend-paths"] = FluentMovieQueries.FriendPaths(db, "inspection-run", "Ada").ToQueryString(),
     ["cast-search"] = FluentMovieQueries.CastSearch(db, "inspection-run", ["Ada", "Cara"], "Fir").ToQueryString(),
-    ["careers"] = FluentMovieQueries.Careers(db, "inspection-run").ToQueryString()
+    ["careers"] = FluentMovieQueries.Careers(db, "inspection-run").ToQueryString(),
+    ["filmographies"] = FluentMovieQueries.Filmographies(db, "inspection-run").ToQueryString()
 };
 if (args.Length == 0)
 {
@@ -99,7 +100,7 @@ foreach (var (name, actual) in statements)
         return 1;
     }
 }
-Console.WriteLine("Eight compiled gallery snapshots match. No database query executed; live semantic acceptance is separate.");
+Console.WriteLine("Nine compiled gallery snapshots match. No database query executed; live semantic acceptance is separate.");
 return 0;
 
 internal sealed class InspectionContext(IDriver driver, string database) : DbContext(new DbContextOptionsBuilder().UseNeo4j(driver, database).Options)

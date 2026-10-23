@@ -172,6 +172,13 @@ internal sealed partial class CypherCompiler
 
     private (string Expression, ValueSymbol Symbol) RenderAggregate(CypherAggregateTerm aggregate, string name)
     {
+        if (aggregate is { Function: "collect", Operand: CypherAliasTerm { Alias.Kind: CypherAliasKind.Node or CypherAliasKind.Edge } symbol })
+        {
+            // ADR 0049: nulls from OPTIONAL MATCH are skipped because a map projection over null is null.
+            var entity = EntityReader(symbol.Alias);
+            return ("collect(" + (aggregate.Distinct ? "DISTINCT " : "") + entity.Render(Name(symbol.Alias)) + ")[.." + Parameter((long)aggregate.Max!) + "]",
+                new ValueSymbol(name, List: true, Entity: entity));
+        }
         if (aggregate.Operand is not CypherPropertyTerm property)
             throw Unsupported("GBFC406", $"{aggregate.Function} aggregates a mapped scalar property expression, such as alias.Property(p => p.Year).");
         var binding = Property(property).Binding;

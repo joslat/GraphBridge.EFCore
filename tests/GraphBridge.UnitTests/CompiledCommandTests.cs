@@ -43,12 +43,12 @@ public sealed class CompiledCommandTests
         var driver = ProviderTestDriver.Create();
         using var context = new CommandContext(new DbContextOptionsBuilder<CommandContext>()
             .UseNeo4j(driver, "neo4j").UseMemoryCache(cache).Options);
-        string? expected = null;
+        var untagged = context.Set<Row>().ToQueryString();
         for (var i = 0; i < 100; i++)
         {
+            // Each tag is a distinct cached shape; ADR 0050 writes it as a comment before the same command.
             var text = context.Set<Row>().TagWith("cache-shape-" + i).ToQueryString();
-            expected ??= text;
-            Assert.Equal(expected, text);
+            Assert.Equal("// cache-shape-" + i + "\n\n" + untagged, text);
             Assert.InRange(cache.GetCurrentStatistics()!.CurrentEstimatedSize!.Value, 0, 256);
         }
         Assert.Empty(((ProviderTestDriver)(object)driver).Calls);

@@ -173,9 +173,9 @@ public sealed partial class NativeQueryTests
     }
 
     private static readonly IReadOnlyDictionary<string, object?> Empty = new Dictionary<string, object?>();
-    private static DbContext Context(NativeScript script) => new(new DbContextOptionsBuilder().UseNeo4j(script.Driver).Options);
+    internal static DbContext Context(NativeScript script) => new(new DbContextOptionsBuilder().UseNeo4j(script.Driver).Options);
 
-    private sealed class NativeScript
+    internal sealed class NativeScript
     {
         public List<string> Calls { get; } = [];
         public Action? OnBegin { get; set; }
@@ -185,6 +185,10 @@ public sealed partial class NativeQueryTests
         public Exception? CommitFailure { get; init; }
         public Exception? DisposeFailure { get; init; }
         public Task<IResultCursor>? PendingRun { get; init; }
+        /// <summary>The summary ConsumeAsync returns; null by default.</summary>
+        public IResultSummary? Summary { get; init; }
+        /// <summary>The arguments of each session.BeginTransactionAsync call, such as a transaction configuration.</summary>
+        public List<object?[]> BeginArguments { get; } = [];
         public IDictionary<string, object>? Parameters { get; private set; }
         public string? Command { get; private set; }
         public IDriver Driver { get; }
@@ -221,10 +225,10 @@ public sealed partial class NativeQueryTests
                     default: throw Unexpected(method);
                 }
             });
-            var session = Proxy.For<IAsyncSession>((method, _) =>
+            var session = Proxy.For<IAsyncSession>((method, args) =>
             {
                 Calls.Add("session." + method.Name);
-                if (method.Name == "BeginTransactionAsync") { OnBegin?.Invoke(); return Task.FromResult(transaction); }
+                if (method.Name == "BeginTransactionAsync") { BeginArguments.Add(args ?? []); OnBegin?.Invoke(); return Task.FromResult(transaction); }
                 if (method.Name == "DisposeAsync") return Completion(method, DisposeFailure);
                 throw Unexpected(method);
             });
@@ -248,7 +252,7 @@ public sealed partial class NativeQueryTests
         private Task<IResultSummary> Consume()
         {
             _open = false;
-            return ConsumeFailure is null ? Task.FromResult<IResultSummary>(null!) : Task.FromException<IResultSummary>(ConsumeFailure);
+            return ConsumeFailure is null ? Task.FromResult(Summary!) : Task.FromException<IResultSummary>(ConsumeFailure);
         }
         private static IRecord Record(long value) => Proxy.For<IRecord>((method, _) => method.Name switch
         {

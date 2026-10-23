@@ -31,10 +31,32 @@ public static class Neo4jDatabaseFacadeExtensions
         => GraphBridgeDiagnostics.OperationAsync(GraphBridgeDiagnostics.NativeQueryActivityName,
             () => QueryCypherCoreAsync(database, cypher, parameters, project, maxRows, cancellationToken));
 
+    /// <summary>Runs caller-supplied Cypher for its effect and returns what it changed (ADR 0050).</summary>
+    /// <remarks>Transaction ownership, parameters and diagnostics are those of <see cref="QueryCypherAsync{T}"/>. Rows the
+    /// statement returns are read and discarded, at most <paramref name="maxRows"/>. The counters come from the
+    /// statement's own summary; no extra query runs.</remarks>
+    public static async Task<GraphWriteCounters> ExecuteCypherAsync(this DatabaseFacade database,
+        string cypher, IReadOnlyDictionary<string, object?> parameters, int maxRows = 10_000, CancellationToken cancellationToken = default)
+    {
+        var counters = GraphWriteCounters.None;
+        await GraphBridgeDiagnostics.OperationAsync(GraphBridgeDiagnostics.NativeQueryActivityName,
+            () => QueryCypherCoreAsync(database, cypher, parameters, _ => 0, maxRows, cancellationToken,
+                summary: result => counters = GraphWriteCounters.From(result.Counters))).ConfigureAwait(false);
+        return counters;
+    }
+
+    /// <summary>A Fluent query with its own timeout, which applies only to a transaction this call owns (ADR 0050).</summary>
+    internal static Task<IReadOnlyList<T>> QueryCypherWithTimeoutAsync<T>(DatabaseFacade database, string cypher,
+        IReadOnlyDictionary<string, object?> parameters, Func<IRecord, T> project, int maxRows, TimeSpan? timeout,
+        CancellationToken cancellationToken)
+        => GraphBridgeDiagnostics.OperationAsync(GraphBridgeDiagnostics.NativeQueryActivityName,
+            () => QueryCypherCoreAsync(database, cypher, parameters, project, maxRows, cancellationToken, timeout: timeout));
+
     internal static async Task<IReadOnlyList<T>> QueryCypherCoreAsync<T>(DatabaseFacade database,
         string cypher, IReadOnlyDictionary<string, object?> parameters, Func<IRecord, T> project,
         int maxRows = 10_000, CancellationToken cancellationToken = default,
-        Func<IAsyncTransaction, CancellationToken, Task>? preflight = null)
+        Func<IAsyncTransaction, CancellationToken, Task>? preflight = null, TimeSpan? timeout = null,
+        Action<IResultSummary>? summary = null)
     {
         ArgumentNullException.ThrowIfNull(database);
         ArgumentException.ThrowIfNullOrWhiteSpace(cypher);
@@ -60,9 +82,12 @@ public static class Neo4jDatabaseFacadeExtensions
         try
         {
             var runner = manager.CurrentDriverTransaction;
+            // Neo4j times out transactions, not statements: an application transaction keeps the timeout it began with.
+            if (runner is not null && timeout is not null)
+                throw new InvalidOperationException("A per-query timeout cannot apply inside an application transaction: the timeout in effect when the transaction began covers all of it. Set Database.SetGraphCommandTimeout before BeginTransactionAsync instead.");
             if (runner is null)
             {
-                owned = await manager.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+                owned = await manager.BeginTransactionAsync(timeout ?? manager.CommandTimeout, cancellationToken).ConfigureAwait(false);
                 runner = manager.CurrentDriverTransaction!;
             }
             cancellationToken.ThrowIfCancellationRequested();
@@ -81,8 +106,9 @@ public static class Neo4jDatabaseFacadeExtensions
                 cancellationToken.ThrowIfCancellationRequested();
             }
             cancellationToken.ThrowIfCancellationRequested();
-            await cursor.ConsumeAsync().ConfigureAwait(false);
+            var result = await cursor.ConsumeAsync().ConfigureAwait(false);
             cursor = null;
+            summary?.Invoke(result);
             cancellationToken.ThrowIfCancellationRequested();
             if (owned is not null)
                 await owned.CommitAsync(cancellationToken).ConfigureAwait(false);

@@ -18,5 +18,6 @@
     <!-- Lessons print their own code regions, so the shown code is always the code that runs. -->
     <EmbeddedResource Include="Lessons/**/Lesson.cs" LogicalName="Lessons/%(RecursiveDir)Lesson.cs" />
     <EmbeddedResource Include="Domain/*.cs" LogicalName="Domain/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Guides/*.cs" LogicalName="Guides/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

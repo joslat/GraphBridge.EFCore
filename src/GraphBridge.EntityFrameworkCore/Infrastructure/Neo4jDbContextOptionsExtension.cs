@@ -17,9 +17,19 @@ public sealed class Neo4jDbContextOptionsExtension : IDbContextOptionsExtension
         _info = new ExtensionInfo(this);
     }
 
+    private Neo4jDbContextOptionsExtension(Neo4jDbContextOptionsExtension copy, TimeSpan? commandTimeout)
+        : this(copy.Driver, copy.DatabaseName) => CommandTimeout = commandTimeout;
+
     /// <summary>The caller-owned driver; GraphBridge never disposes it.</summary>
     public IDriver Driver { get; }
     public string DatabaseName { get; }
+
+    /// <summary>The default timeout of the transactions GraphBridge runs commands in; null uses the server's default (ADR 0050).</summary>
+    public TimeSpan? CommandTimeout { get; }
+
+    /// <summary>A copy with another default command timeout, positive and at most 24 hours, or null.</summary>
+    public Neo4jDbContextOptionsExtension WithCommandTimeout(TimeSpan? commandTimeout)
+        => new(this, Transport.GraphCommandTimeout.Validate(commandTimeout, nameof(commandTimeout)));
     public DbContextOptionsExtensionInfo Info => _info;
 
     public void ApplyServices(IServiceCollection services) => services.AddEntityFrameworkNeo4j();

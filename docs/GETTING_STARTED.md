@@ -14,13 +14,13 @@ Reference the provider and pin the EF Core and driver versions it is tested with
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="0.1.0-preview.3" />
+  <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="0.1.0-preview.4" />
   <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.13]" />
   <PackageReference Include="Neo4j.Driver" Version="[6.3.0]" />
 </ItemGroup>
 ```
 
-`0.1.0-preview.3` is the current preview on nuget.org; pin it exactly, because previews may change. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
+`0.1.0-preview.4` is the current preview on nuget.org; pin it exactly, because previews may change. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
 
 ## 2. Map an entity and configure the context
 

@@ -72,6 +72,19 @@ public sealed class WorkshopOfflineTests
     }
 
     [Fact]
+    public void Coming_from_Neo4jClient_shows_the_compiled_guide_code()
+    {
+        // docs/COMING_FROM_NEO4JCLIENT.md: every GraphBridge block preceded by <!-- region: Guides/Neo4jClientGuide.cs#Name --> is that region.
+        var excerpt = new Regex(@"<!-- region: (?<file>[\w/.]+)#(?<region>\w+) -->[ \t]*\n```csharp\n(?<code>(?:(?!```).*\n)*?)```");
+        var page = File.ReadAllText(Path.Combine(LessonsRoot(), "..", "..", "..", "docs", "COMING_FROM_NEO4JCLIENT.md")).Replace("\r", "");
+        var matches = excerpt.Matches(page);
+        Assert.True(matches.Count >= 8, $"Expected the guide's compiled excerpts, found {matches.Count}.");
+        foreach (Match match in matches)
+            Assert.True(SourceRegions.Get(match.Groups["file"].Value, match.Groups["region"].Value) == match.Groups["code"].Value.TrimEnd('\n'),
+                $"COMING_FROM_NEO4JCLIENT.md excerpt '{match.Groups["region"].Value}' differs from the source region.");
+    }
+
+    [Fact]
     public void Remote_databases_are_refused_unless_explicitly_allowed()
     {
         var remote = new Uri("bolt://graph.example.com:7687");

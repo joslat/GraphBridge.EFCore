@@ -24,7 +24,7 @@ public sealed partial class CypherResultQuery<TResult>
     {
         if (LimitCount is not { } limit)
             throw new InvalidOperationException("Specify Limit(1..10000) before preparing an executable fluent Cypher query.");
-        return new(Query.Context, Compile(captureSemantics), limit);
+        return new(Query.Context, Compile(captureSemantics), limit, Timeout);
     }
 
     /// <summary>Buffers at most the explicit LIMIT using the context's native transaction and diagnostics pipeline.</summary>
@@ -34,8 +34,8 @@ public sealed partial class CypherResultQuery<TResult>
         if (LimitCount is not { } limit)
             throw new InvalidOperationException("Specify Limit(1..10000) before executing a fluent Cypher query.");
         var compiled = Compile();
-        return Query.Context.Database.QueryCypherAsync(compiled.Command.Text, compiled.Command.Parameters,
-            record => compiled.Read(record.Values), maxRows: limit, cancellationToken: cancellationToken);
+        return Neo4jDatabaseFacadeExtensions.QueryCypherWithTimeoutAsync(Query.Context.Database, compiled.Command.Text,
+            compiled.Command.Parameters, record => compiled.Read(record.Values), limit, Timeout, cancellationToken);
     }
-    internal CompiledCypher<TResult> Compile(bool captureSemantics = false) => new CypherCompiler(Query.Context.Model).Compile(this, captureSemantics);
+    internal CompiledCypher<TResult> Compile(bool captureSemantics = false) => new CypherCompiler(Query.Context).Compile(this, captureSemantics);
 }

@@ -19,7 +19,13 @@ internal sealed class TracedResultCursor(IResultCursor inner, Activity statement
     }
     public async Task<IResultSummary> ConsumeAsync()
     {
-        try { return await ObserveAsync(inner.ConsumeAsync).ConfigureAwait(false); }
+        try
+        {
+            var summary = await ObserveAsync(inner.ConsumeAsync).ConfigureAwait(false);
+            // ADR 0050: a fully read result has already ended its statement, so its counters go to the operation only.
+            GraphWriteCounters.Record(statement, !_ended, summary);
+            return summary;
+        }
         finally { End(); }
     }
     public IAsyncEnumerator<IRecord> GetAsyncEnumerator(CancellationToken cancellationToken = default)

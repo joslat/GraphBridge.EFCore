@@ -1,6 +1,6 @@
 # Fluent Cypher: compiled query gallery
 
-[FluentMovieQueries.cs](FluentMovieQueries.cs) contains ordinary C# models, their EF graph mapping, and eight reusable query factories written with C# lambda predicates, lambda ordering and anonymous edges (`actor.Out<Credit>(movie)`). The standalone sample compiles them without connecting to Neo4j. The repository integration tests use the same source with independent handwritten native controls. Where a factory also has an explicit predicate-method form, both compile to the same Cypher; [choosing a level](../../docs/features/FLUENT_CYPHER.md#choosing-a-level) explains when to use which.
+[FluentMovieQueries.cs](FluentMovieQueries.cs) contains ordinary C# models, their EF graph mapping, and nine reusable query factories written with C# lambda predicates, lambda ordering and anonymous edges (`actor.Out<Credit>(movie)`). The standalone sample compiles them without connecting to Neo4j. The repository integration tests use the same source with independent handwritten native controls. Where a factory also has an explicit predicate-method form, both compile to the same Cypher; [choosing a level](../../docs/features/FLUENT_CYPHER.md#choosing-a-level) explains when to use which.
 
 ```powershell
 dotnet restore samples/05-FluentCypher/FluentCypher.Sample.csproj --locked-mode --disable-parallel
@@ -26,6 +26,7 @@ These commands only inspect queries; they require no credentials or running serv
 | [FriendsReaching](queries/nested-exists.cypher) | Nested EXISTS finds a friend who reaches the named person; local aliases do not escape. Written with the EXISTS lambda overload and `Graph.Is` | `Reusable_nested_EXISTS_is_lexically_scoped_and_does_not_export_bindings` |
 | [CastSearch](queries/cast-search.cypher) | A captured name array becomes `IN` with one list parameter; ordinal `StartsWith` becomes `STARTS WITH` | `C7_list_membership_and_ordinal_prefix_match_native_IN_and_STARTS_WITH` |
 | [Careers](queries/careers.cypher) | `min`, `max` and a bounded `collect(DISTINCT)` returned directly, so Cypher groups by name; people without credits keep null years and an empty list | `C8_returned_aggregates_group_by_name_and_keep_people_without_credits` |
+| [Filmographies](queries/filmographies.cypher) | Whole entities: each person and a bounded, distinct list of their movies, read as untracked EF entities from a map of their mapped properties | `C9_whole_entities_and_collected_entity_lists_match_native_nodes` |
 | [FriendPaths](queries/friend-paths.cypher) | One to three hops, at most 500 paths, explicit direction | `C6_bounded_paths_preserve_cycles_parallel_relationships_self_loops_and_direction` |
 
 `--verify-semantic` and `--verify-semantic-text` run three independent V2 controls from [FluentMovieReferences.cs](FluentMovieReferences.cs). They compare the actual coactor, optional-movie and shared-count factories with hand-written Cypher and fixed expected rows. The V2 fixture uses year threshold **2000**, so the optional case includes both duplicate old-movie credits and unmatched people. This differs intentionally from the gallery's 2020 parameter.

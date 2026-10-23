@@ -37,7 +37,7 @@ internal sealed class GraphRowReader
                 || !row.TryGetValue(CypherQueryPlan.NodeReferencePrincipalAlias, out var referencePrincipal)
                 || referencePrincipal is not bool principalValid
                 || !(referenceValue == 1 && principalValid || !reference.Required && referenceValue == 0 && !principalValid))
-                throw new InvalidOperationException("GraphBridge native-reference membership diagnostic is missing, invalid, or not satisfied; required rows need exactly one valid principal, optional rows allow zero or one.");
+                throw ReferenceMembershipError();
             absentReference = referenceValue == 0;
         }
         if (_root is CypherAssociationRoot
@@ -51,17 +51,26 @@ internal sealed class GraphRowReader
         {
             var storeValue = row[slot.Alias];
             if (slot.ReferenceForeignKey && (absentReference ? storeValue is not null : storeValue is null))
-                throw new InvalidOperationException("GraphBridge native-reference required property is missing from a present principal, or an absent principal returned a non-null FK slot.");
-            if (slot.NonEmptyIdentity
-                && storeValue is string id && string.IsNullOrWhiteSpace(id))
-                throw new InvalidOperationException("GraphBridge identified-edge application ID must not be empty or whitespace.");
-            var modelValue = slot.ModelProperty.FromStore(storeValue);
-            if (slot.CanonicalKey
-                && !Equals(storeValue, slot.ModelProperty.ToStore(modelValue)))
-                throw new InvalidOperationException("GraphBridge returned key does not use its canonical store representation; different wire keys must not resolve to the same EF identity.");
-            values[slot.Index] = modelValue;
+                throw ReferenceSlotError();
+            values[slot.Index] = Decode(slot.ModelProperty, storeValue, slot.CanonicalKey, slot.NonEmptyIdentity);
         }
         return new ValueBuffer(values);
     }
 
+    /// <summary>Decodes one stored value with the checks every EF read applies; Fluent entity returns share it (ADR 0049).</summary>
+    internal static object? Decode(GraphPropertyBinding property, object? storeValue, bool canonicalKey, bool nonEmptyIdentity)
+    {
+        if (nonEmptyIdentity && storeValue is string id && string.IsNullOrWhiteSpace(id))
+            throw new InvalidOperationException("GraphBridge identified-edge application ID must not be empty or whitespace.");
+        var modelValue = property.FromStore(storeValue);
+        if (canonicalKey && !Equals(storeValue, property.ToStore(modelValue)))
+            throw new InvalidOperationException("GraphBridge returned key does not use its canonical store representation; different wire keys must not resolve to the same EF identity.");
+        return modelValue;
+    }
+
+    internal static InvalidOperationException ReferenceMembershipError()
+        => new("GraphBridge native-reference membership diagnostic is missing, invalid, or not satisfied; required rows need exactly one valid principal, optional rows allow zero or one.");
+
+    internal static InvalidOperationException ReferenceSlotError()
+        => new("GraphBridge native-reference required property is missing from a present principal, or an absent principal returned a non-null FK slot.");
 }

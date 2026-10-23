@@ -163,8 +163,11 @@ internal sealed record GraphPreparedContract(CypherCommand Command,
 /// <summary>An immutable, deterministically ordered set of trusted application registrations.</summary>
 public sealed class GraphQueryCatalog
 {
+    /// <summary>A catalog without search index declarations; kept for binary compatibility with 0.1.0-preview.3.</summary>
+    public GraphQueryCatalog(IEnumerable<GraphQueryContract> contracts) : this(contracts, null) { }
+
     /// <param name="searchIndexes">Search indexes the application depends on; connected Doctor checks them. Offline inspection only lists them.</param>
-    public GraphQueryCatalog(IEnumerable<GraphQueryContract> contracts, IEnumerable<GraphSearchIndexExpectation>? searchIndexes = null)
+    public GraphQueryCatalog(IEnumerable<GraphQueryContract> contracts, IEnumerable<GraphSearchIndexExpectation>? searchIndexes)
     {
         ArgumentNullException.ThrowIfNull(contracts);
         var snapshot = contracts.Take(257).ToArray();

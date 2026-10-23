@@ -23,7 +23,7 @@ internal sealed class Neo4jShapedQueryCompilingExpressionVisitor(
         => extensionExpression is Neo4jBulkExpression bulk
             ? Expression.Call(typeof(Neo4jBulkExecutor).GetMethod(nameof(Neo4jBulkExecutor.ExecuteAsync))!,
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(Neo4jQueryContext)),
-                Expression.Constant(bulk))
+                Expression.Constant(bulk), Expression.Constant(QueryCompilationContext.Tags.ToArray(), typeof(IReadOnlyList<string>)))
             : base.VisitExtension(extensionExpression);
 
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
@@ -48,9 +48,10 @@ internal sealed class Neo4jShapedQueryCompilingExpressionVisitor(
         var enumerableType = typeof(Neo4jQueryingEnumerable<>).MakeGenericType(body.Type);
         // Store immutable command text inside EF's compiled delegate, not in a second cache.
         // Values still resolve from the current QueryContext for every enumeration.
-        var command = query.Include is { } commandInclude
+        // ADR 0050: EF's TagWith tags lead the command as // comments, as relational EF writes -- comments.
+        var command = CypherComments.Prepend(QueryCompilationContext.Tags, query.Include is { } commandInclude
             ? CypherIncludeRenderer.Render(commandInclude.CreatePlan(query.Plan))
-            : CypherQueryRenderer.Render(query.Plan);
+            : CypherQueryRenderer.Render(query.Plan));
         return Expression.New(
             enumerableType.GetConstructors().Single(),
             Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(Neo4jQueryContext)),

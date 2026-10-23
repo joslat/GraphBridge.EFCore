@@ -158,6 +158,26 @@ pwsh -File eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Filter 'FullyQualified
 
 The harness accepts only the marker-verified Community fixture on loopback port 17687 and creates no additional container or database. A bounded TCP proxy forwards real driver traffic, cuts the verified COMMIT boundary, and never logs raw protocol payloads. The after-commit test requires the complete server SUCCESS response before dropping its acknowledgement; timing alone is not accepted as proof. All graph observations and cleanup use the original fixture driver and run-scoped labels and keys.
 
+## Command timeouts
+
+Neo4j times out transactions, not single statements. GraphBridge sets a timeout on every transaction it begins: a LINQ query's auto-commit run, the transaction of `SaveChangesAsync`, a bulk mutation, native Cypher, and a transaction you begin yourself ([ADR 0050](../architecture/adr/ADR-0050.md)).
+
+```csharp
+// The default for every context, in DI or OnConfiguring:
+options.UseNeo4j(driver, "neo4j", neo4j => neo4j.CommandTimeout(TimeSpan.FromSeconds(30)));
+
+// One context instance, until it is reset (for example returned to a pool):
+db.Database.SetGraphCommandTimeout(TimeSpan.FromMinutes(5));
+
+// One Fluent Cypher query:
+var rows = await query.WithTimeout(TimeSpan.FromSeconds(2)).ToListAsync(cancellationToken);
+```
+
+- **Values** are positive and at most 24 hours; `null` uses the server's default, and the server's own maximum still applies.
+- **Inside an explicit transaction** the timeout in effect when the transaction began covers all of it. A Fluent `WithTimeout` there throws `InvalidOperationException` instead of being ignored; set `SetGraphCommandTimeout` before `BeginTransactionAsync`.
+- **A LINQ query** uses the context timeout; there is no per-query LINQ operator yet.
+- **When it fires,** the driver's `Neo4jException` propagates unchanged with code `Neo.ClientError.Transaction.TransactionTimedOutClientConfiguration` (inside `SaveChangesAsync`, wrapped in `DbUpdateException`), and the failing [trace span](COMMAND_TRACING.md) gets `error.type = timeout`. The transaction is rolled back; nothing is retried.
+
 ## Limits
 
 - No automatic retry, savepoints, nested, ambient or distributed transactions, and no exactly-once guarantee after a lost commit acknowledgement.

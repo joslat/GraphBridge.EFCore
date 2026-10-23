@@ -73,6 +73,22 @@ public sealed class Lesson16FluentPatterns : ILesson
     }
     // workshop:end SameMovieTwice
 
+    // workshop:start Entities
+    /// <summary>Whole entities: the movies themselves, untracked, instead of scalar columns.</summary>
+    public static CypherResultQuery<Movie> MoviesOf(DbContext db, string actorName)
+    {
+        var actor = Graph.Node<Person>();
+        var movie = Graph.Node<Movie>();
+        return db.Cypher()
+            .Match(actor.Out<Credit>(movie))
+            .Where(() => actor.Value.Name == actorName)
+            .ReturnDistinct(() => movie.Value)
+            .OrderBy(() => movie.Value.Released)
+            .ThenBy(() => movie.Value.Title)
+            .Limit(25);
+    }
+    // workshop:end Entities
+
     public async Task RunAsync(LessonContext lesson, CancellationToken cancellationToken)
     {
         await using var db = lesson.CreateContext();
@@ -101,6 +117,12 @@ public sealed class Lesson16FluentPatterns : ILesson
         lesson.Code("SameMovieTwice");
         lesson.Cypher("two-roles", TwoRolesInOneMovie(db).ToQueryString());
 
+        lesson.Step("Whole entities: return the movie itself");
+        lesson.Code("Entities");
+        var moviesOfKeanu = MoviesOf(db, "Keanu Reeves");
+        lesson.Cypher("entities", moviesOfKeanu.ToQueryString());
+        lesson.Note("Only the mapped properties travel. DirectorId is not stored on the movie, so it is read from the incoming DIRECTED relationship, exactly as LINQ reads it.");
+
         if (!lesson.NeedsDatabase("Running the patterns")) return;
 
         lesson.Step("Run them");
@@ -113,7 +135,13 @@ public sealed class Lesson16FluentPatterns : ILesson
         var twoRoles = await TwoRolesInOneMovie(db).ToListAsync(cancellationToken);
         lesson.Table(twoRoles);
         lesson.ExpectSequence("only people with two credits in one movie match themselves", ["Hugo Weaving", "Tom Hanks"], twoRoles);
-        lesson.Expect("Fluent results are never tracked", 0, db.ChangeTracker.Entries().Count());
-        lesson.Limit("Fluent Cypher is read-only and returns scalars and DTOs. Load tracked entities from returned keys (guide: From Fluent results to tracked entities).");
+        var movies = await moviesOfKeanu.ToListAsync(cancellationToken);
+        lesson.Table(movies.Select(m => new { m.Title, m.Released, m.Tagline, m.DirectorId }));
+        lesson.ExpectSequence("Keanu's movies as Movie entities, by year then title",
+            ["The Matrix", "The Matrix Reloaded", "The Matrix Revolutions", "John Wick"], movies.Select(m => m.Title));
+        lesson.ExpectSequence("directors read through DIRECTED; John Wick has none",
+            [SeedData.Lana, SeedData.Lilly, SeedData.Lana, (Guid?)null], movies.Select(m => m.DirectorId));
+        lesson.Expect("Fluent results are never tracked, entities included", 0, db.ChangeTracker.Entries().Count());
+        lesson.Limit("Fluent Cypher is read-only, and its entities are untracked. To change and save them, load tracked entities from returned keys (guide: From Fluent results to tracked entities).");
     }
 }

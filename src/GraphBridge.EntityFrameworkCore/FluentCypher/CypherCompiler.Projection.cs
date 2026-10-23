@@ -25,7 +25,8 @@ internal sealed partial class CypherCompiler
                         throw new InvalidOperationException("A fluent Cypher projection returned null for a non-nullable value. Project a nullable scalar for OPTIONAL MATCH.");
                     materialized[i] = null;
                 }
-                else materialized[i] = columns[i].Path is { } path ? path.Read(value)
+                else materialized[i] = columns[i].Entity is { } entity ? (columns[i].List ? entity.ReadList(value) : entity.Read(value))
+                    : columns[i].Path is { } path ? path.Read(value)
                     : columns[i].List ? ReadList(value, columns[i])
                     : columns[i].Binding is { } binding ? binding.FromStore(value)
                     // Native sum starts at integer 0, so a double sum over an empty or all-null group arrives as a long.
@@ -66,31 +67,33 @@ internal sealed partial class CypherCompiler
                 return Expression.MemberInit(initializer.NewExpression,
                     initializer.Bindings.Cast<MemberAssignment>().Select(b => Expression.Bind(b.Member, Build(b.Expression))));
             }
-            throw Unsupported("GBFC403", "RETURN supports mapped scalar Value properties, WITH values and DTO construction only. Method calls, client computations and entity returns are not supported.");
+            throw Unsupported("GBFC403", "RETURN supports mapped scalar Value properties, node and relationship Values (returned as untracked entities), WITH values and DTO construction only. Method calls and client computations are not supported.");
         }
         Expression Scalar(CypherTerm term, Type type)
         {
             var binding = term is CypherPropertyTerm property ? Property(property).Binding : null;
             PathContract? path = null;
+            CypherEntityReader? entity = null;
             var list = false;
             if (term is CypherAliasTerm aggregate && InlineAggregate(aggregate.Alias))
                 // Native implicit grouping: RETURN groups by its non-aggregate columns; no WITH is needed.
-                (binding, list) = AggregateReader(aggregate.Alias);
+                (binding, list, entity) = AggregateReader(aggregate.Alias);
             else if (term is CypherAliasTerm alias)
             {
                 Name(alias.Alias);
-                if (alias.Alias.Kind is not (CypherAliasKind.Value or CypherAliasKind.Path)) throw Unsupported("GBFC404", "Return scalar properties instead of node or edge entities.");
+                // ADR 0049: a node or relationship Value is returned as its mapped entity, untracked.
+                if (alias.Alias.Kind is CypherAliasKind.Node or CypherAliasKind.Edge) entity = EntityReader(alias.Alias);
                 path = (_symbols[alias.Alias] as PathSymbol)?.Contract;
-                if (_symbols[alias.Alias] is ValueSymbol value) (binding, list) = (value.Binding, value.List);
+                if (_symbols[alias.Alias] is ValueSymbol value) (binding, list, entity) = (value.Binding, value.List, value.Entity);
             }
             var index = columns.FindIndex(c => c.Term == term && c.Type == type);
-            if (index < 0) { index = columns.Count; columns.Add(new(term, type, binding, path, list)); }
+            if (index < 0) { index = columns.Count; columns.Add(new(term, type, binding, path, list, entity)); }
             return Expression.Convert(Expression.ArrayIndex(values, Expression.Constant(index)), type);
         }
         void RejectEntity(Type type)
         {
             if (_model.GetEntityTypes().Any(e => e.ClrType == type))
-                throw Unsupported("GBFC404", "Fluent results are untracked scalar DTOs. Do not construct mapped entity types in RETURN.");
+                throw Unsupported("GBFC404", "Do not construct a mapped entity type in RETURN. Return the symbol itself, for example Return(() => movie.Value), to read the mapped entity untracked.");
         }
     }
 
@@ -126,9 +129,26 @@ internal sealed partial class CypherCompiler
     private bool InlineAggregate(CypherAlias alias)
         => alias.Definition is CypherCountTerm or CypherAggregateTerm && !_symbols.ContainsKey(alias);
 
-    private (GraphPropertyBinding? Binding, bool List) AggregateReader(CypherAlias alias)
-        => alias.Definition is CypherAggregateTerm { Operand: CypherPropertyTerm property, Function: "min" or "max" or "collect" } typed
-            ? (Property(property).Binding, typed.Function == "collect") : (null, false);
+    private (GraphPropertyBinding? Binding, bool List, CypherEntityReader? Entity) AggregateReader(CypherAlias alias) => alias.Definition switch
+    {
+        CypherAggregateTerm { Operand: CypherPropertyTerm property, Function: "min" or "max" or "collect" } typed
+            => (Property(property).Binding, typed.Function == "collect", null),
+        CypherAggregateTerm { Function: "collect", Operand: CypherAliasTerm { Alias.Kind: CypherAliasKind.Node or CypherAliasKind.Edge } symbol }
+            => (null, true, EntityReader(symbol.Alias)),
+        _ => (null, false, null)
+    };
+
+    /// <summary>The untracked entity reader of an in-scope node or relationship symbol (ADR 0049).</summary>
+    private CypherEntityReader EntityReader(CypherAlias alias)
+    {
+        Name(alias);
+        return _symbols[alias] switch
+        {
+            NodeSymbol node => CypherEntityReader.ForNode(_context, _bindings, node.Binding),
+            EdgeSymbol edge => CypherEntityReader.ForEdge(_context, _bindings, edge.Entity),
+            _ => throw Unsupported("GBFC404", "Only node and relationship symbols can be returned as entities.")
+        };
+    }
 
     private string RenderInlineAggregate(CypherAlias alias, string column)
     {
@@ -147,6 +167,7 @@ internal sealed partial class CypherCompiler
         return list;
     }
 
-    private sealed record ProjectionColumn(CypherTerm Term, Type Type, GraphPropertyBinding? Binding, PathContract? Path, bool List = false);
+    private sealed record ProjectionColumn(CypherTerm Term, Type Type, GraphPropertyBinding? Binding, PathContract? Path, bool List = false,
+        CypherEntityReader? Entity = null);
     private sealed record Projection<T>(List<ProjectionColumn> Columns, Func<IReadOnlyDictionary<string, object>, T> Read);
 }

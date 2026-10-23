@@ -157,7 +157,7 @@
         "type": "Project",
         "dependencies": {
           "AngleSharp": "[1.5.0, )",
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
           "Microsoft.CodeAnalysis.CSharp": "[5.9.0, )",
           "YamlDotNet": "[18.1.0, )",
           "dotNetRdf.Core": "[3.5.2, )",

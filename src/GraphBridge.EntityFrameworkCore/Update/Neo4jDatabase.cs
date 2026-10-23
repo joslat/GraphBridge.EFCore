@@ -91,6 +91,8 @@ internal sealed class Neo4jDatabase(DatabaseDependencies dependencies, GraphBind
     {
         var cursor = await GraphBridgeDiagnostics.RunAsync(transaction, command.Text, command.Parameters, kind: GraphCommandKind.Mutation).ConfigureAwait(false);
         var records = await cursor.ToListAsync().ConfigureAwait(false);
+        // ADR 0050: the summary arrived with the last record; consuming it records the write counters without a round trip.
+        await cursor.ConsumeAsync().ConfigureAwait(false);
         if (records.Count != 1 || records[0]["count"].As<long>() != 1)
             throw new DbUpdateConcurrencyException("The graph mutation did not affect exactly one graph element; an endpoint, application key, original concurrency token, or association cardinality is missing, changed, or ambiguous.", new[] { entry });
     }

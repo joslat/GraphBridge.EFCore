@@ -10,8 +10,9 @@ public sealed class PreparedCypherQuery<TResult>
 {
     private readonly DbContext context;
     private readonly CompiledCypher<TResult> compiled;
-    internal PreparedCypherQuery(DbContext context, CompiledCypher<TResult> compiled, int maxRows)
-        => (this.context, this.compiled, MaxRows) = (context, compiled, maxRows);
+    private readonly TimeSpan? timeout;
+    internal PreparedCypherQuery(DbContext context, CompiledCypher<TResult> compiled, int maxRows, TimeSpan? timeout = null)
+        => (this.context, this.compiled, MaxRows, this.timeout) = (context, compiled, maxRows, timeout);
     public CypherCommand Command => compiled.Command;
     public int MaxRows { get; }
 
@@ -19,7 +20,7 @@ public sealed class PreparedCypherQuery<TResult>
     public Task<IReadOnlyList<TResult>> ToListAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return context.Database.QueryCypherAsync(Command.Text, Command.Parameters,
-            record => compiled.Read(record.Values), maxRows: MaxRows, cancellationToken: cancellationToken);
+        return Neo4jDatabaseFacadeExtensions.QueryCypherWithTimeoutAsync(context.Database, Command.Text, Command.Parameters,
+            record => compiled.Read(record.Values), MaxRows, timeout, cancellationToken);
     }
 }

@@ -119,7 +119,7 @@ public sealed class BulkMutationTests
         Assert.Equal(Neo4jBulkExpression.MaxRows + 1L, script.MaxUnpagedLimit);
     }
 
-    private static ProviderModelContext Context(Script script)
+    internal static ProviderModelContext Context(Script script)
     {
         var context = new ProviderModelContext(script.Driver, b =>
         {
@@ -152,7 +152,7 @@ public sealed class BulkMutationTests
         public long Version { get; set; }
     }
 
-    private sealed class Script
+    internal sealed class Script
     {
         public IDriver Driver { get; }
         public List<Dictionary<string, object?>> Rows { get; } = [];
@@ -197,7 +197,7 @@ public sealed class BulkMutationTests
             {
                 MutationRows = (Dictionary<string, object?>[])parameters!["__gb_bulk_rows"];
                 AfterMutation?.Invoke();
-                return Cursor([new() { ["affected"] = (long)MutationRows.Length }]);
+                return Cursor([new() { ["affected"] = (long)MutationRows.Length }], () => Task.FromResult(MutationSummary!));
             }
             if (parameters!.TryGetValue("__gb_bulk_limit", out var limit)) MaxUnpagedLimit = (long)limit;
             var rows = Rows.Select(r => new Dictionary<string, object?>(r)).ToArray();
@@ -205,12 +205,15 @@ public sealed class BulkMutationTests
                 rows[0][NameAlias] = "concurrent";
             return Cursor(rows);
         }
-        private static IResultCursor Cursor(IReadOnlyList<Dictionary<string, object?>> rows)
+        // ADR 0050: only the mutation's summary is consumed; consuming a selection or lock cursor is unexpected.
+        internal IResultSummary? MutationSummary { get; set; }
+        private static IResultCursor Cursor(IReadOnlyList<Dictionary<string, object?>> rows, Func<Task<IResultSummary>>? consume = null)
         {
             var index = -1;
             return ProtocolProxy.For<IResultCursor>((method, _) => method.Name switch
             {
                 "FetchAsync" => Task.FromResult(++index < rows.Count),
+                "ConsumeAsync" when consume is not null => consume(),
                 "get_Current" => ProtocolProxy.For<IRecord>((property, args) => property.Name switch
                 {
                     "get_Values" => rows[index], "get_Item" => rows[index][(string)args![0]!],

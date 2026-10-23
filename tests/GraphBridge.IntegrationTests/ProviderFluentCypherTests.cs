@@ -112,6 +112,21 @@ public sealed class ProviderFluentCypherTests(DisposableNeo4jFixture fixture)
     }
 
     [Neo4jIntegrationFact]
+    public async Task C9_whole_entities_and_collected_entity_lists_match_native_nodes()
+    {
+        await using var db = await Seed();
+        var oracle = await Native(db, "MATCH (a:FGQPerson {RunId:$run}) OPTIONAL MATCH (a)-[:FGQ_ACTED]->(m:FGQMovie) RETURN a.Id AS id, a.Name AS name, a.Nickname AS nickname, collect(DISTINCT m.Id + '|' + m.Title + '|' + toString(m.Year)) AS movies ORDER BY name LIMIT 100",
+            r => $"{r["id"].As<string>()}|{r["name"].As<string>()}|{r["nickname"] as string}|{string.Join(",", r["movies"].As<List<string>>().Order(StringComparer.Ordinal))}");
+        var fluent = await FluentMovieQueries.Filmographies(db, db.RunId).ToListAsync();
+        // Parallel credits collapse under DISTINCT; collect order is not guaranteed, so movies are compared sorted.
+        Assert.Equal(oracle, fluent.Select(row => $"{row.Actor.Id:D}|{row.Actor.Name}|{row.Actor.Nickname}|"
+            + string.Join(",", row.Movies.Select(m => $"{m.Id:D}|{m.Title}|{m.Year}").Order(StringComparer.Ordinal))));
+        Assert.Equal(new[] { 2, 2, 1, 0, 0 }, fluent.Select(row => row.Movies.Count));
+        Assert.All(fluent, row => Assert.Equal(db.RunId, row.Actor.RunId));
+        Assert.Empty(db.ChangeTracker.Entries());
+    }
+
+    [Neo4jIntegrationFact]
     public async Task C5_friends_of_friends_excludes_self_and_direct_friends_on_server()
     {
         await using var db = await Seed();

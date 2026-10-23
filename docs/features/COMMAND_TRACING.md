@@ -30,6 +30,7 @@ Every span inherits the caller's trace context. The ambient activity is restored
 | `GraphBridge.Query` | Internal | A LINQ query from first enumeration to exhaustion, early disposal or failure cleanup; includes consumer pauses and materialization. |
 | `GraphBridge.SaveChanges` | Internal | The provider's persistence call, including planning, owned commit and cleanup. A borrowed transaction is committed later by its caller. |
 | `GraphBridge.Bulk` | Internal | One `ExecuteUpdateAsync` or `ExecuteDeleteAsync` call. |
+| `GraphBridge.Upsert` | Internal | One `ExecuteUpsertAsync` call: the schema check and the upsert statement. |
 | `GraphBridge.NativeQuery` | Internal | One `QueryCypherAsync` call through result processing and cleanup. Fluent Cypher queries run through it. |
 | `GraphBridge.Search`, `GraphBridge.Path` | Internal | One search or `QueryPathsAsync` call, including its metadata checks. |
 | `GraphBridge.Explain` | Internal | One `ExplainCypherAsync` call. |
@@ -55,7 +56,8 @@ Sampled statement spans carry the events `GraphBridge.Command.Starting`, `GraphB
 | `graphbridge.parameter.<category>.count` | Counts per category present: `null`, `boolean`, `string`, `integer`, `floating`, `map`, `collection`, `other`. Values are never read beyond their type. |
 | `graphbridge.statement.fingerprint` | SHA-256 of provider-generated statement text, for kinds `linq`, `mutation`, `schema_preflight`, `schema` and `connectivity`. Never for `native`, `explain` or `migration` statements, which include Fluent Cypher, path and search queries. |
 | `graphbridge.commit.outcome` | `acknowledged` when the driver commit returns, `unconfirmed` when it throws. Neither authorizes a replay. |
-| `error.type` | `canceled`, `transient`, `driver_error`, `concurrency`, `operation_error`: fixed categories, never exception names or messages. |
+| `graphbridge.counters.nodes_created`, `nodes_deleted`, `relationships_created`, `relationships_deleted`, `properties_set`, `labels_added`, `labels_removed` | What a write changed, from the statement's own summary ([ADR 0050](../architecture/adr/ADR-0050.md)). On a `GraphBridge.Statement` span when the summary arrives before the span ends; always summed on the enclosing `GraphBridge.SaveChanges`, `GraphBridge.Bulk`, `GraphBridge.NativeQuery` or `GraphBridge.Upsert` span. A bulk span counts its mutation statement, not the no-op writes that lock the selected rows. Reads carry none. `Database.ExecuteCypherAsync` also returns them as `GraphWriteCounters`. |
+| `error.type` | `canceled`, `timeout`, `transient`, `driver_error`, `concurrency`, `operation_error`: fixed categories, never exception names or messages. `timeout` marks a transaction that exceeded its [command timeout](TRANSACTIONS_AND_CONCURRENCY.md#command-timeouts). |
 
 A failure sets `ActivityStatusCode.Error` without a description or exception event; success stays `Unset`. The first failure category on a span is kept when cleanup also fails. Tracing does not change exceptions, cleanup or retry behavior: a `transient` category is not a retry policy. See [transactions and concurrency](TRANSACTIONS_AND_CONCURRENCY.md) before retrying anything.
 

@@ -1,12 +1,14 @@
 using System.Text;
 using GraphBridge.EntityFrameworkCore.Cypher;
 using GraphBridge.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace GraphBridge.EntityFrameworkCore.FluentCypher;
 
 internal sealed partial class CypherCompiler
 {
+    private readonly DbContext _context;
     private readonly IModel _model;
     private readonly GraphBindingCompiler _bindings = new();
     private Dictionary<CypherAlias, Symbol> _symbols = [];
@@ -16,13 +18,17 @@ internal sealed partial class CypherCompiler
     // Symbols introduced by OPTIONAL MATCH; they can be null after their own clause (ADR 0047 agreement checks).
     private readonly HashSet<CypherAlias> _optional = [];
     private const int MaxListValues = Query.Neo4jQueryParameter.MaxCollectionValues;
-    internal CypherCompiler(IModel model) => _model = model;
+    internal CypherCompiler(DbContext context) => (_context, _model) = (context, context.Model);
 
     internal CompiledCypher<TResult> Compile<TResult>(CypherResultQuery<TResult> query, bool captureSemantics = false)
     {
         if (query.Query.Clauses.Count == 0) throw Unsupported("GBFC301", "Start with MATCH.");
         if (captureSemantics) _snapshotClauses = [];
         var text = new StringBuilder();
+        // ADR 0050: tags lead the command as // comment lines and an empty line; snapshot lines count from the first clause.
+        var comments = CypherComments.Lines(query.Tags);
+        foreach (var comment in comments) text.AppendLine(comment);
+        if (comments.Count != 0) { text.AppendLine(); _snapshotLine = comments.Count + 2; }
         foreach (var clause in query.Query.Clauses)
         {
             BeginSnapshot(text);
@@ -63,7 +69,9 @@ internal sealed partial class CypherCompiler
         BeginSnapshot(text);
         text.Append(query.Distinct ? "RETURN DISTINCT " : "RETURN ");
         text.AppendJoin(", ", projection.Columns.Select((c, i) => (c.Term is CypherAliasTerm { Alias: var value } && InlineAggregate(value)
-            ? RenderInlineAggregate(value, "c" + i) : Render(c.Term)) + " AS c" + i));
+            ? RenderInlineAggregate(value, "c" + i)
+            : c.Term is CypherAliasTerm { Alias.Kind: CypherAliasKind.Node or CypherAliasKind.Edge } symbol ? c.Entity!.Render(Name(symbol.Alias))
+            : Render(c.Term)) + " AS c" + i));
         if (Capturing) _snapshotResultColumns = Enumerable.Range(0, projection.Columns.Count).Select(i => "c" + i).ToArray();
         EndSnapshot(text, CypherClauseKind.Return, query.Distinct);
         if (query.Orderings.Count != 0)
@@ -73,9 +81,17 @@ internal sealed partial class CypherCompiler
             text.Append("ORDER BY ");
             text.AppendJoin(", ", query.Orderings.Select(order =>
             {
+                var direction = order.Descending ? " DESC" : " ASC";
                 var index = projection.Columns.FindIndex(c => c.Term == order.Expression);
-                if (index < 0) throw Unsupported("GBFC405", "ORDER BY must name a returned scalar. Include it in RETURN explicitly.");
-                return "c" + index + (order.Descending ? " DESC" : " ASC");
+                if (index >= 0) return "c" + index + direction;
+                // A member stored on a returned entity is a member of its returned map, valid after RETURN DISTINCT too (ADR 0049).
+                if (order.Expression is CypherPropertyTerm member)
+                {
+                    var owner = projection.Columns.FindIndex(c => c is { Entity: not null, List: false } && c.Term is CypherAliasTerm { Alias: var alias } && alias == member.Alias);
+                    if (owner >= 0 && projection.Columns[owner].Entity!.StoredName(member.Property) is { } stored)
+                        return "c" + owner + "." + Identifier(stored) + direction;
+                }
+                throw Unsupported("GBFC405", "ORDER BY must name a returned scalar, or a member stored on a returned entity. Include it in RETURN explicitly.");
             }));
             EndSnapshot(text, CypherClauseKind.OrderBy);
         }

@@ -2,6 +2,14 @@
 
 What each feature's tests cover and the acceptance recorded when it was accepted. The feature pages in [docs/features](../../docs/README.md#features) and [docs/tools](../../docs/README.md#tools) state the contract; this page records how it was verified. The [verification summary](VERIFICATION_SUMMARY.md) holds the latest full-suite checkpoints.
 
+## Upserts
+
+[Unit cases](../GraphBridge.UnitTests/UpsertTests.cs) check the rendered `UNWIND … MERGE`, the create and update maps after value conversion, the `updateProperties` shapes and their refusals, duplicate keys (reported by position, never by value), default keys, the 10,000-entity cap, a missing constraint, concurrency tokens, borrowed and owned transactions and the counters on the `GraphBridge.Upsert` span. [Live cases](../GraphBridge.IntegrationTests/ProviderUpsertTests.cs) check that counts equal a readback and stored values equal what SaveChanges stores for the same entity, that the selector changes only named properties, that a missing constraint is refused before any write, that a failure inside an application transaction rolls back everything, that two concurrent calls over the same new keys leave one node per key, and that a cancelled call writes nothing. Accepted on 2026-10-23 with 844 provider units and the 305-case integration suite. The concurrency case does not prove that the two statements overlapped on the server, and no throughput claim is made.
+
+## Query tags, timeouts and write counters
+
+[Unit cases](../GraphBridge.UnitTests/OperationalControlsTests.cs) check tag rendering for LINQ, Fluent and bulk commands with every line terminator, timeout validation and propagation into owned and application transactions, the timeout error category, and counters on statement and operation spans, including that bulk counts exclude the lock's no-op writes. [Live cases](../GraphBridge.IntegrationTests/ProviderOperationalControlsTests.cs) show the tag in `SHOW TRANSACTIONS` from a second session, end a slow statement with `Neo.ClientError.Transaction.TransactionTimedOut…` after a 3-second timeout, run LINQ, Fluent and native paths with a configured timeout, refuse a Fluent `WithTimeout` inside an application transaction, and compare `ExecuteCypherAsync`, SaveChanges and bulk counters with an independent readback. Accepted on 2026-10-23.
+
 ## Nulls, types and time
 
 - [Live truth table](../GraphBridge.IntegrationTests/ProviderNullSemanticsTests.cs): 87 predicates over all sixteen pairs drawn from null, -1, 0 and 1, plus nullable booleans and missing, empty and case-distinct strings. Expected results come from the same expression evaluated independently over the in-memory test data; this oracle is test code, not a provider fallback. Another case inspects the actual graph property keys after a null assignment.

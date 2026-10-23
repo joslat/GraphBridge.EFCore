@@ -17,6 +17,7 @@ public static class GraphBridgeDiagnostics
     public const string SaveChangesActivityName = "GraphBridge.SaveChanges";
     public const string BulkActivityName = "GraphBridge.Bulk";
     public const string NativeQueryActivityName = "GraphBridge.NativeQuery";
+    public const string UpsertActivityName = "GraphBridge.Upsert";
     public const string SearchActivityName = "GraphBridge.Search";
     public const string PathActivityName = "GraphBridge.Path";
     public const string ExplainActivityName = "GraphBridge.Explain";
@@ -76,6 +77,8 @@ public static class GraphBridgeDiagnostics
         if (activity.IsAllDataRequested)
             activity.SetTag("error.type", error is DbUpdateConcurrencyException ? "concurrency" : cause switch
             {
+                // ADR 0050: a transaction timeout keeps the driver's exception and code; only the category is named.
+                Neo4jException { Code: { } code } when code.StartsWith("Neo.ClientError.Transaction.TransactionTimedOut", StringComparison.Ordinal) => "timeout",
                 OperationCanceledException => "canceled", TransientException => "transient",
                 Neo4jException => "driver_error", _ => driver ? "driver_error" : "operation_error"
             });
@@ -95,7 +98,7 @@ public static class GraphBridgeDiagnostics
     // including consumer pauses; neither duration claims pure server execution time.
     internal static async Task<IResultCursor> RunAsync(
         IAsyncQueryRunner runner, string command, IDictionary<string, object>? parameters, bool schema = false,
-        GraphCommandKind kind = GraphCommandKind.Linq)
+        GraphCommandKind kind = GraphCommandKind.Linq, Action<TransactionConfigBuilder>? autoCommit = null)
     {
         if (schema) kind = GraphCommandKind.SchemaPreflight;
         var commandKind = kind switch
@@ -145,7 +148,10 @@ public static class GraphBridgeDiagnostics
                 }
                 try
                 {
-                    cursor = parameters is null ? await runner.RunAsync(command).ConfigureAwait(false)
+                    // An auto-commit session run carries its own transaction settings, such as a timeout (ADR 0050).
+                    cursor = runner is IAsyncSession session && autoCommit is not null
+                        ? await session.RunAsync(command, parameters ?? new Dictionary<string, object>(), autoCommit).ConfigureAwait(false)
+                        : parameters is null ? await runner.RunAsync(command).ConfigureAwait(false)
                         : await runner.RunAsync(command, parameters).ConfigureAwait(false);
                 }
                 catch (Exception error) { Fail(activity, error, driver: true); throw; }

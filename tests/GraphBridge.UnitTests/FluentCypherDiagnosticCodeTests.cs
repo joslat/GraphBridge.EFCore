@@ -22,9 +22,9 @@ public sealed class FluentCypherDiagnosticCodeTests
         Assert.Equal("GBFC301", Code(() => db.Cypher().OptionalMatch(member.Pattern())));
         Assert.Equal("GBFC303", Code(() => db.Cypher().Match(member.Pattern(), club.Pattern()).With(member).Return(() => club.Value.Title).ToQueryString()));
         Assert.Equal("GBFC403", Code(() => db.Cypher().Match(member).Return(() => member.Value.Name.ToUpperInvariant()).ToQueryString()));
-        Assert.Equal("GBFC404", Code(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString()));
+        Assert.Equal("GBFC404", Code(() => db.Cypher().Match(member).Return(() => new Member { Name = member.Value.Name }).ToQueryString()));
         Assert.Equal("GBFC405", Code(() => db.Cypher().Match(member).Return(() => member.Value.Id).OrderBy(member.Property(m => m.Name)).ToQueryString()));
-        var error = Assert.Throws<FluentCypherException>(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString());
+        var error = Assert.Throws<FluentCypherException>(() => db.Cypher().Match(member).Return(() => new Member { Name = member.Value.Name }).ToQueryString());
         Assert.StartsWith("GraphBridge fluent Cypher [GBFC404]:", error.Message);
     }
 
@@ -33,7 +33,7 @@ public sealed class FluentCypherDiagnosticCodeTests
     {
         using var db = Context();
         var member = Graph.Node<Member>();
-        var caught = Assert.ThrowsAny<NotSupportedException>(() => db.Cypher().Match(member).Return(() => member.Value).ToQueryString());
+        var caught = Assert.ThrowsAny<NotSupportedException>(() => db.Cypher().Match(member).Return(() => new Member { Name = member.Value.Name }).ToQueryString());
         Assert.Equal("GBFC404", Coded(Assert.IsType<FluentCypherException>(caught)));
         Assert.Throws<ArgumentException>(() => new FluentCypherException("message", " "));
         Assert.Throws<ArgumentNullException>(() => new FluentCypherException("message", null!));

@@ -6,7 +6,7 @@ Please report security problems privately through GitHub: open the repository's 
 
 Include what you can of:
 
-- the affected package and exact version (for example `GraphBridge.EntityFrameworkCore 0.1.0-preview.3`), with the .NET, EF Core, Neo4j.Driver and Neo4j versions;
+- the affected package and exact version (for example `GraphBridge.EntityFrameworkCore 0.1.0-preview.4`), with the .NET, EF Core, Neo4j.Driver and Neo4j versions;
 - the model, query or call that shows the problem, reduced to a small synthetic example;
 - the generated Cypher, if a query is involved, and what an attacker could read, change or cause.
 

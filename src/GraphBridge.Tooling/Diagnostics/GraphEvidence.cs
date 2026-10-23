@@ -123,6 +123,11 @@ public sealed class GraphEvidenceReport
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.KebabCaseLower) }
     };
 
+    /// <summary>The 0.1.0-preview.3 signature, kept for binary compatibility.</summary>
+    public GraphEvidenceReport(GraphEvidenceMode mode, IEnumerable<GraphQueryEvidence> queries,
+        IEnumerable<GraphDiagnosticResult> diagnostics, GraphModelEvidence? model, GraphDatabaseEvidence? database)
+        : this(mode, queries, diagnostics, model, database, null) { }
+
     public GraphEvidenceReport(GraphEvidenceMode mode, IEnumerable<GraphQueryEvidence> queries,
         IEnumerable<GraphDiagnosticResult> diagnostics, GraphModelEvidence? model = null, GraphDatabaseEvidence? database = null,
         IEnumerable<GraphSearchIndexEvidence>? searchIndexes = null)

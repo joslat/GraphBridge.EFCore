@@ -357,6 +357,7 @@ public sealed class SaveChangesFailureTests
                 "GetAsyncEnumerator" => new RecordEnumerator(records, (CancellationToken)args![0]!),
                 "FetchAsync" => Task.FromResult(++index < records.Count),
                 "get_Current" => records[index],
+                "ConsumeAsync" => Task.FromResult<IResultSummary>(null!),
                 _ => throw Unexpected(method)
             });
         }

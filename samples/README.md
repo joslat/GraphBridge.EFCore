@@ -17,7 +17,7 @@ All three samples use the same GraphBridge provider and finalized EF model. They
 | Sample | Demonstration |
 |---|---|
 | [04 Design-time commands](04-DesignTime/README.md) | Context discovery and graph migration inspection around the three workflows, with `dotnet ef`-style commands. It adds no new authoring authority |
-| [05 Fluent Cypher gallery](05-FluentCypher/README.md) | Eight reusable graph queries over mapped nodes and edges: co-actors, shared-movie scores, optional matches, nested EXISTS, lists and text, aggregates and bounded paths. The integration suite runs the same source against hand-written native Cypher, and Doctor, Verify and Query Lab read it |
+| [05 Fluent Cypher gallery](05-FluentCypher/README.md) | Nine reusable graph queries over mapped nodes and edges: co-actors, shared-movie scores, optional matches, nested EXISTS, lists and text, aggregates, whole entities and bounded paths. The integration suite runs the same source against hand-written native Cypher, and Doctor, Verify and Query Lab read it |
 | [06 Vector search through VectorData](06-VectorSearch/README.md) | A `MovieFinder` that knows only `IVectorSearchable<MovieHit>`; application setup binds a small Neo4j vector index with the optional VectorData adapter. Explicit setup and cleanup commands. |
 
 ## Running the samples

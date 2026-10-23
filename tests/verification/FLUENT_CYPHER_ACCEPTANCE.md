@@ -1,6 +1,20 @@
-# Fluent Cypher acceptance — FGQ-0 through FGQ-3 and v2 waves 1–2
+# Fluent Cypher acceptance — FGQ-0 through FGQ-3 and v2 waves 1–3
 
 Accepted 2026-10-12 within the [documented read-only contract](../../docs/features/FLUENT_CYPHER.md). Core live/package checkpoint: `7bebda6c86d2edb54eb5e736d8e3bb5cf189dadb`. Hosted run 38181225124 completed successfully on that commit. Initial reader correction: `dde143e447bdba74a8a951cdf43a460e40ff6244` preserves converter-produced nulls and passes **747 provider units, zero failures/skips**, in unit-only run 38181777149. This correction changes only scalar result conversion; generated Cypher and execution ownership are unchanged. Live/package checks were not rerun at that narrow reader checkpoint; the subsequent architecture review below reruns them for the corrected compiler.
+
+## v2 wave 3 — whole entities (23 October 2026)
+
+[ADR 0049](../../docs/architecture/adr/ADR-0049.md) returns mapped nodes and relationships as untracked entities, alone or in DTOs, with bounded `Graph.Collect`/`CollectDistinct` lists and ordering by a returned entity's member. ADR 0050's Fluent `TagWith` and `WithTimeout` were verified in the same run.
+
+| Gate | Actual result |
+|---|---|
+| Provider units | **844 passed**, zero failures/skips, including `FluentCypherEntityReturnTests` (11), the updated diagnostic-code, compiler and aggregate tests, and `OperationalControlsTests` |
+| Compiled gallery | Sample 05 `--check`: nine compiled snapshots match, including the new `filmographies` |
+| Live entity returns | The five `ProviderFluentEntityReturnTests` pass on the owned Neo4j 2026.09.0 Community fixture: node entities equal `AsNoTracking` LINQ for every mapped property type in the model (`Guid` key with a store name, strings, nullable string, `int`, `long` extremes, `double`, `bool`, enum, `DateTimeOffset` at three offsets, nullable `int`, a converted string, an optional native-reference foreign key present and absent); identified-edge and association entities equal LINQ, including endpoint keys after `With(edge)`; OPTIONAL MATCH gives null; collected lists group by the returned entity; ordering by a returned member works after aggregation and after `ReturnDistinct`; an ambiguous native reference is refused with LINQ's message; nothing is tracked afterwards |
+| Gallery oracle | `C9_whole_entities_and_collected_entity_lists_match_native_nodes` passes against native Cypher, with parallel credits collapsed by `CollectDistinct` |
+| Defect found live | Relationship returns first rendered endpoint keys as `` startNode(r) {.`id`} ``, which Neo4j refuses (42I06: a map projection needs a variable). The unit tests had pinned that text. Endpoint keys are now map literals, `` {`id`: startNode(r).`id`} `` |
+| Fluent tags and timeouts | A Fluent query with `TagWith` and `WithTimeout` runs; `WithTimeout` inside an application transaction is refused (`ProviderOperationalControlsTests`) |
+| Regressions | Whole Integration suite **305**, Specification **81**, Tooling **23** and Workshop **9** (all lessons live, including lesson 16's entity returns) pass with zero failures/skips |
 
 ## v2 wave 2 — language depth, aggregates, codes and readable predicates (16 October 2026)
 

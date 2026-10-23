@@ -92,7 +92,7 @@
       "graphbridge.entityframeworkcore.vectordata": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
           "Microsoft.Extensions.VectorData.Abstractions": "[10.11.0, )"
         }
       },

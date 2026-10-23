@@ -247,7 +247,7 @@
       "graphbridge.entityframeworkcore.vectordata": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
           "Microsoft.Extensions.VectorData.Abstractions": "[10.11.0, )"
         }
       },
@@ -255,7 +255,7 @@
         "type": "Project",
         "dependencies": {
           "AngleSharp": "[1.5.0, )",
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
           "Microsoft.CodeAnalysis.CSharp": "[5.9.0, )",
           "YamlDotNet": "[18.1.0, )",
           "dotNetRdf.Core": "[3.5.2, )",
@@ -265,16 +265,16 @@
       "graphbridge.workshop": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
-          "GraphBridge.EntityFrameworkCore.VectorData": "[0.1.0-preview.3, )",
-          "GraphBridge.Tooling": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore.VectorData": "[0.1.0-preview.4, )",
+          "GraphBridge.Tooling": "[0.1.0-preview.4, )",
           "GraphBridge.Workshop.Mapping": "[1.0.0, )"
         }
       },
       "graphbridge.workshop.mapping": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )"
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )"
         }
       },
       "AngleSharp": {

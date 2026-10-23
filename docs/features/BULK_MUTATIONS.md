@@ -45,8 +45,32 @@ Refused before transport with `Neo4jQueryTranslationException`, usually GBQ160: 
 
 A non-empty call on plain nodes submits four statements (schema check, selection, lock and recheck, mutation) plus transaction exchanges; relationship and reference roots add a separate identity read. Bulk calls are traced as `GraphBridge.Bulk` with [command tracing](COMMAND_TRACING.md).
 
+## Upserts
+
+`ExecuteUpsertAsync` creates a node for each entity whose key no node has yet, and updates the node that has it. Like `ExecuteUpdateAsync`, it runs immediately, as one statement in one transaction, and bypasses the change tracker.
+
+```csharp
+var result = await db.People.ExecuteUpsertAsync(people, cancellationToken: cancellationToken);
+Console.WriteLine($"{result.Created} created, {result.Matched} already existed");
+
+// Copy only some properties onto nodes that already exist.
+await db.People.ExecuteUpsertAsync(people, p => new { p.Name, p.Email });
+
+// Create missing nodes and leave existing ones unchanged.
+await db.People.ExecuteUpsertAsync(people, p => new { });
+```
+
+- **Keys.** Each entity carries its EF key, set by your code. A uniqueness constraint must cover the key; the call checks it before writing anything, because without it concurrent writers could create the same node twice. A key left at its default value is refused.
+- **What is written.** A new node gets every stored mapped property, converted as `SaveChanges` converts it. An existing node gets the properties the selector names, or every stored non-key property when you pass none; a null removes that property. The key itself is never updated.
+- **Limits.** At most 10,000 entities per call, and no two with the same key; either problem is refused before anything is sent. Larger inputs need several calls, each atomic.
+- **Result.** `GraphUpsertResult` has `Created`, `Matched` and the server's `GraphWriteCounters`, read from the statement's summary without another round trip.
+- **Transactions and retries.** Without an explicit transaction, the call commits on its own. Inside `BeginTransactionAsync` it joins your transaction, and a failure aborts the whole transaction, as for the other bulk calls. Repeating the same upsert writes the same values, so it is safe to run again after a failure or an unknown commit outcome; only `Created` and `Matched` change.
+- **Not yet supported:** relationships (association and identified edges), native-reference dependents, concurrency tokens and shadow properties are refused. Tracked instances are not refreshed.
+
+Upserts are traced as `GraphBridge.Upsert`. Design: [ADR-0051](../architecture/adr/ADR-0051.md).
+
 ## Try it
 
 - Workshop lesson [21 · Bulk update and delete](../../workshop/GraphBridge.Workshop/Lessons/21-BulkMutations/README.md): update and delete on the server, a stale tracked copy and a refused key setter.
 
-Evidence: [bounded bulk increment](../../tests/verification/EF_CONFORMANCE_MATRIX.md#bounded-bulk-increment); tests for [protocol rules](../../tests/GraphBridge.UnitTests/BulkMutationTests.cs), [nodes](../../tests/GraphBridge.IntegrationTests/ProviderUpdateTests.Bulk.cs), [concurrency and the cap](../../tests/GraphBridge.IntegrationTests/ProviderUpdateTests.BulkConcurrency.cs), [associations](../../tests/GraphBridge.IntegrationTests/ProviderAssociationUpdateTests.Bulk.cs), [identified edges](../../tests/GraphBridge.IntegrationTests/ProviderIdentifiedEdgeUpdateTests.Bulk.cs), [required](../../tests/GraphBridge.IntegrationTests/ProviderNodeReferenceUpdateTests.Bulk.cs) and [optional references](../../tests/GraphBridge.IntegrationTests/ProviderOptionalReferenceTests.Bulk.cs). Design: [ADR-0038](../architecture/adr/ADR-0038.md).
+Evidence: [bounded bulk increment](../../tests/verification/EF_CONFORMANCE_MATRIX.md#bounded-bulk-increment); tests for [protocol rules](../../tests/GraphBridge.UnitTests/BulkMutationTests.cs), [nodes](../../tests/GraphBridge.IntegrationTests/ProviderUpdateTests.Bulk.cs), [concurrency and the cap](../../tests/GraphBridge.IntegrationTests/ProviderUpdateTests.BulkConcurrency.cs), [associations](../../tests/GraphBridge.IntegrationTests/ProviderAssociationUpdateTests.Bulk.cs), [identified edges](../../tests/GraphBridge.IntegrationTests/ProviderIdentifiedEdgeUpdateTests.Bulk.cs), [required](../../tests/GraphBridge.IntegrationTests/ProviderNodeReferenceUpdateTests.Bulk.cs) and [optional references](../../tests/GraphBridge.IntegrationTests/ProviderOptionalReferenceTests.Bulk.cs); upserts: [protocol rules](../../tests/GraphBridge.UnitTests/UpsertTests.cs) and [live](../../tests/GraphBridge.IntegrationTests/ProviderUpsertTests.cs). Design: [ADR-0038](../architecture/adr/ADR-0038.md), [ADR-0051](../architecture/adr/ADR-0051.md).

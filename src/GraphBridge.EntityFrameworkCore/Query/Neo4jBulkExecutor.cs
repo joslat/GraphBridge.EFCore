@@ -13,10 +13,10 @@ namespace GraphBridge.EntityFrameworkCore.Query;
 /// <summary>Bounded untracked batches. Physical IDs are transaction-local locators, never EF identity.</summary>
 internal static class Neo4jBulkExecutor
 {
-    public static Task<int> ExecuteAsync(Neo4jQueryContext context, Neo4jBulkExpression bulk)
-        => GraphBridgeDiagnostics.OperationAsync(GraphBridgeDiagnostics.BulkActivityName, () => ExecuteCoreAsync(context, bulk));
+    public static Task<int> ExecuteAsync(Neo4jQueryContext context, Neo4jBulkExpression bulk, IReadOnlyList<string> tags)
+        => GraphBridgeDiagnostics.OperationAsync(GraphBridgeDiagnostics.BulkActivityName, () => ExecuteCoreAsync(context, bulk, tags));
 
-    private static async Task<int> ExecuteCoreAsync(Neo4jQueryContext context, Neo4jBulkExpression bulk)
+    private static async Task<int> ExecuteCoreAsync(Neo4jQueryContext context, Neo4jBulkExpression bulk, IReadOnlyList<string> tags)
     {
         using var concurrency = context.ConcurrencyDetector.EnterCriticalSection();
         using var operation = context.Transactions.EnterNativeOperation();
@@ -104,6 +104,8 @@ internal static class Neo4jBulkExecutor
                 var cursor = await Run($"{match}\n{mutation}\nRETURN count({element}) AS affected",
                     new Dictionary<string, object> { ["__gb_bulk_rows"] = mutationRows }, GraphCommandKind.Mutation).ConfigureAwait(false);
                 await RequireCount(cursor, "affected", selected.Count).ConfigureAwait(false);
+                // ADR 0050: only the mutation's summary is consumed, so the operation's counters exclude the no-op lock writes.
+                await cursor.ConsumeAsync().ConfigureAwait(false);
             }
             cancellation.ThrowIfCancellationRequested();
             if (ownsTransaction)
@@ -126,6 +128,8 @@ internal static class Neo4jBulkExecutor
             async Task<IResultCursor> Run(string command, IDictionary<string, object>? values, GraphCommandKind kind)
             {
                 cancellation.ThrowIfCancellationRequested();
+                // ADR 0050: the query's tags mark the statements it causes, not the internal schema preflight.
+                if (kind != GraphCommandKind.SchemaPreflight) command = CypherComments.Prepend(tags, command);
                 context.CommandLogger.Logger.LogInformation("Executing GraphBridge bulk Cypher: {Cypher}", command);
                 var cursor = await GraphBridgeDiagnostics.RunAsync(runner, command, values,
                     schema: kind == GraphCommandKind.SchemaPreflight, kind: kind).ConfigureAwait(false);

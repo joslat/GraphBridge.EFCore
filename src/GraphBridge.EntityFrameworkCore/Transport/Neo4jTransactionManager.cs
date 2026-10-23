@@ -12,6 +12,16 @@ internal sealed class Neo4jTransactionManager(IDbContextOptions options)
 {
     private Neo4jContextTransaction? _current;
     private int _nativeOperation;
+    private TimeSpan? _commandTimeout;
+    private bool _commandTimeoutSet;
+
+    /// <summary>The timeout of transactions this context begins, including auto-commit runs (ADR 0050). Starts from
+    /// UseNeo4j's CommandTimeout; Database.SetGraphCommandTimeout overrides it until the context is reset.</summary>
+    internal TimeSpan? CommandTimeout
+    {
+        get => _commandTimeoutSet ? _commandTimeout : options.FindExtension<Neo4jDbContextOptionsExtension>()?.CommandTimeout;
+        set => (_commandTimeout, _commandTimeoutSet) = (GraphCommandTimeout.Validate(value, nameof(value)), true);
+    }
 
     internal IDisposable EnterNativeOperation()
     {
@@ -43,7 +53,11 @@ internal sealed class Neo4jTransactionManager(IDbContextOptions options)
         => new("Neo4j transactions require asynchronous operations and disposal. Use the async EF transaction API and await using.");
 
     public IDbContextTransaction BeginTransaction() => throw Unsupported();
-    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        => BeginTransactionAsync(CommandTimeout, cancellationToken);
+
+    /// <summary>Begins a transaction with an explicit timeout, such as a Fluent query's own (ADR 0050).</summary>
+    internal async Task<IDbContextTransaction> BeginTransactionAsync(TimeSpan? timeout, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         RejectAmbientTransaction();
@@ -56,7 +70,8 @@ internal sealed class Neo4jTransactionManager(IDbContextOptions options)
         try
         {
             var transaction = await GraphBridgeDiagnostics.DriverCallAsync(GraphBridgeDiagnostics.BeginTransactionActivityName,
-                () => session.BeginTransactionAsync()).ConfigureAwait(false);
+                () => GraphCommandTimeout.Configure(timeout) is { } configure
+                    ? session.BeginTransactionAsync(configure) : session.BeginTransactionAsync()).ConfigureAwait(false);
             _current = created = new Neo4jContextTransaction(this, session, transaction);
             // The catch below awaits cleanup while preserving cancellation as the primary failure.
             cancellationToken.ThrowIfCancellationRequested();
@@ -81,8 +96,16 @@ internal sealed class Neo4jTransactionManager(IDbContextOptions options)
     public void RollbackTransaction() => throw Unsupported();
     public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
         => Required().RollbackAsync(cancellationToken);
-    public void ResetState() => Dispose();
-    public Task ResetStateAsync(CancellationToken cancellationToken = default) => DisposeAsync().AsTask();
+    public void ResetState()
+    {
+        _commandTimeoutSet = false;
+        Dispose();
+    }
+    public Task ResetStateAsync(CancellationToken cancellationToken = default)
+    {
+        _commandTimeoutSet = false;
+        return DisposeAsync().AsTask();
+    }
     public void Dispose()
     {
         if (_current is not null)

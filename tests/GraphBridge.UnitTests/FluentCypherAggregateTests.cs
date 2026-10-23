@@ -56,7 +56,7 @@ public sealed class FluentCypherAggregateTests
         using var db = Context();
         var member = Graph.Node<Member>();
         var total = Graph.Sum(member.Property(m => m.Score));
-        var compiled = new CypherCompiler(db.Model).Compile(db.Cypher().Match(member).Return(() => total.Value));
+        var compiled = new CypherCompiler(db).Compile(db.Cypher().Match(member).Return(() => total.Value));
         // Native sum starts at integer 0 and becomes a float only when it adds one.
         Assert.Equal(0.0, compiled.Read(new Dictionary<string, object> { ["c0"] = 0L }));
         Assert.Equal(1.5, compiled.Read(new Dictionary<string, object> { ["c0"] = 1.5 }));

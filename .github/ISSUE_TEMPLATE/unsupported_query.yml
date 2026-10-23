@@ -19,7 +19,7 @@ body:
     id: package
     attributes:
       label: GraphBridge package and version
-      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.3
+      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.4
     validations:
       required: true
   - type: input

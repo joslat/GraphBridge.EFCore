@@ -3,8 +3,8 @@
 The `GraphBridge.Templates` package adds a `dotnet new graphbridge` template that creates a small solution referencing GraphBridge from **packages**, not from a source checkout: a console application and offline query contract tests. Use it to start a fresh project and to confirm that the packages restore, build and translate queries. Install it from nuget.org:
 
 ```powershell
-dotnet new install GraphBridge.Templates::0.1.0-preview.3
-dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.3
+dotnet new install GraphBridge.Templates::0.1.0-preview.4
+dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.4
 ```
 
 To try changes that are not released yet, pack the provider and the template into a local feed instead:
@@ -16,11 +16,11 @@ dotnet pack src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.
 dotnet pack templates/GraphBridge.Templates.csproj -o $feed
 
 # Install the template and create a solution.
-dotnet new install (Join-Path $feed 'GraphBridge.Templates.0.1.0-preview.3.nupkg')
-dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.3
+dotnet new install (Join-Path $feed 'GraphBridge.Templates.0.1.0-preview.4.nupkg')
+dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.4
 ```
 
-Either way, this creates a `MyGraph` folder. `--provider-version` must name a provider version that exists on nuget.org or in your feed; locally packed packages take the source version `0.1.0-preview.3` unless you pack with `-p:PackageVersion=…`.
+Either way, this creates a `MyGraph` folder. `--provider-version` must name a provider version that exists on nuget.org or in your feed; locally packed packages take the source version `0.1.0-preview.4` unless you pack with `-p:PackageVersion=…`.
 
 ## Options
 

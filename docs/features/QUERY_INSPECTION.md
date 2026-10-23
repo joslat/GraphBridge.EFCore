@@ -24,6 +24,7 @@ GraphBridge implements EF Core's own `ToQueryString()`; there is no separate Gra
 - The text describes this query shape. Adding an operator can change the translation, so inspect the query you actually run.
 - A refused shape throws `Neo4jQueryTranslationException` from `ToQueryString()` just as it would on execution, which makes it a cheap offline check in tests.
 - Placeholders are not values. To try a statement in a Cypher editor, supply synthetic parameter values separately; never rebuild a query by interpolating application values into the text.
+- EF Core's `TagWith("...")` and `TagWithCallSite()` lead the statement as `//` comment lines, one per line of the tag, then an empty line, as relational EF writes `--` comments ([ADR 0050](../architecture/adr/ADR-0050.md)). Bulk `ExecuteUpdateAsync` and `ExecuteDeleteAsync` carry them too, and Fluent Cypher has `TagWith` with the same rendering. A tag is part of the statement text, so it shows in the server's list of running transactions. Keep tags constant: each distinct tag is its own server plan-cache entry, and a tag must never carry user data.
 - Fluent Cypher queries have their own `ToQueryString()`, `Inspect()` and `Prepare()`; see [Fluent Cypher](FLUENT_CYPHER.md#supported-clauses-and-values). Native Cypher is already the text you wrote.
 - EF Core's command log (category `Microsoft.EntityFrameworkCore.Database.Command`) is a separate channel that can include generated Cypher; treat it as sensitive. [Command tracing](COMMAND_TRACING.md) never carries statement text or values.
 

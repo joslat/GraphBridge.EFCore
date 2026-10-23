@@ -3,6 +3,7 @@ using System.Diagnostics;
 using GraphBridge.EntityFrameworkCore.Cypher;
 using GraphBridge.EntityFrameworkCore.Diagnostics;
 using GraphBridge.EntityFrameworkCore.Metadata;
+using GraphBridge.EntityFrameworkCore.Transport;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -77,7 +78,8 @@ internal sealed class Neo4jQueryingEnumerable<T>(
                         await VerifyConstraintsAsync(runner).ConfigureAwait(false);
                     CheckCancellation();
                     context.CommandLogger.Logger.LogInformation("Executing GraphBridge Cypher: {Cypher}", command);
-                    _cursor = await GraphBridgeDiagnostics.RunAsync(runner, command, parameters).ConfigureAwait(false);
+                    _cursor = await GraphBridgeDiagnostics.RunAsync(runner, command, parameters,
+                        autoCommit: _ownedSession is null ? null : GraphCommandTimeout.Configure(context.Transactions.CommandTimeout)).ConfigureAwait(false);
                     CheckCancellation();
                     context.InitializeStateManager(standAloneStateManager);
                 }

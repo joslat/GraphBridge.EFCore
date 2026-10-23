@@ -82,10 +82,12 @@ public sealed class CypherQuery
 public sealed partial class CypherResultQuery<TResult>
 {
     internal CypherResultQuery(CypherQuery query, Expression<Func<TResult>> projection, bool distinct,
-        IReadOnlyList<CypherSort>? orderings = null, int? skip = null, int? limit = null)
+        IReadOnlyList<CypherSort>? orderings = null, int? skip = null, int? limit = null,
+        IReadOnlyList<string>? tags = null, TimeSpan? timeout = null)
     {
         Query = query; Projection = projection; Distinct = distinct;
         Orderings = Array.AsReadOnly((orderings ?? []).ToArray()); SkipCount = skip; LimitCount = limit;
+        Tags = Array.AsReadOnly((tags ?? []).ToArray()); Timeout = timeout;
     }
     internal CypherQuery Query { get; }
     internal Expression<Func<TResult>> Projection { get; }
@@ -93,6 +95,22 @@ public sealed partial class CypherResultQuery<TResult>
     internal IReadOnlyList<CypherSort> Orderings { get; }
     internal int? SkipCount { get; }
     internal int? LimitCount { get; }
+    internal IReadOnlyList<string> Tags { get; }
+    internal TimeSpan? Timeout { get; }
+
+    /// <summary>Writes the tag before the query as <c>//</c> comment lines, like EF's TagWith (ADR 0050). Several tags keep
+    /// their order. A tag must be constant text, never user data: each distinct tag is its own server plan-cache entry.</summary>
+    public CypherResultQuery<TResult> TagWith(string tag)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(tag);
+        return new(Query, Projection, Distinct, Orderings, SkipCount, LimitCount, [.. Tags, tag], Timeout);
+    }
+
+    /// <summary>The timeout of the transaction GraphBridge begins for this query (ADR 0050), overriding the context's.
+    /// Inside an application transaction it is refused when executed: the transaction keeps the timeout it began with.</summary>
+    public CypherResultQuery<TResult> WithTimeout(TimeSpan timeout)
+        => new(Query, Projection, Distinct, Orderings, SkipCount, LimitCount, Tags,
+            Transport.GraphCommandTimeout.Validate(timeout, nameof(timeout)));
     public CypherResultQuery<TResult> OrderBy<T>(CypherExpression<T> value) => Order(value, false, false);
     public CypherResultQuery<TResult> OrderByDescending<T>(CypherExpression<T> value) => Order(value, true, false);
     public CypherResultQuery<TResult> ThenBy<T>(CypherExpression<T> value) => Order(value, false, true);
@@ -108,13 +126,13 @@ public sealed partial class CypherResultQuery<TResult>
         ArgumentOutOfRangeException.ThrowIfNegative(count);
         if (SkipCount.HasValue) throw new InvalidOperationException("SKIP is already specified.");
         if (LimitCount.HasValue) throw new InvalidOperationException("Specify SKIP before LIMIT.");
-        return new(Query, Projection, Distinct, Orderings, count, LimitCount);
+        return new(Query, Projection, Distinct, Orderings, count, LimitCount, Tags, Timeout);
     }
     public CypherResultQuery<TResult> Limit(int count)
     {
         if (count is < 1 or > 10_000) throw new ArgumentOutOfRangeException(nameof(count), "Fluent buffered results require a limit between 1 and 10,000.");
         if (LimitCount.HasValue) throw new InvalidOperationException("LIMIT is already specified.");
-        return new(Query, Projection, Distinct, Orderings, SkipCount, count);
+        return new(Query, Projection, Distinct, Orderings, SkipCount, count, Tags, Timeout);
     }
     private CypherResultQuery<TResult> Order<T>(CypherExpression<T> value, bool descending, bool then)
     {
@@ -122,7 +140,7 @@ public sealed partial class CypherResultQuery<TResult>
         if (SkipCount.HasValue || LimitCount.HasValue) throw new InvalidOperationException("Specify ORDER BY before SKIP/LIMIT.");
         if (then != (Orderings.Count != 0))
             throw new InvalidOperationException(then ? "ThenBy requires OrderBy." : "Use ThenBy to add another ordering.");
-        return new(Query, Projection, Distinct, [.. Orderings, new(value.Term, descending)], SkipCount, LimitCount);
+        return new(Query, Projection, Distinct, [.. Orderings, new(value.Term, descending)], SkipCount, LimitCount, Tags, Timeout);
     }
 }
 

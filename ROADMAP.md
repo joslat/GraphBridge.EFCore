@@ -2,12 +2,13 @@
 
 GraphBridge is a **developer preview**. This page shows where it is heading and why. It is a direction, not a promise: priorities move with what people report and ask for. What has already shipped is in the [changelog](CHANGELOG.md), and what works today is in [compatibility](docs/reference/COMPATIBILITY.md) and [known limitations](docs/reference/KNOWN_LIMITATIONS.md).
 
-*Last updated: October 2026, after 0.1.0-preview.3.*
+*Last updated: October 2026, after 0.1.0-preview.4.*
 
 ## Now: the next previews
 
 - **Fixes from feedback.** Reports from people trying the previews come first.
-- **Doctor warns early about search indexes** (done, ships in the next preview). Declare the full-text and vector indexes your application searches, and Doctor flags one that is missing, not ONLINE, built for other dimensions or properties, or that silently skips stored values, before the first search fails. See [Doctor](docs/tools/DOCTOR.md#search-indexes).
+- **For Neo4jClient users** (shipped in 0.1.0-preview.4). Whole entities and bounded entity lists from Fluent Cypher, typed node upserts with `ExecuteUpsertAsync`, query tags, command timeouts and write counters, and a [guide that maps Neo4jClient's idioms](docs/COMING_FROM_NEO4JCLIENT.md) to GraphBridge.
+- **Doctor warns early about search indexes** (shipped in 0.1.0-preview.4). Declare the full-text and vector indexes your application searches, and Doctor flags one that is missing, not ONLINE, built for other dimensions or properties, or that silently skips stored values, before the first search fails. See [Doctor](docs/tools/DOCTOR.md#search-indexes).
 - **Neo4j Aura compatibility check.** Run the preflight, capability, CRUD and search checks against Aura and document the result.
 - **EF Core 11 readiness.** EF Core 11 is due in November 2026. We'll build against it and list what changes. EF Core 10, the long-term-support release, stays the supported target.
 - **Monthly dependency refresh.** EF Core 10 patches, Neo4j.Driver 6, Microsoft.Extensions.VectorData and the latest Neo4j calendar release.

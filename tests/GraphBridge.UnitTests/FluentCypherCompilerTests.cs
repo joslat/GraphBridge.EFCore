@@ -153,11 +153,11 @@ public sealed class FluentCypherCompilerTests
     }
 
     [Fact]
-    public void Unsupported_projection_computation_entities_and_hidden_sort_reject()
+    public void Unsupported_projection_computation_constructed_entities_and_hidden_sort_reject()
     {
         using var db = Context(); var person = Graph.Node<Person>(); var query = db.Cypher().Match(person);
         Assert.Throws<FluentCypherException>(() => query.Return(() => person.Value.Name.ToUpper()).ToQueryString());
-        Assert.Throws<FluentCypherException>(() => query.Return(() => person.Value).ToQueryString());
+        // Returning the symbol itself reads the mapped entity untracked (ADR 0049); constructing one stays refused.
         Assert.Throws<FluentCypherException>(() => query.Return(() => new Person { Id = person.Value.Id }).ToQueryString());
         Assert.Throws<FluentCypherException>(() => query.Return(() => person.Value.Id + 1).ToQueryString());
         Assert.Throws<FluentCypherException>(() => query.ReturnDistinct(() => person.Value.Name).OrderBy(person.Property(p => p.Id)).ToQueryString());

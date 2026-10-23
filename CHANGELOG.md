@@ -2,7 +2,9 @@
 
 All notable changes to GraphBridge. Every version so far is a developer preview; the [compatibility contract](docs/reference/COMPATIBILITY.md) describes what may change between previews.
 
-## Unreleased
+## 0.1.0-preview.4 (2026-10-23)
+
+**Developer preview; not production-supported.** Five packages: the provider, the VectorData adapter, Tooling, Generators and Templates. This preview adopts what Neo4jClient users rely on: whole entities from Fluent Cypher, typed node upserts, query tags, command timeouts and write counters, with a [guide for Neo4jClient users](docs/COMING_FROM_NEO4JCLIENT.md). Doctor also warns early about search indexes. NuGet package validation against 0.1.0-preview.3 finds no binary-breaking API change in the provider, VectorData, Tooling or Generators packages; behavior changes are marked **Changed** below.
 
 ### Doctor: early warnings for search indexes
 
@@ -11,7 +13,29 @@ All notable changes to GraphBridge. Every version so far is a developer preview;
   - **Warnings:** a different similarity function; stored values that Neo4j silently leaves out of the index (wrong dimensions, non-numeric values, zero vectors on cosine); an index with nothing to search.
   - **Other:** servers that can't run typed search, and eventually consistent full-text indexes.
 - **No changes to the database, nothing retained:** Doctor reads metadata and a bounded sample in its own rolled-back read transaction and never creates or changes an index. The report holds only the declared ID, finding codes and counts: never index names, labels, properties or values.
-- **Public API additions (preview):** `GraphQueryCatalog` takes an optional list of search index declarations, `GraphEvidenceReport` has `SearchIndexes`, and its constructor gains an optional `searchIndexes` parameter. The Query Lab HTML report lists the declared indexes.
+- **Public API additions (preview):** `GraphQueryCatalog` takes an optional list of search index declarations, `GraphEvidenceReport` has `SearchIndexes`, and its constructor gains an optional `searchIndexes` parameter. The 0.1.0-preview.3 constructors of both types remain, so code compiled against preview.3 keeps working (checked with NuGet package validation). The Query Lab HTML report lists the declared indexes.
+
+### Fluent Cypher: whole entities
+
+- **Return a node or relationship as its entity:** `Return(() => movie.Value)` now gives the mapped `Movie`, alone or inside a DTO ([guide](docs/features/FLUENT_CYPHER.md#returning-whole-entities), [ADR 0049](docs/architecture/adr/ADR-0049.md)). Results are untracked: nothing is attached and there is no identity resolution. The query returns only the mapped properties, values are read as LINQ reads them, and EF creates the instance. Nodes with a native-reference foreign key and both relationship mappings are supported; an entity that a missing OPTIONAL MATCH didn't find is null.
+- **Lists of entities:** `Graph.Collect(node or edge, max)` and `Graph.CollectDistinct(...)` return a bounded `IReadOnlyList<T>` of entities.
+- **Ordering by a returned entity's member:** `OrderBy(() => movie.Value.Year)` when `movie.Value` is returned, including after `ReturnDistinct`.
+- **Changed:** GBFC404 now refuses only constructing a mapped entity type in RETURN, such as `new Movie { ... }`; returning the symbol's `Value` was refused before and now works. New code GBFC408: an entity whose store property names start with the reserved `__gb_` prefix can't be returned as an entity.
+
+### Query tags, timeouts and write counts
+
+- **Query tags:** EF Core's `TagWith` and `TagWithCallSite` were accepted and silently ignored; they now lead the generated Cypher as `//` comment lines, one per line of the tag, on queries, Include queries and bulk mutations ([inspection](docs/features/QUERY_INSPECTION.md#what-toquerystring-shows), [ADR 0050](docs/architecture/adr/ADR-0050.md)). Fluent Cypher gains `TagWith`. Keep tags constant text.
+- **Command timeouts:** `UseNeo4j(driver, database, neo4j => neo4j.CommandTimeout(...))`, `Database.SetGraphCommandTimeout(...)` and Fluent `WithTimeout(...)` set the timeout of the transactions GraphBridge begins ([guide](docs/features/TRANSACTIONS_AND_CONCURRENCY.md#command-timeouts)). A timeout keeps the driver's exception and code; trace spans get `error.type = timeout`.
+- **Write counters:** `Database.ExecuteCypherAsync(...)` runs native Cypher for its effect and returns `GraphWriteCounters`; SaveChanges, bulk and native write spans carry `graphbridge.counters.*` tags ([tracing](docs/features/COMMAND_TRACING.md#tags)).
+- **Changed:** a query with `TagWith` now sends different Cypher text, so it gets its own server plan-cache entry and statement fingerprint. Keep tags constant; never put user data in them.
+- **Public API additions (preview):** `Neo4jDbContextOptionsBuilder`, a `UseNeo4j` overload taking it, `Neo4jDbContextOptionsExtension.CommandTimeout` and `WithCommandTimeout`, `Neo4jCommandTimeoutDatabaseFacadeExtensions`, `Neo4jDatabaseFacadeExtensions.ExecuteCypherAsync`, `GraphWriteCounters`, and `CypherResultQuery<T>.TagWith` and `WithTimeout`.
+
+### Typed batch upserts
+
+- **`ExecuteUpsertAsync`** creates the node for each entity whose key no node has, and updates the node that has it, in one statement and one transaction of at most 10,000 entities ([guide](docs/features/BULK_MUTATIONS.md#upserts), [ADR 0051](docs/architecture/adr/ADR-0051.md)). Values are converted as SaveChanges converts them, and a selector such as `p => new { p.Name, p.Email }` limits what an existing node receives.
+- **Checked before writing:** the uniqueness constraint on the key, duplicate keys in one call, default key values and the 10,000-entity cap. Relationships, native-reference dependents, concurrency tokens and shadow properties are refused for now.
+- **Result:** `GraphUpsertResult` with `Created`, `Matched` and the write counters; traced as `GraphBridge.Upsert`.
+- **Public API additions (preview):** `Neo4jUpsertDbSetExtensions.ExecuteUpsertAsync`, `GraphUpsertResult` and `GraphBridgeDiagnostics.UpsertActivityName`.
 
 ### Repository
 

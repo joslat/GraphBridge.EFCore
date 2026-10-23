@@ -62,6 +62,20 @@ await transaction.RollbackAsync(cancellationToken);
 
 A failure inside a borrowed transaction leaves the decision to you; native writes made before the failure stay pending in it. A lost commit acknowledgement does not prove rollback, and nothing is retried automatically: see [transactions and concurrency](TRANSACTIONS_AND_CONCURRENCY.md).
 
+## Writes and what they changed
+
+`ExecuteCypherAsync` runs a statement for its effect and returns what it changed, from the statement's own summary, with no extra query:
+
+```csharp
+var changed = await db.Database.ExecuteCypherAsync(
+    "MATCH (p:Person {id: $id}) SET p.nickname = $nickname",
+    new Dictionary<string, object?> { ["id"] = id.ToString("D"), ["nickname"] = "Neo" },
+    cancellationToken: cancellationToken);
+Console.WriteLine(changed.PropertiesSet);   // 1
+```
+
+`GraphWriteCounters` has `NodesCreated`, `NodesDeleted`, `RelationshipsCreated`, `RelationshipsDeleted`, `PropertiesSet`, `LabelsAdded` and `LabelsRemoved`. Transactions, parameters and limits are those of `QueryCypherAsync`; rows the statement returns are read and discarded, at most `maxRows`. Inside an explicit transaction the counters describe changes that are not committed yet.
+
 ## Rules and limits
 
 - **Untracked.** Results are never attached to EF, even when the projector creates entity types. Native writes do not refresh entities already tracked; read them again in a fresh context.

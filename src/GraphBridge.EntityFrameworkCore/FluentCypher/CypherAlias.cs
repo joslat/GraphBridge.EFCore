@@ -44,10 +44,25 @@ public static class Cypher
     public static CypherValue<IReadOnlyList<T>> CollectDistinct<T>(CypherExpression<T> expression, int max)
         => Aggregate<IReadOnlyList<T>>("collect", Operand(expression), distinct: true, max: CollectBound(max));
 
+    /// <summary>Native <c>collect</c> of a node symbol's mapped entities, untracked, sliced on the server to at most
+    /// <paramref name="max"/> in no guaranteed order; nulls from OPTIONAL MATCH are skipped (ADR 0049).</summary>
+    public static CypherValue<IReadOnlyList<T>> Collect<T>(CypherNode<T> node, int max) where T : class
+        => Aggregate<IReadOnlyList<T>>("collect", Symbol(node), max: CollectBound(max));
+    /// <summary>Native <c>collect(DISTINCT ...)</c> of a node symbol's mapped entities, compared by all mapped properties.</summary>
+    public static CypherValue<IReadOnlyList<T>> CollectDistinct<T>(CypherNode<T> node, int max) where T : class
+        => Aggregate<IReadOnlyList<T>>("collect", Symbol(node), distinct: true, max: CollectBound(max));
+    /// <summary>Native <c>collect</c> of a relationship symbol's mapped entities, untracked and bounded like nodes.</summary>
+    public static CypherValue<IReadOnlyList<T>> Collect<T>(CypherEdge<T> edge, int max) where T : class
+        => Aggregate<IReadOnlyList<T>>("collect", Symbol(edge), max: CollectBound(max));
+    /// <summary>Native <c>collect(DISTINCT ...)</c> of a relationship symbol's mapped entities.</summary>
+    public static CypherValue<IReadOnlyList<T>> CollectDistinct<T>(CypherEdge<T> edge, int max) where T : class
+        => Aggregate<IReadOnlyList<T>>("collect", Symbol(edge), distinct: true, max: CollectBound(max));
+
     private static CypherValue<TResult> Aggregate<TResult>(string function, CypherTerm operand, bool distinct = false, int? max = null)
         => new(new CypherAggregateTerm(function, operand, distinct, max));
     private static CypherTerm Operand<T>(CypherExpression<T> expression)
         => (expression ?? throw new ArgumentNullException(nameof(expression))).Term;
+    private static CypherTerm Symbol(CypherAlias alias) => new CypherAliasTerm(alias ?? throw new ArgumentNullException(nameof(alias)));
     private static int CollectBound(int max)
         => max is >= 1 and <= 10_000 ? max : throw new ArgumentOutOfRangeException(nameof(max), "Collect requires a maximum between 1 and 10,000 values.");
 

@@ -147,8 +147,9 @@ internal sealed partial class CypherCompiler
     private sealed record EdgeSymbol(string Name, IEntityType Entity, string RelationshipType,
         AssociationEndpointBinding Source, AssociationEndpointBinding Target, CypherAlias SourceAlias,
         CypherAlias TargetAlias, IReadOnlyList<GraphPropertyBinding> Properties, bool Repeated) : Symbol(Name);
-    /// <summary>A WITH value. Binding reads min, max and collect results like the aggregated property; List marks collect.</summary>
-    private sealed record ValueSymbol(string Name, GraphPropertyBinding? Binding = null, bool List = false) : Symbol(Name);
+    /// <summary>A WITH value. Binding reads min, max and collect results like the aggregated property; List marks collect;
+    /// Entity reads collected node or relationship entities (ADR 0049).</summary>
+    private sealed record ValueSymbol(string Name, GraphPropertyBinding? Binding = null, bool List = false, CypherEntityReader? Entity = null) : Symbol(Name);
     private sealed record PathSymbol(string Name, PathContract Contract) : Symbol(Name);
 
     private sealed record PathContract(GraphPathPattern Pattern, GraphTraversalDirection Direction, int Min, int Max, string EndLabel)

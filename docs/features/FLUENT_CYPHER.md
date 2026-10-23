@@ -1,6 +1,6 @@
 # Fluent Cypher
 
-`db.Cypher()` describes native, read-only graph clauses using typed symbols and finalized EF mappings. It complements the provider's ordinary [LINQ](LINQ_QUERIES.md) and [native Cypher](NATIVE_CYPHER.md) APIs. It returns untracked scalar DTOs or bounded native paths. C# lambda predicates follow [ADR 0047](../architecture/adr/ADR-0047.md) and aggregates [ADR 0048](../architecture/adr/ADR-0048.md). This is an experimental surface: it does not promise full Cypher coverage or production readiness.
+`db.Cypher()` describes native, read-only graph clauses using typed symbols and finalized EF mappings. It complements the provider's ordinary [LINQ](LINQ_QUERIES.md) and [native Cypher](NATIVE_CYPHER.md) APIs. It returns untracked scalars, DTOs, [whole mapped entities](#returning-whole-entities) or bounded native paths. C# lambda predicates follow [ADR 0047](../architecture/adr/ADR-0047.md), aggregates [ADR 0048](../architecture/adr/ADR-0048.md) and entity returns [ADR 0049](../architecture/adr/ADR-0049.md). This is an experimental surface: it does not promise full Cypher coverage or production readiness.
 
 ## Choosing a level
 
@@ -13,7 +13,7 @@ GraphBridge offers four levels for reading data. Start at the highest level that
 | 3 · Fluent Cypher with explicit methods | `.Where(actor.Property(p => p.Nickname).Ne("Bob"))` | Native Cypher semantics, stated in the code | What lambdas refuse, such as `!=` or `NOT` over a nullable member and temporal comparisons; `Graph.Exists` |
 | 4 · Native Cypher | `db.Database.QueryCypherAsync(text, parameters, projector)` | Exactly the text you write and review | Anything the typed levels do not cover; see [native Cypher](NATIVE_CYPHER.md) |
 
-Levels 2 and 3 are one builder. Where both apply they compile to identical Cypher, and they mix: repeated `Where` calls AND together, and `Graph.Is(predicate)` places an explicit predicate, such as EXISTS, inside a lambda. Levels 2 to 4 return untracked rows; [return keys and load entities with LINQ](#from-fluent-results-to-tracked-entities) when you need tracking. The [workshop](../../workshop/README.md) walks through the levels in lessons 15 to 22, ending with one question answered at levels 1, 2 and 4.
+Levels 2 and 3 are one builder. Where both apply they compile to identical Cypher, and they mix: repeated `Where` calls AND together, and `Graph.Is(predicate)` places an explicit predicate, such as EXISTS, inside a lambda. Levels 2 to 4 return untracked results, including whole entities; [return keys and load entities with LINQ](#from-fluent-results-to-tracked-entities) when you need tracking. The [workshop](../../workshop/README.md) walks through the levels in lessons 15 to 22, ending with one question answered at levels 1, 2 and 4.
 
 ## A graph pattern in C\#
 
@@ -72,17 +72,21 @@ Mapped `DateTimeOffset` payloads use native zoned datetime parameters and checke
 | `With(alias, value)`, `WithDistinct(...)` | Explicitly replace scope; forward aliases or introduce counts and other aggregates |
 | `Graph.CountRows()`, `Count(alias/expression)`, `CountDistinct(...)` | Native aggregation; introduce the result in WITH, then use `.Value`/`.Expression` |
 | `Graph.Min/Max(expr)`, `Sum(expr)`, `Avg(expr)`, `Collect(expr, max)`, `CollectDistinct(expr, max)` | Native aggregates in WITH ([ADR 0048](../architecture/adr/ADR-0048.md)): `min`/`max`/`avg` are null for an all-null group, `sum` is 0, `collect` skips nulls and is sliced on the server to `max` values; results read like the aggregated property |
+| `Graph.Collect(node or edge, max)`, `CollectDistinct(...)` | A bounded list of [whole entities](#returning-whole-entities), untracked; nulls from OPTIONAL MATCH are skipped |
 | `Graph.Exists(pattern, predicate).Not()` | Correlated existence/exclusion; new inner symbols stay local |
 | `Graph.Is(predicate)` | Embeds a native predicate, such as `Graph.Exists(...)`, inside a `Where` lambda, for example `() => a.Value.Born > 1960 \|\| Graph.Is(Graph.Exists(...))`, or returns it as a Boolean column: `Return(() => new { a.Value.Name, HasCredits = Graph.Is(exists) })`. A predicate that can be null must be returned as `(bool?)Graph.Is(...)` (GBFC407) |
-| `Return(() => new Dto(node.Value.Name))`, `ReturnDistinct(...)` | Scalar, constructor or member-initializer DTO projection; no mapped entity construction |
-| `OrderBy/ThenBy` and descending variants | Native ordering over returned scalar expressions: `alias.Property(...)`, `value.Expression` or a lambda such as `() => alias.Value.Name`. The order is native even in lambda form: ascending puts nulls last (LINQ puts them first), and converted keys such as `Guid` sort by their stored form |
+| `Return(() => new Dto(node.Value.Name))`, `ReturnDistinct(...)` | Scalar, constructor or member-initializer DTO projection |
+| `Return(() => node.Value)`, `Return(() => new { node.Value, edge.Value })` | The [mapped entity](#returning-whole-entities) of a node or relationship symbol, untracked; null after a missing OPTIONAL MATCH |
+| `OrderBy/ThenBy` and descending variants | Native ordering over returned scalar expressions, or over a member stored on a returned entity: `alias.Property(...)`, `value.Expression` or a lambda such as `() => alias.Value.Name`. The order is native even in lambda form: ascending puts nulls last (LINQ puts them first), and converted keys such as `Guid` sort by their stored form |
 | `Skip(n)`, `Limit(n)` | Explicit final paging; LIMIT 1–10,000 required for execution |
+| `TagWith(tag)` | Leading `//` comment lines, like EF's `TagWith` ([query tags](QUERY_INSPECTION.md#what-toquerystring-shows)); constant text only |
+| `WithTimeout(timeout)` | The timeout of the transaction this query runs in ([command timeouts](TRANSACTIONS_AND_CONCURRENCY.md#command-timeouts)); refused inside an explicit transaction |
 | `ToQueryString()`, `ToCommand()` | Offline compilation; the latter deliberately exposes sensitive parameter values |
 | `Inspect()` | Offline compilation plus an immutable typed graph/clause/scope snapshot from the same compiler pass |
 | `Prepare()` | Compile once into a context-bound command/reader handle; requires an explicit LIMIT, performs no I/O |
 | `ToListAsync(token)` | Bounded buffering through the existing native execution/transaction pipeline |
 
-Symbol `Value` is only valid inside Return, lambda Where and lambda ordering expressions. These expressions are translated, never executed; evaluating `Value` in ordinary C# throws. DTO constructors/assignments execute on returned rows; arbitrary method calls, arithmetic, nested client evaluation and entity materialization are rejected.
+Symbol `Value` is only valid inside Return, lambda Where and lambda ordering expressions. These expressions are translated, never executed; evaluating `Value` in ordinary C# throws. DTO constructors/assignments execute on returned rows; arbitrary method calls, arithmetic, nested client evaluation and constructing a mapped entity type in RETURN are rejected. Returning a symbol's `Value` itself reads its mapped entity.
 
 For evidence that must describe the exact command later executed, use `var prepared = query.Prepare()`, inspect `prepared.Command`, then await `prepared.ToListAsync(token)`. This uses the original compiled reader and parameter snapshot even if captured query-building variables later change. It retains its original context, uses existing native transaction ownership and returns untracked results. It is not a thread-safe or cross-context cache. The caller owns context lifetime and must not mutate objects held in parameter values; `Command.Parameters` is explicitly sensitive.
 
@@ -154,10 +158,11 @@ Every other Fluent refusal is coded the same way, by family, and throws `FluentC
 | GBFC209–GBFC213 | Unmapped edge or node types, direction or endpoint types that contradict the mapping, EF query filters, unmapped or derived property slots | The mapped relationship and scalar properties, or EF LINQ for filtered entities |
 | GBFC214 | Invalid `Repeat`/path construction | One explicitly bounded `Repeat` per named path |
 | GBFC301–GBFC304 | Not starting with MATCH, WITH introducing anything but forwarded symbols and aggregates, a symbol outside the current scope | Start with `Match`; forward symbols through `With` |
-| GBFC401–GBFC404 | Empty RETURN, unsupported DTO shapes, computed or entity returns | Scalar `Value` members, WITH values and DTOs |
-| GBFC405 | ORDER BY over a value that is not returned | Return it, then order by it |
+| GBFC401–GBFC404 | Empty RETURN, unsupported DTO shapes, computed returns, constructing a mapped entity type such as `new Movie { ... }` | Scalar `Value` members, WITH values, DTOs, or the symbol's own `Value` for the entity |
+| GBFC405 | ORDER BY over a value that is not returned, or over a member that isn't stored on a returned entity (such as a foreign key) | Return it, then order by it |
 | GBFC406 | `Min`/`Max`/`Sum`/`Avg` over a converted property, or an aggregate over anything but a property expression | An unconverted property or a reviewed native query |
 | GBFC407 | A returned `Graph.Is(...)` predicate that can be null, read as `bool` | `(bool?)Graph.Is(...)` |
+| GBFC408 | An entity return whose store property names begin with the reserved `__gb_` prefix | Return its scalar members |
 
 ## Optional matches and scope
 
@@ -198,9 +203,41 @@ An aggregate can also be returned directly, without WITH: `Return(() => new { ac
 
 `Exists(pattern, predicate)` introduces lexical local symbols. Reuse the same predicate in several Boolean expressions or nest it inside another EXISTS. Locals cannot be returned or forwarded by the outer query. An explicit outer `Match` can introduce a fresh outer binding using the same API symbol; it does not export a subquery result. Outer symbols dropped by WITH still cannot be rebound.
 
+## Returning whole entities
+
+Return a node or relationship symbol's `Value` to read its mapped entity:
+
+```csharp
+var movies = await db.Cypher()
+    .Match(actor.Out<Credit>(movie))
+    .Where(() => actor.Value.Name == name)
+    .Return(() => movie.Value)
+    .OrderBy(() => movie.Value.Year)
+    .Limit(100)
+    .ToListAsync(cancellationToken);              // IReadOnlyList<Movie>
+```
+
+```cypher
+MATCH (n0:`Person`)-[r2:`ACTED_IN`]->(n1:`Movie`)
+WHERE n0.`Name` = $p0
+RETURN n1 {.`Id`, .`Title`, .`Year`} AS c0
+ORDER BY c0.`Year` ASC
+LIMIT $p1
+```
+
+- **Only mapped properties travel.** The query returns a map of the entity's mapped properties, never the whole node, so unmapped payloads such as embeddings stay on the server. Values are read exactly as LINQ reads them, through value converters and with the same required-value checks, and EF creates the instance.
+- **Results are untracked.** Nothing is attached to the context and there is no identity resolution: the same node in two rows gives two instances, and navigations are not loaded. To change and save entities, [load them with LINQ](#from-fluent-results-to-tracked-entities).
+- **Every mapping works.** Nodes, nodes whose foreign key is stored as a relationship (`ToGraphReference`), and relationship entities, association or identified. A relationship entity carries its endpoint keys, read from `startNode` and `endNode`. A node with a native-reference foreign key must have exactly one valid parent, or none when the key is optional; anything else is an error rather than a guess, as in LINQ.
+- **Optional matches.** An entity whose OPTIONAL MATCH found nothing is null.
+- **Lists.** `Graph.Collect(movie, 50)` and `Graph.CollectDistinct(movie, 50)` give `IReadOnlyList<Movie>`, in WITH or returned directly next to the values they are grouped by, for example `Return(() => new { Actor = actor.Value, Movies = movies.Value })`.
+- **Ordering and DISTINCT.** Order by a member stored on a returned entity, such as `() => movie.Value.Year`; it works after `ReturnDistinct` too. DISTINCT and `CollectDistinct` compare all mapped properties, keys included.
+- **No integrity checks beyond the values.** Like other Fluent results, an entity return keeps native row multiplicity: two parallel relationships are two rows. LINQ's checks for duplicate relationships and key constraints, which protect EF identity resolution, are not repeated here.
+
+Entity types with query filters stay refused (GBFC212), as does constructing an entity type yourself in RETURN (GBFC404).
+
 ## From Fluent results to tracked entities
 
-Fluent results are untracked scalars. To work with tracked EF entities, return their keys and load them with ordinary EF LINQ through the bounded [scalar `Contains`](LINQ_QUERIES.md#contains-over-a-local-collection):
+Fluent results, entities included, are untracked. To work with tracked EF entities, return their keys and load them with ordinary EF LINQ through the bounded [scalar `Contains`](LINQ_QUERIES.md#contains-over-a-local-collection):
 
 ```csharp
 var ids = await db.Cypher()
@@ -248,7 +285,7 @@ Paths return `GraphPath<INode, IRelationship>`: ordered native driver values, re
 
 Existing EF transactions remain caller-owned. Otherwise the native pipeline owns and closes a transaction. Cancellation, cursor draining, failed projectors, uncertain commits and diagnostics follow native query execution ([native Cypher](NATIVE_CYPHER.md#transactions)). Values stay out of ordinary query inspection and default diagnostics; explicit command parameters are sensitive.
 
-There is no implicit retry, write DSL, arbitrary raw clause, IQueryable composition, synchronous execution, automatic schema change, AutoInclude, tracked graph return or full Cypher-language promise. Use ordinary EF LINQ for supported EF entity semantics and reviewed native Cypher for language forms beyond this surface. [ADR 0041](../architecture/adr/ADR-0041.md) and [ADR 0047](../architecture/adr/ADR-0047.md) record the decisions.
+There is no implicit retry, write DSL, arbitrary raw clause, IQueryable composition, synchronous execution, automatic schema change, AutoInclude, tracked graph return or full Cypher-language promise. Use ordinary EF LINQ for supported EF entity semantics and reviewed native Cypher for language forms beyond this surface. [ADR 0041](../architecture/adr/ADR-0041.md), [ADR 0047](../architecture/adr/ADR-0047.md) and [ADR 0049](../architecture/adr/ADR-0049.md) record the decisions.
 
 ## Try it
 

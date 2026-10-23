@@ -377,7 +377,7 @@
       "blogging.app": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )"
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )"
         }
       },
       "graphbridge.entityframeworkcore": {
@@ -390,7 +390,7 @@
       "graphbridge.entityframeworkcore.vectordata": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
           "Microsoft.Extensions.VectorData.Abstractions": "[10.11.0, )"
         }
       },
@@ -398,8 +398,8 @@
         "type": "Project",
         "dependencies": {
           "Blogging.App": "[1.0.0, )",
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )",
-          "GraphBridge.EntityFrameworkCore.VectorData": "[0.1.0-preview.3, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore.VectorData": "[0.1.0-preview.4, )",
           "Microsoft.NET.Test.Sdk": "[17.14.1, )",
           "Organization.App": "[1.0.0, )",
           "xunit": "[2.9.3, )"
@@ -408,7 +408,7 @@
       "organization.app": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.3, )"
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )"
         }
       },
       "Microsoft.CodeAnalysis.CSharp": {
