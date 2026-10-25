@@ -235,8 +235,8 @@
       "graphbridge.entityframeworkcore": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "[10.0.13, )",
-          "Neo4j.Driver": "[6.3.0, )"
+          "Microsoft.EntityFrameworkCore": "[10.0.13, 11.0.0)",
+          "Neo4j.Driver": "[6.4.0, 7.0.0)"
         }
       },
       "graphbridge.tool": {
@@ -298,7 +298,7 @@
       },
       "Microsoft.EntityFrameworkCore": {
         "type": "CentralTransitive",
-        "requested": "[10.0.13, )",
+        "requested": "[10.0.13, 11.0.0)",
         "resolved": "10.0.13",
         "contentHash": "u/z4nTQUJ5nJEXAQekgQEQZkh0delp4gL+ESHn7Z6k037c8HC5mSNu1/YdBgxGm7DtLjhOxktNl+aQMzw6wN7A==",
         "dependencies": {
@@ -310,9 +310,9 @@
       },
       "Neo4j.Driver": {
         "type": "CentralTransitive",
-        "requested": "[6.3.0, )",
-        "resolved": "6.3.0",
-        "contentHash": "USPPWixK2RkGO+BVuPa4WAH1p0BZpp4d5iIukXEL7/muoYT4bjB62pVlAuQyaW/3PfC0JTDlehsjKwOVf+yQdg=="
+        "requested": "[6.4.0, 7.0.0)",
+        "resolved": "6.4.0",
+        "contentHash": "y4HRrzUL3B3TxOMhF7BFgm7mAQxXporngAx+MN3KrR73T8Von316tkzcP+8knmfqlEFlfJ9y5QaM/l4j3gvn/A=="
       },
       "YamlDotNet": {
         "type": "CentralTransitive",

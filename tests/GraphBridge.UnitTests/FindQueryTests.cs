@@ -66,6 +66,44 @@ public sealed class FindQueryTests
     }
 
     [Fact]
+    public void Instance_value_equality_translates_as_static_equality_does()
+    {
+        var driver = ProviderTestDriver.Create();
+        using var db = Context(driver);
+        var id = Guid.NewGuid();
+        var name = "private-name";
+        var text = db.Set<Row>().Where(r => r.Id.Equals(id) && r.Name.Equals(name)).ToQueryString();
+        Assert.Contains("n.`Id` = $p0", text);
+        Assert.Contains("n.`Name` = $p1", text);
+        Assert.DoesNotContain(id.ToString(), text);
+        Assert.DoesNotContain(name, text);
+        Assert.Contains("n.`Name` = $p0", db.Set<Row>().Where(r => name.Equals(r.Name)).ToQueryString());
+        Assert.Contains("n.`Number` = $p0", db.Set<Row>().Where(r => r.Number.Equals(7)).ToQueryString());
+        Assert.Contains("n.`Count` = $p0", db.Set<Row>().Where(r => r.Count.Equals(7L)).ToQueryString());
+        Assert.Contains("n.`Active` = $p0", db.Set<Row>().Where(r => r.Active.Equals(true)).ToQueryString());
+        Assert.Contains("n.`Mood` = $p0", db.Set<Row>().Where(r => r.Mood.Equals(Mood.Busy)).ToQueryString());
+        Assert.Contains("n.`Maybe` = $p0", db.Set<Row>().Where(r => r.Maybe.Equals(3)).ToQueryString());
+        Assert.Contains("NOT coalesce", db.Set<Row>().Where(r => !r.Id.Equals(id)).ToQueryString());
+        Assert.Empty(((ProviderTestDriver)(object)driver).Calls);
+    }
+
+    [Fact]
+    public void Instance_equality_keeps_the_limits_of_static_equality()
+    {
+        var driver = ProviderTestDriver.Create();
+        using var db = Context(driver);
+        var name = "ada";
+        Assert.Equal("GBQ120", Code(() => db.Set<Row>().Where(r => r.Float.Equals(double.NaN)).ToQueryString()));
+        Assert.Equal("GBQ120", Code(() => db.Set<Row>().Where(r => r.Name.Equals(r.Name)).ToQueryString()));
+        Assert.Equal("GBQ120", Code(() => db.Set<Row>().Where(r => r.Id.Equals(UserMethod(r.Id))).ToQueryString()));
+        // A comparison overload is not value equality.
+        Assert.Equal("GBQ120", Code(() => db.Set<Row>().Where(r => r.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).ToQueryString()));
+        Assert.Empty(((ProviderTestDriver)(object)driver).Calls);
+
+        static string? Code(Action action) => Assert.Throws<Neo4jQueryTranslationException>(action).Code;
+    }
+
+    [Fact]
     public async Task Boxed_cross_type_parameter_is_rejected_before_transport()
     {
         var driver = ProviderTestDriver.Create();
@@ -103,5 +141,11 @@ public sealed class FindQueryTests
         public int Number { get; set; }
         public string Name { get; set; } = "";
         public double Float { get; set; }
+        public long Count { get; set; }
+        public bool Active { get; set; }
+        public Mood Mood { get; set; }
+        public int? Maybe { get; set; }
     }
+
+    public enum Mood { Calm, Busy }
 }

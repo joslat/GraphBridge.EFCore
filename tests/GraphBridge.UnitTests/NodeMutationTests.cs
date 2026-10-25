@@ -44,7 +44,7 @@ public sealed class NodeMutationTests
         person.Name = null;
         context.ChangeTracker.DetectChanges();
         var mutation = Assert.Single(Plan(context, person));
-        Assert.Equal("MATCH (n:`MutationPerson` {`appId`: $k0})\nSET n.`appId` = n.`appId`\nRETURN count(n) AS count", mutation.LockCommand!.Text);
+        Assert.Equal("MATCH (n:`MutationPerson` {`appId`: $k0})\nSET n.`__graphbridge_lock` = true REMOVE n.`__graphbridge_lock`\nRETURN count(n) AS count", mutation.LockCommand!.Text);
         Assert.Contains("WHERE coalesce(n.`version` = $o0", mutation.Command.Text);
         Assert.Contains("SET n += $changes", mutation.Command.Text);
         Assert.Equal(4L, mutation.Command.Parameters["o0"]);

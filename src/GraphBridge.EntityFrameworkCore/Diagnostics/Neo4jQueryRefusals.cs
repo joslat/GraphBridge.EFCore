@@ -60,6 +60,7 @@ internal static class Neo4jQueryRefusals
               || s.EndsWith(" Include", StringComparison.Ordinal) || s.EndsWith(" Includes", StringComparison.Ordinal), "GBQ140", null, Includes),
         (s => s.StartsWith("Predicate", StringComparison.Ordinal) || s.StartsWith("Value expression", StringComparison.Ordinal)
               || s.StartsWith("the method ", StringComparison.Ordinal) || s.StartsWith("object.Equals", StringComparison.Ordinal)
+              || s.StartsWith("x.Equals(y)", StringComparison.Ordinal)
               || s.StartsWith("Guid construction", StringComparison.Ordinal) || s.StartsWith("Comparisons between", StringComparison.Ordinal)
               || s.StartsWith("Range comparisons", StringComparison.Ordinal) || s.StartsWith("Ordering", StringComparison.Ordinal), "GBQ120", null, Values),
     ];

@@ -10,7 +10,7 @@ internal static class GraphSchemaInspector
     internal const string ComponentsQuery = "CALL dbms.components() YIELD name, versions, edition RETURN name, versions, edition LIMIT $limit";
     internal const string ConstraintsQuery = "SHOW CONSTRAINTS YIELD name, type, entityType, labelsOrTypes, properties, propertyType RETURN name, type, entityType, labelsOrTypes, properties, propertyType ORDER BY name LIMIT $limit";
     internal const string ConstraintsLegacyQuery = "SHOW CONSTRAINTS YIELD name, type, entityType, labelsOrTypes, properties RETURN name, type, entityType, labelsOrTypes, properties, null AS propertyType ORDER BY name LIMIT $limit";
-    internal const string IndexesQuery = "SHOW INDEXES YIELD name, state, type, entityType, labelsOrTypes, properties, owningConstraint RETURN name, state, type, entityType, labelsOrTypes, properties, owningConstraint ORDER BY name LIMIT $limit";
+    internal const string IndexesQuery = "SHOW INDEXES YIELD name, state, type, entityType, labelsOrTypes, properties, owningConstraint, options RETURN name, state, type, entityType, labelsOrTypes, properties, owningConstraint, options ORDER BY name LIMIT $limit";
     internal const string GraphTypeQuery = "CYPHER 25 SHOW CURRENT GRAPH TYPE YIELD specification RETURN specification";
 
     internal static Task<(GraphSchemaCapabilities Capabilities, GraphSchemaObservation Observation)> InspectAsync(

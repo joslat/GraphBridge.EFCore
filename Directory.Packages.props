@@ -3,12 +3,27 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.13" />
+    <!-- Below the next majors (PL-46): the provider uses EF Core internals and driver 6 APIs, so NuGet must flag EF Core 11 or driver 7. -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="[10.0.13, 11.0.0)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Specification.Tests" Version="10.0.13" />
-    <PackageVersion Include="Neo4j.Driver" Version="6.3.0" />
+    <PackageVersion Include="Neo4j.Driver" Version="[6.4.0, 7.0.0)" />
     <!-- Minimum for the optional VectorData adapter; refreshed monthly (PL-16). -->
-    <PackageVersion Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.11.0" />    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.Extensions.VectorData.Abstractions" Version="10.11.0" />
+    <!-- Minimum for the experimental GraphRAG toolkit (ADR 0052); refreshed monthly. -->
+    <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.11.0" />
+    <!-- Minimums for the GraphRAG adapters (ADR 0052, sections 1 and 8); refreshed monthly. DataIngestion is a preview. -->
+    <PackageVersion Include="Microsoft.Extensions.DataIngestion" Version="10.11.0-preview.1.26513.7" />
+    <PackageVersion Include="Microsoft.Agents.AI.Abstractions" Version="1.26.0" />
+    <!-- Test-only: an agent and function calling to drive the Agent Framework adapter, and a tokenizer for DataIngestion's chunkers. -->
+    <PackageVersion Include="Microsoft.Agents.AI" Version="1.26.0" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="10.11.0" />
+    <PackageVersion Include="Microsoft.ML.Tokenizers.Data.O200kBase" Version="1.0.1" />
+    <!-- Test-only: the GraphRAG evaluation harness's metrics (ADR 0052, section 9). AgentEval is MIT, by the maintainer; never a runtime dependency. -->
+    <PackageVersion Include="AgentEval" Version="0.43.0-beta" />
+    <!-- Test-only override: AgentEval's PDF rendering brings System.Security.Cryptography.Pkcs 8.0.1, which has advisories GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7. -->
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
     <PackageVersion Include="dotNetRdf.Core" Version="3.5.2" />

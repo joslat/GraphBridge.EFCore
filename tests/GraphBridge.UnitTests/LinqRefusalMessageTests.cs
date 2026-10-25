@@ -44,6 +44,22 @@ public sealed class LinqRefusalMessageTests
         Assert.Equal(("GBQ103", "SelectMany"), (Neo4jQueryRefusals.Classify("TranslateSelectMany").Code, Neo4jQueryRefusals.Classify("TranslateSelectMany").Shape));
     }
 
+    // PL-45 (PF-14): the join family and correlated subqueries, run as real queries rather than classified by name.
+    [Fact]
+    public void Joins_collection_navigations_and_correlated_subqueries_are_refused_with_their_codes()
+    {
+        using var db = JoinContext();
+        var people = db.Set<Owner>();
+        var pets = db.Set<Pet>();
+        Expect("GBQ103", "Join", "Fluent Cypher", () => people.Join(pets, p => p.Id, x => x.OwnerId, (p, x) => x.Name).ToQueryString());
+        Expect("GBQ103", "LeftJoin", "Fluent Cypher", () => people.LeftJoin(pets, p => p.Id, x => x.OwnerId, (p, x) => p.Name).ToQueryString());
+        Expect("GBQ103", "SelectMany", "Fluent Cypher", () => people.SelectMany(p => pets.Where(x => x.OwnerId == p.Id), (p, x) => x.Name).ToQueryString());
+        Expect("GBQ103", "SelectMany", "Fluent Cypher", () => people.SelectMany(p => p.Ownerships).ToQueryString());
+        Assert.Equal("GBQ120", Refusal(() => people.Where(p => p.Ownerships.Any()).ToQueryString()).Code);
+        Assert.Equal("GBQ120", Refusal(() => people.Where(p => pets.Any(x => x.OwnerId == p.Id)).ToQueryString()).Code);
+        Assert.Equal("GBQ150", Refusal(() => people.Select(p => new { p.Name, Pets = pets.Count(x => x.OwnerId == p.Id) }).ToQueryString()).Code);
+    }
+
     private static void Expect(string code, string shape, string alternative, Action action)
     {
         var (actualCode, actualShape, message) = Refusal(action);
@@ -66,5 +82,19 @@ public sealed class LinqRefusalMessageTests
         b.Entity<Person>().Property(p => p.Id).ValueGeneratedNever();
     });
 
+    private static ProviderModelContext JoinContext() => new(ProviderTestDriver.Create(), b =>
+    {
+        b.Entity<Owner>().ToGraphNode("RefusalOwner").Property(p => p.Id).ValueGeneratedNever();
+        b.Entity<Pet>().ToGraphNode("RefusalPet").Property(p => p.Id).ValueGeneratedNever();
+        var ownership = b.Entity<Ownership>();
+        ownership.HasKey(o => new { o.OwnerId, o.PetId });
+        ownership.HasOne<Owner>().WithMany(p => p.Ownerships).HasForeignKey(o => o.OwnerId);
+        ownership.HasOne<Pet>().WithMany().HasForeignKey(o => o.PetId);
+        ownership.ToGraphRelationship("REFUSAL_OWNS", [nameof(Ownership.OwnerId)], [nameof(Ownership.PetId)]);
+    });
+
     public sealed class Person { public int Id { get; set; } public string Name { get; set; } = ""; public int Age { get; set; } }
+    public sealed class Owner { public int Id { get; set; } public string Name { get; set; } = ""; public List<Ownership> Ownerships { get; } = []; }
+    public sealed class Pet { public int Id { get; set; } public int OwnerId { get; set; } public string Name { get; set; } = ""; }
+    public sealed class Ownership { public int OwnerId { get; set; } public int PetId { get; set; } }
 }

@@ -47,6 +47,31 @@ public sealed partial class ProviderUpdateTests
     }
 
     [Neo4jIntegrationFact]
+    public async Task A_node_deleted_in_bulk_can_be_added_again_with_the_same_key_in_the_same_transaction()
+    {
+        // Found by the GraphRAG toolkit (wave 7): re-ingesting a document deletes its chunks and adds them again under the same keys.
+        var runId = NewRunId();
+        try
+        {
+            await EnsureSchemaAsync();
+            var person = await InsertAsync(runId, "before");
+            await using var context = CreateContext();
+            await using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                Assert.Equal(1, await context.People.Where(p => p.Id == person.Id).ExecuteDeleteAsync());
+                context.Add(new UpdatePerson { Id = person.Id, RunId = runId, Name = "after", Age = 2 });
+                Assert.Equal(1, await context.SaveChangesAsync());
+                await transaction.CommitAsync();
+            }
+            await using var fresh = CreateContext();
+            var stored = await fresh.People.SingleAsync(p => p.RunId == runId);
+            Assert.Equal((person.Id, "after", 2), (stored.Id, stored.Name, stored.Age));
+            Assert.False((await StorePropertiesAsync(runId, stored.Id)).ContainsKey("__graphbridge_lock"));
+        }
+        finally { await CleanupAsync(runId); }
+    }
+
+    [Neo4jIntegrationFact]
     public async Task Bulk_delete_is_restrictive_atomic_and_can_borrow_an_explicit_transaction()
     {
         var runId = NewRunId();

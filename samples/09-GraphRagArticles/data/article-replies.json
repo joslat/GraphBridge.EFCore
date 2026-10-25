@@ -1,0 +1,60 @@
+[
+  {
+    "match": "opened a community seed bank on Saturday",
+    "reply": {
+      "entities": [
+        { "kind": "Person", "name": "Dana Whitfield", "mentions": ["Dana Whitfield"] },
+        { "kind": "Person", "name": "Tomas Reyes", "aliases": ["Reyes"], "description": "Head librarian of the Larkfield Public Library.", "mentions": ["Tomas Reyes", "Reyes"] },
+        { "kind": "Organization", "name": "Larkfield Public Library", "aliases": ["the library"], "mentions": ["The Larkfield Public Library"] },
+        { "kind": "Organization", "name": "Larkfield City Council", "mentions": ["the Larkfield City Council"] },
+        { "kind": "Organization", "name": "Larkfield Garden Club", "mentions": ["the Larkfield Garden Club"] },
+        { "kind": "Place", "name": "Elm Street", "mentions": ["Elm Street"] },
+        { "kind": "Place", "name": "Larkfield", "mentions": ["Larkfield"] },
+        { "kind": "Concept", "name": "community seed bank", "aliases": ["seed bank"], "description": "Seeds lent the way a library lends books.", "mentions": ["community seed bank", "The seed bank"] },
+        { "kind": "Event", "name": "Seed bank opening", "date": "Saturday", "mentions": ["opened a community seed bank on Saturday"] },
+        { "kind": "Topic", "name": "Seed sharing", "mentions": ["lending vegetable and flower seeds"] }
+      ],
+      "relationships": [
+        { "type": "AUTHORED", "from": "Dana Whitfield", "fromKind": "Person", "to": "this article", "toKind": "Document" },
+        { "type": "ABOUT", "from": "this article", "fromKind": "Document", "to": "Seed sharing", "toKind": "Topic" },
+        { "type": "WORKS_FOR", "from": "Tomas Reyes", "fromKind": "Person", "to": "Larkfield Public Library", "toKind": "Organization", "role": "head librarian" },
+        { "type": "LOCATED_IN", "from": "Larkfield Public Library", "fromKind": "Organization", "to": "Elm Street", "toKind": "Place" },
+        { "type": "LOCATED_IN", "from": "Elm Street", "fromKind": "Place", "to": "Larkfield", "toKind": "Place" },
+        { "type": "PARTICIPATES_IN", "from": "Tomas Reyes", "fromKind": "Person", "to": "Seed bank opening", "toKind": "Event", "role": "cut the ribbon" },
+        { "type": "LOCATED_IN", "from": "Seed bank opening", "fromKind": "Event", "to": "Elm Street", "toKind": "Place" },
+        { "type": "RELATED_TO", "from": "Larkfield City Council", "fromKind": "Organization", "to": "community seed bank", "toKind": "Concept", "description": "funds the program the seed bank is part of" }
+      ],
+      "quotes": [
+        { "type": "QUOTED", "speaker": "Reyes", "words": "Seeds are stories we can plant," },
+        { "type": "QUOTED", "speaker": "Reyes", "words": "Borrow a packet in spring, and bring some seeds back after the harvest." }
+      ]
+    }
+  },
+  {
+    "match": "has lent its first thousand packets",
+    "reply": {
+      "entities": [
+        { "kind": "Person", "name": "Dana Whitfield", "mentions": ["Dana Whitfield"] },
+        { "kind": "Person", "name": "Tomas Reyes", "mentions": ["Tomas Reyes", "Reyes"] },
+        { "kind": "Person", "name": "Amara Chen", "description": "President of the Larkfield Garden Club.", "mentions": ["Amara Chen"] },
+        { "kind": "Organization", "name": "Larkfield Public Library", "mentions": ["the Larkfield Public Library"] },
+        { "kind": "Organization", "name": "Larkfield Garden Club", "mentions": ["The Larkfield Garden Club"] },
+        { "kind": "Place", "name": "Mill Park", "mentions": ["Mill Park"] },
+        { "kind": "Concept", "name": "community seed bank", "mentions": ["the seed bank"] },
+        { "kind": "Event", "name": "Spring planting day", "date": "June 14", "mentions": ["spring planting day"] },
+        { "kind": "Topic", "name": "Seed sharing", "mentions": ["lent its first thousand packets"] }
+      ],
+      "relationships": [
+        { "type": "AUTHORED", "from": "Dana Whitfield", "fromKind": "Person", "to": "this article", "toKind": "Document" },
+        { "type": "ABOUT", "from": "this article", "fromKind": "Document", "to": "Seed sharing", "toKind": "Topic" },
+        { "type": "WORKS_FOR", "from": "Tomas Reyes", "fromKind": "Person", "to": "Larkfield Public Library", "toKind": "Organization", "role": "head librarian" },
+        { "type": "MEMBER_OF", "from": "Amara Chen", "fromKind": "Person", "to": "Larkfield Garden Club", "toKind": "Organization" },
+        { "type": "PARTICIPATES_IN", "from": "Larkfield Garden Club", "fromKind": "Organization", "to": "Spring planting day", "toKind": "Event", "role": "host" },
+        { "type": "LOCATED_IN", "from": "Spring planting day", "fromKind": "Event", "to": "Mill Park", "toKind": "Place" }
+      ],
+      "quotes": [
+        { "type": "QUOTED", "speaker": "Reyes", "words": "People come back with jars of seeds and photos of their gardens," }
+      ]
+    }
+  }
+]

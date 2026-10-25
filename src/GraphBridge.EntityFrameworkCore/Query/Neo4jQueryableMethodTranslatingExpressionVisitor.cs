@@ -78,6 +78,8 @@ internal sealed partial class Neo4jQueryableMethodTranslatingExpressionVisitor(
         if (expression is MethodCallExpression equals
             && equals.Method == typeof(object).GetMethod(nameof(object.Equals), [typeof(object), typeof(object)]))
             return TranslateObjectEquals(equals, entity, binding, parameters);
+        if (expression is MethodCallExpression instanceEquals && IsInstanceEquals(instanceEquals))
+            return TranslateInstanceEquals(instanceEquals, entity, binding, parameters);
         if (expression is BinaryExpression binary)
         {
             if (binary.NodeType is ExpressionType.AndAlso or ExpressionType.OrElse)
@@ -98,6 +100,10 @@ internal sealed partial class Neo4jQueryableMethodTranslatingExpressionVisitor(
             };
             var leftProperty = FindProperty(binary.Left, entity, binding);
             var rightProperty = FindProperty(binary.Right, entity, binding);
+            // A vector can only be tested for null; similarity belongs to typed vector search (ADR 0054).
+            if ((IsVector(leftProperty) || IsVector(rightProperty)) && !(operation is CypherOperator.Equal or CypherOperator.NotEqual
+                    && (leftProperty is null && IsNullConstant(binary.Left) || rightProperty is null && IsNullConstant(binary.Right))))
+                throw RefuseVector("Predicate on a vector property other than a null test");
             if (operation is not (CypherOperator.Equal or CypherOperator.NotEqual)
                 && (HasExplicitConversion(leftProperty?.ModelProperty.Property) || HasExplicitConversion(rightProperty?.ModelProperty.Property)))
                 throw Unsupported("Range comparisons on properties with explicit converters");
@@ -218,6 +224,8 @@ internal sealed partial class Neo4jQueryableMethodTranslatingExpressionVisitor(
         RequireBeforePagination(query, "Ordering (OrderBy or ThenBy)");
         var property = FindProperty(selector.Body, selector.Parameters[0], query.Binding)
             ?? throw Unsupported("Ordering requires a direct scalar property");
+        if (IsVector(property))
+            throw RefuseVector("Ordering by a vector property");
         if (HasExplicitConversion(property.ModelProperty.Property))
             throw Unsupported("Ordering properties with explicit converters");
         var orderings = append ? query.Plan.Orderings?.ToList() ?? [] : new List<CypherOrdering>();
@@ -331,4 +339,9 @@ internal sealed partial class Neo4jQueryableMethodTranslatingExpressionVisitor(
     }
 
     private static Neo4jQueryTranslationException Unsupported(string feature) => Neo4jQueryRefusals.Create(feature);
+
+    private static bool IsVector(GraphReadProperty? property) => property?.ModelProperty.VectorDimensions is not null;
+    private static bool IsNullConstant(Expression expression) => StripIdentityConversion(expression) is ConstantExpression { Value: null };
+    private static Neo4jQueryTranslationException RefuseVector(string feature) => Neo4jQueryRefusals.Create(feature,
+        "Find similar entities with typed vector search (Database.QueryVectorNodesAsync) and load them by key. LINQ returns a vector property and tests it for null.");
 }

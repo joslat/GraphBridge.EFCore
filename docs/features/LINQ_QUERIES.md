@@ -26,7 +26,7 @@ Every value travels as a parameter, so the statement text is the same whatever t
 
 | LINQ | Supported form | Cypher |
 |---|---|---|
-| `Where` | `==`, `!=`, `<`, `<=`, `>`, `>=` between a mapped scalar property and a captured variable or constant, or between two mapped properties; `&&`, `\|\|`, `!`; a `bool` property; `object.Equals`; [`Contains` on a local collection](#contains-over-a-local-collection) | `WHERE`, with [C# null semantics](#null-comparisons) |
+| `Where` | `==`, `!=`, `<`, `<=`, `>`, `>=` between a mapped scalar property and a captured variable or constant, or between two mapped properties; `&&`, `\|\|`, `!`; a `bool` property; `object.Equals(p.X, value)` and `p.X.Equals(value)` on `Guid`, `string`, `int`, `long`, `bool` and enum properties, which translate as `==`; [`Contains` on a local collection](#contains-over-a-local-collection) | `WHERE`, with [C# null semantics](#null-comparisons) |
 | `OrderBy`, `ThenBy` and their descending forms | A direct mapped scalar property without an explicit value converter | `ORDER BY`, nulls first when ascending |
 | `Skip`, `Take` | Integer values | `SKIP $p`, `LIMIT $p` |
 | `Select` | One mapped scalar property, or a [DTO](#dto-projections) | `RETURN` of only the selected properties |

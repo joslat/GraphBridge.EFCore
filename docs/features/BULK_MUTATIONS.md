@@ -47,7 +47,7 @@ A non-empty call on plain nodes submits four statements (schema check, selection
 
 ## Upserts
 
-`ExecuteUpsertAsync` creates a node for each entity whose key no node has yet, and updates the node that has it. Like `ExecuteUpdateAsync`, it runs immediately, as one statement in one transaction, and bypasses the change tracker.
+`ExecuteUpsertAsync` creates a node for each entity whose key no node has yet, and updates the node that has it. It also upserts relationships, below. Like `ExecuteUpdateAsync`, it runs immediately, as one statement in one transaction, and bypasses the change tracker.
 
 ```csharp
 var result = await db.People.ExecuteUpsertAsync(people, cancellationToken: cancellationToken);
@@ -65,7 +65,14 @@ await db.People.ExecuteUpsertAsync(people, p => new { });
 - **Limits.** At most 10,000 entities per call, and no two with the same key; either problem is refused before anything is sent. Larger inputs need several calls, each atomic.
 - **Result.** `GraphUpsertResult` has `Created`, `Matched` and the server's `GraphWriteCounters`, read from the statement's summary without another round trip.
 - **Transactions and retries.** Without an explicit transaction, the call commits on its own. Inside `BeginTransactionAsync` it joins your transaction, and a failure aborts the whole transaction, as for the other bulk calls. Repeating the same upsert writes the same values, so it is safe to run again after a failure or an unknown commit outcome; only `Created` and `Matched` change.
-- **Not yet supported:** relationships (association and identified edges), native-reference dependents, concurrency tokens and shadow properties are refused. Tracked instances are not refreshed.
+- **Relationships.** The same call upserts [associations](ASSOCIATIONS.md) and [identified relationships](IDENTIFIED_RELATIONSHIPS.md) between nodes that already exist: an identified relationship matches on its key, an association on its pair of endpoints, and the payload is written as for nodes. A first statement in the same transaction finds and locks both endpoints of every entity, so concurrent upserts of the same relationship wait for each other. The call is refused, naming entity positions and writing nothing, when an endpoint doesn't exist, when an identified key already belongs to a relationship between other endpoints (an upsert never moves one), or when a pair already has two associations. Two entities with the same key, or the same pair, are refused before sending. An identified relationship also needs its relationship uniqueness constraint. `Created` counts relationships created.
+
+  ```csharp
+  await db.Mentions.ExecuteUpsertAsync(mentions);           // identified: matched on Mention.Id
+  await db.Likes.ExecuteUpsertAsync(likes, l => l.Stars);   // association: matched on (PersonId, MovieId)
+  ```
+
+- **Not supported:** native-reference dependents, concurrency tokens and shadow properties, including the shadow foreign keys of a many-to-many join type without its own class. Tracked instances are not refreshed.
 
 Upserts are traced as `GraphBridge.Upsert`. Design: [ADR-0051](../architecture/adr/ADR-0051.md).
 

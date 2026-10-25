@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Globalization;
 using GraphBridge.EntityFrameworkCore.Infrastructure;
+using GraphBridge.EntityFrameworkCore.Metadata;
 using GraphBridge.EntityFrameworkCore.Search;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Neo4j.Driver;
 
 namespace GraphBridge.Tooling.Diagnostics;
 
 /// <summary>A full-text or vector index the application's searches depend on, declared so connected Doctor can check it early.</summary>
 /// <remarks>The index name, labels/types and properties are used only to observe the selected database; reports retain the
-/// declared ID and finding codes, never the names. GraphBridge never creates, repairs or drops the index.</remarks>
+/// declared ID and finding codes, never the names. Doctor never creates, repairs or drops the index; a migration step can create it.</remarks>
 public sealed class GraphSearchIndexExpectation
 {
     private GraphSearchIndexExpectation(string id, GraphSearchKind kind, GraphSearchEntityKind entityKind, string indexName,
@@ -99,7 +101,7 @@ internal static class GraphSearchIndexInspection
                 .WithMetadata(new Dictionary<string, object> { ["graphbridgeOperation"] = "doctor-search-indexes" })).ConfigureAwait(false);
             var results = new List<GraphSearchIndexEvidence>(expectations.Count);
             foreach (var expectation in expectations)
-                results.Add(await InspectAsync(transaction, expectation, database, cancellationToken).ConfigureAwait(false));
+                results.Add(await InspectAsync(transaction, expectation, database, context.Model, cancellationToken).ConfigureAwait(false));
             var codes = results.SelectMany(r => r.Findings).Distinct(StringComparer.Ordinal).ToList();
             if (codes.Count == 0) codes.Add("GBD-SEARCH-000");
             return (results, codes.Select(GraphDiagnosticCatalog.Get).ToArray());
@@ -118,10 +120,11 @@ internal static class GraphSearchIndexInspection
     }
 
     private static async Task<GraphSearchIndexEvidence> InspectAsync(IAsyncTransaction transaction, GraphSearchIndexExpectation expected,
-        GraphDatabaseEvidence database, CancellationToken cancellationToken)
+        GraphDatabaseEvidence database, IModel model, CancellationToken cancellationToken)
     {
         var findings = new List<string>();
         if (!Supported(database, expected.Kind)) findings.Add("GBD-SEARCH-010");
+        if (ModelDimensionsDiffer(model, expected)) findings.Add("GBD-SEARCH-012");
         var rows = await ReadAsync(transaction, Index, new() { ["index"] = expected.IndexName }, 2, cancellationToken).ConfigureAwait(false);
         if (rows.Count != 1)
         {
@@ -165,6 +168,17 @@ internal static class GraphSearchIndexInspection
         if (sample.Present == 0) findings.Add("GBD-SEARCH-009");
         else if (sample.Unusable > 0) findings.Add("GBD-SEARCH-008");
         return Result(expected, findings, sample.Present, sample.Unusable);
+    }
+
+    // ADR 0054: a declared vector index over a property the model maps with IsGraphVector must agree on the dimensions.
+    private static bool ModelDimensionsDiffer(IModel model, GraphSearchIndexExpectation expected)
+    {
+        if (expected.Kind != GraphSearchKind.Vector) return false;
+        var annotation = expected.EntityKind == GraphSearchEntityKind.Node ? GraphAnnotationNames.NodeLabel : GraphAnnotationNames.RelationshipType;
+        return model.GetEntityTypes().Where(entity => entity[annotation] as string == expected.LabelsOrTypes[0])
+            .SelectMany(entity => entity.GetProperties())
+            .Any(property => (property[GraphAnnotationNames.PropertyName] as string ?? property.Name) == expected.Properties[0]
+                && property[GraphAnnotationNames.VectorDimensions] is int dimensions && dimensions != expected.Dimensions);
     }
 
     private static async Task<(int Present, int Unusable)> SampleAsync(IAsyncTransaction transaction, GraphSearchIndexExpectation expected,

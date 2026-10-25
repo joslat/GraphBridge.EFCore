@@ -2,17 +2,32 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- The GraphRAG toolkit is experimental (ADR 0052); its live tests acknowledge that here. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Shared/BoltBoundaryReader.cs" Link="Testing/BoltBoundaryReader.cs" />
     <Compile Include="../../samples/05-FluentCypher/FluentMovieQueries.cs" Link="Samples/FluentMovieQueries.cs" />
     <Compile Include="../../samples/06-VectorSearch/MovieFinder.cs" Link="Samples/MovieFinder.cs" />
     <Compile Include="../../samples/06-VectorSearch/MovieSearchSetup.cs" Link="Samples/MovieSearchSetup.cs" />
+    <Compile Include="../../samples/07-GraphRagQuickStart/QuickStart.cs" Link="Samples/QuickStart.cs" />
+    <Compile Include="../../samples/08-GraphRagNovel/Novel.cs" Link="Samples/Novel.cs" />
+    <Compile Include="../../samples/09-GraphRagArticles/Articles.cs" Link="Samples/Articles.cs" />
+    <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Samples/SampleModels.cs" />
+    <None Include="../../samples/08-GraphRagNovel/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../samples/09-GraphRagArticles/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.DataIngestion/GraphBridge.GraphRag.DataIngestion.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj" />
+    <ProjectReference Include="../GraphBridge.GraphRag.Evaluation/GraphBridge.GraphRag.Evaluation.csproj" />
+    <PackageReference Include="Microsoft.Agents.AI" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="Microsoft.ML.Tokenizers.Data.O200kBase" />
     <ProjectReference Include="../../samples/01-Blogging-CodeFirst/Blogging.App/Blogging.App.csproj" />
     <ProjectReference Include="../../samples/02-Organization-OntologyFirst/Organization.App/Organization.App.csproj" />
     <Using Include="Xunit" />

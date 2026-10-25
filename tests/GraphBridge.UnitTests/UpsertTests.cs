@@ -111,6 +111,31 @@ public sealed class UpsertTests
     }
 
     [Fact]
+    public async Task Native_reference_dependents_and_shadow_properties_are_refused_before_anything_is_sent()
+    {
+        // Owned types and inheritance never get this far: the model build refuses them (NodeBindingTests).
+        var script = new Script();
+        await using var references = new ProviderModelContext(script.Driver, b =>
+        {
+            b.Entity<UpsertShelf>().ToGraphNode("UpsertShelf");
+            b.Entity<UpsertBook>().ToGraphNode("UpsertBook").Property(x => x.Id).ValueGeneratedNever();
+            b.Entity<UpsertBook>().HasOne<UpsertShelf>().WithMany().HasForeignKey(x => x.ShelfId).IsRequired()
+                .OnDelete(DeleteBehavior.Restrict).ToGraphReference("UPSERT_ON_SHELF");
+        });
+        Assert.Contains("native-reference foreign keys", (await Assert.ThrowsAsync<NotSupportedException>(() => references.Set<UpsertBook>()
+            .ExecuteUpsertAsync([new UpsertBook { Id = 1, ShelfId = Guid.NewGuid() }]))).Message);
+
+        await using var shadow = new ProviderModelContext(script.Driver, b =>
+            b.Entity<UpsertPerson>().ToGraphNode("UpsertPerson").Property<string>("Source"));
+        var error = await Assert.ThrowsAsync<NotSupportedException>(() => shadow.Set<UpsertPerson>().ExecuteUpsertAsync([Person("ada", Mood.Calm, null)]));
+        Assert.Contains("shadow property", error.Message);
+        Assert.Contains(".Source'", error.Message);
+
+        Assert.Empty(script.Commands);
+        Assert.Equal(0, script.Sessions);
+    }
+
+    [Fact]
     public async Task An_application_transaction_is_borrowed_and_left_for_the_caller_to_commit()
     {
         var script = new Script();
@@ -149,6 +174,11 @@ public sealed class UpsertTests
         public string? Email { get; set; }
     }
 
+    public sealed class UpsertShelf { public Guid Id { get; set; } }
+    public sealed class UpsertBook { public int Id { get; set; } public Guid ShelfId { get; set; } }
+    public sealed class UpsertRating { public Guid PersonId { get; set; } public Guid ShelfId { get; set; } public int Stars { get; set; } }
+    public sealed class UpsertVisit { public int Id { get; set; } public Guid PersonId { get; set; } public Guid ShelfId { get; set; } }
+
     public sealed class UpsertContext(DbContextOptions<UpsertContext> options) : DbContext(options)
     {
         public DbSet<UpsertPerson> People => Set<UpsertPerson>();
@@ -166,7 +196,11 @@ public sealed class UpsertTests
         public List<string> Commands { get; } = [];
         public List<IDictionary<string, object>?> Parameters { get; } = [];
         public bool Constrained { get; init; } = true;
+        public bool RelationshipConstrained { get; init; } = true;
         public int NodesCreated { get; init; }
+        public int RelationshipsCreated { get; init; }
+        /// <summary>The preflight's answer per row; null: every endpoint found and no conflicting relationship.</summary>
+        public Func<int, Dictionary<string, object?>>? Preflight { get; init; }
         public int Sessions, Commits, Rollbacks;
 
         public Script()
@@ -200,18 +234,36 @@ public sealed class UpsertTests
             Parameters.Add(parameters);
             if (command.StartsWith("SHOW CONSTRAINTS", StringComparison.Ordinal))
                 return Cursor(Constrained
-                    ? [new() { ["entityType"] = "NODE", ["type"] = "NODE_PROPERTY_UNIQUENESS", ["labelsOrTypes"] = new List<string> { "UpsertPerson" }, ["properties"] = new List<string> { "person_key" } }]
+                    ? [Constraint("NODE", "UpsertPerson", "person_key"), Constraint("NODE", "UpsertShelf", "Id"),
+                        .. RelationshipConstrained ? new[] { Constraint("RELATIONSHIP", "UPSERT_VISITED", "visit_key") } : []]
                     : [], null);
             var rows = ((Dictionary<string, object?>[])parameters![Neo4jUpsertExecutor.RowsParameter]).Length;
             var counters = ProtocolProxy.For<ICounters>((method, _) => method.Name switch
             {
-                "get_NodesCreated" => NodesCreated, "get_ContainsUpdates" => NodesCreated > 0,
+                "get_NodesCreated" => NodesCreated, "get_RelationshipsCreated" => RelationshipsCreated,
+                "get_ContainsUpdates" => NodesCreated + RelationshipsCreated > 0,
                 _ when method.ReturnType == typeof(int) => 0,
                 _ => throw new InvalidOperationException(method.Name)
             });
             var summary = ProtocolProxy.For<IResultSummary>((method, _) => method.Name == "get_Counters" ? counters : throw new InvalidOperationException(method.Name));
+            if (command.Contains("OPTIONAL MATCH", StringComparison.Ordinal))
+                return Cursor(Enumerable.Range(0, rows).Select(i => Preflight?.Invoke(i)
+                    ?? new Dictionary<string, object?> { ["position"] = (long)i, ["source"] = true, ["target"] = true, ["edges"] = 0L }).ToArray(), summary);
             return Cursor([new() { ["affected"] = (long)rows }], summary);
         }
+
+        private static Dictionary<string, object?> Constraint(string entityType, string label, string property) => new()
+        {
+            ["entityType"] = entityType, ["type"] = entityType + "_PROPERTY_UNIQUENESS",
+            ["labelsOrTypes"] = new List<string> { label }, ["properties"] = new List<string> { property }
+        };
+
+        // Each record holds its own row, as the driver's records do, so records kept after fetching stay correct.
+        private static IRecord Record(Dictionary<string, object?> row) => ProtocolProxy.For<IRecord>((property, args) => property.Name switch
+        {
+            "get_Item" => row[(string)args![0]!],
+            _ => throw new InvalidOperationException(property.Name)
+        });
 
         private static IResultCursor Cursor(IReadOnlyList<Dictionary<string, object?>> rows, IResultSummary? summary)
         {
@@ -219,11 +271,7 @@ public sealed class UpsertTests
             return ProtocolProxy.For<IResultCursor>((method, _) => method.Name switch
             {
                 "FetchAsync" => Task.FromResult(++index < rows.Count),
-                "get_Current" => ProtocolProxy.For<IRecord>((property, args) => property.Name switch
-                {
-                    "get_Item" => rows[index][(string)args![0]!],
-                    _ => throw new InvalidOperationException(property.Name)
-                }),
+                "get_Current" => Record(rows[index]),
                 "ConsumeAsync" when summary is not null => Task.FromResult(summary),
                 _ => throw new InvalidOperationException(method.Name)
             });

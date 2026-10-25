@@ -1,4 +1,5 @@
 using GraphBridge.EntityFrameworkCore.Metadata;
+using GraphBridge.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -121,6 +122,29 @@ public static class GraphModelBuilderExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.HasAnnotation(GraphAnnotationNames.PropertyName, GraphIdentifier.Validate(name, nameof(name)));
+        return builder;
+    }
+
+    /// <summary>
+    /// Maps a <c>float[]</c> or <c>ReadOnlyMemory&lt;float&gt;</c> property as an embedding with exactly <paramref name="dimensions"/> values,
+    /// stored as a list of floats (ADR 0054). Writes refuse a vector of another length, with a NaN or infinite value, or all zeros.
+    /// Queries can return it and test it for null; find similar entities with typed vector search.
+    /// </summary>
+    public static PropertyBuilder IsGraphVector(this PropertyBuilder builder, int dimensions)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        if (!Neo4jTypeMappingSource.IsVectorType(builder.Metadata.ClrType))
+            throw new ArgumentException($"IsGraphVector maps float[] or ReadOnlyMemory<float> properties; '{builder.Metadata.Name}' is {builder.Metadata.ClrType.Name}.", nameof(builder));
+        if (dimensions is < 1 or > 4096)
+            throw new ArgumentOutOfRangeException(nameof(dimensions), "Vector dimensions must be 1 to 4,096.");
+        builder.HasAnnotation(GraphAnnotationNames.VectorDimensions, dimensions);
+        return builder;
+    }
+
+    /// <inheritdoc cref="IsGraphVector(PropertyBuilder, int)" />
+    public static PropertyBuilder<TProperty> IsGraphVector<TProperty>(this PropertyBuilder<TProperty> builder, int dimensions)
+    {
+        IsGraphVector((PropertyBuilder)builder, dimensions);
         return builder;
     }
 }

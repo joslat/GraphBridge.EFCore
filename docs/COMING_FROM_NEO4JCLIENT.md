@@ -22,7 +22,7 @@ What changes most is where the model lives. In Neo4jClient the model is in your 
 | `CollectAs<T>()` | `Graph.Collect(node, max)` or `Graph.CollectDistinct(node, max)` |
 | `OptionalMatch(...)` | Fluent `OptionalMatch(...)`; LINQ `Include` for modeled relationships |
 | `Create(...)` | `Add(entity)` and `SaveChangesAsync()` |
-| `Merge(...).OnCreate().Set(...).OnMatch().Set(...)` | `ExecuteUpsertAsync(entities, updateProperties)` for nodes |
+| `Merge(...).OnCreate().Set(...).OnMatch().Set(...)` | `ExecuteUpsertAsync(entities, updateProperties)` for nodes, and for relationships between existing nodes |
 | `Set(...)`, `Delete(...)` | Tracked changes and `SaveChangesAsync()`, or `ExecuteUpdateAsync` and `ExecuteDeleteAsync` |
 | `Unwind`, `Call ... Yield`, `LoadCsv`, `Union` | Native Cypher: `QueryCypherAsync` and `ExecuteCypherAsync` |
 | `BeginTransaction()` | `Database.BeginTransactionAsync()` |
@@ -219,7 +219,7 @@ They can't share one process. Neo4jClient 5.1.20 depends on the 5.x driver, [`Ne
 
 ## What has no equivalent yet
 
-- **Relationship upserts.** `ExecuteUpsertAsync` covers nodes. MERGE on relationships stays native Cypher.
+- **Upserts that create endpoints.** `ExecuteUpsertAsync` merges nodes, and relationships between nodes that already exist. A single MERGE that creates both a node and its relationship stays native Cypher; upsert the nodes first, then the relationships.
 - **Fluent writes.** Fluent Cypher reads only; writes go through EF or native Cypher.
 - **Tracked entities from Fluent Cypher.** Returned entities are untracked.
 - **`LoadCsv`, `Union`, procedure calls and APOC.** Native Cypher.

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Experimental GraphRAG building blocks for GraphBridge: store documents as typed graphs through EF Core, with exact chunk positions, embeddings and resumable ingestion. Uses Microsoft.Extensions.AI abstractions; testable without a model. The API may change in any preview.</Description>
+    <Version>0.1.0-preview.5</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="GraphBridge.GraphRag.Tests" />
+    <InternalsVisibleTo Include="GraphBridge.IntegrationTests" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+  <PropertyGroup>
+    <PackageTags>$(PackageTags);GraphRAG;RAG;embeddings;Microsoft.Extensions.AI</PackageTags>
+  </PropertyGroup>
+</Project>

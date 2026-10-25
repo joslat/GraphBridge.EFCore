@@ -3,8 +3,8 @@
 The `GraphBridge.Templates` package adds a `dotnet new graphbridge` template that creates a small solution referencing GraphBridge from **packages**, not from a source checkout: a console application and offline query contract tests. Use it to start a fresh project and to confirm that the packages restore, build and translate queries. Install it from nuget.org:
 
 ```powershell
-dotnet new install GraphBridge.Templates::0.1.0-preview.4
-dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.4
+dotnet new install GraphBridge.Templates::0.1.0-preview.5
+dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.5
 ```
 
 To try changes that are not released yet, pack the provider and the template into a local feed instead:
@@ -16,11 +16,11 @@ dotnet pack src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.
 dotnet pack templates/GraphBridge.Templates.csproj -o $feed
 
 # Install the template and create a solution.
-dotnet new install (Join-Path $feed 'GraphBridge.Templates.0.1.0-preview.4.nupkg')
-dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.4
+dotnet new install (Join-Path $feed 'GraphBridge.Templates.0.1.0-preview.5.nupkg')
+dotnet new graphbridge --name MyGraph --provider-version 0.1.0-preview.5
 ```
 
-Either way, this creates a `MyGraph` folder. `--provider-version` must name a provider version that exists on nuget.org or in your feed; locally packed packages take the source version `0.1.0-preview.4` unless you pack with `-p:PackageVersion=…`.
+Either way, this creates a `MyGraph` folder. `--provider-version` must name a provider version that exists on nuget.org or in your feed; locally packed packages take the source version `0.1.0-preview.5` unless you pack with `-p:PackageVersion=…`.
 
 ## Options
 
@@ -36,7 +36,7 @@ The template has no post-actions: it does not restore, build, start Docker or ad
 | Path | Content |
 |---|---|
 | `MyGraph.slnx` | Solution with the two projects. |
-| `App/MyGraph.csproj` | Console application pinning `GraphBridge.EntityFrameworkCore` to your version, `Microsoft.EntityFrameworkCore` to `[10.0.13]` and `Neo4j.Driver` to `[6.3.0]`. |
+| `App/MyGraph.csproj` | Console application pinning `GraphBridge.EntityFrameworkCore` to your version, `Microsoft.EntityFrameworkCore` to `[10.0.13]` and `Neo4j.Driver` to `[6.4.0]`. |
 | `App/Program.cs` | A guarded CRUD demo: create, parameterized read, update with row version, a Fluent Cypher read, an explicitly rolled-back transaction, delete and an absence check. It also defines `SmokeContext` and `SmokeItem`. |
 | `Tests/MyGraph.Tests.csproj`, `Tests/QueryContractTests.cs` | Two offline xUnit tests: a LINQ query translates to parameterized Cypher, and an unsupported query throws `Neo4jQueryTranslationException`. A proxy driver fails any transport call. |
 | `Directory.Build.props` | `net10.0`, nullable, implicit usings, warnings as errors, lock files enabled. |

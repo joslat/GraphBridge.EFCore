@@ -4,25 +4,21 @@ using GraphBridge.EntityFrameworkCore.Schema;
 
 namespace GraphBridge.EntityFrameworkCore.Migrations;
 
-public enum GraphMigrationSchemaKind { UniquenessConstraint, ExistenceConstraint, PropertyTypeConstraint, RangeIndex }
+public enum GraphMigrationSchemaKind { UniquenessConstraint, ExistenceConstraint, PropertyTypeConstraint, RangeIndex, VectorIndex, FullTextIndex }
 public enum GraphMigrationStepKind { CreateConstraint, CreateIndex, DropConstraint, DropIndex, RenameProperty, Backfill, AssertPrecondition }
-public enum GraphMigrationCapability { NodeUniqueness, RelationshipUniqueness, PropertyExistence, PropertyType, RangeIndexes }
+public enum GraphMigrationCapability { NodeUniqueness, RelationshipUniqueness, PropertyExistence, PropertyType, RangeIndexes, VectorIndexes, FullTextIndexes }
+public enum GraphVectorSimilarity { Cosine, Euclidean }
 
 /// <summary>An exact named schema definition, used both for creation and expected-definition drops.</summary>
 public sealed class GraphMigrationSchemaDefinition
 {
+    /// <summary>Constraints and RANGE indexes. Vector and full-text indexes need their options: use <see cref="VectorIndex"/> or <see cref="FullTextIndex"/>.</summary>
     public GraphMigrationSchemaDefinition(string name, GraphMigrationSchemaKind kind, string entityType,
         string labelOrType, IEnumerable<string> properties, string? propertyType = null)
+        : this(name, kind, entityType, [labelOrType], properties)
     {
-        Name = GraphMigrationContract.SchemaName(name);
-        if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
-        Kind = kind;
-        EntityType = GraphMigrationContract.EntityType(entityType);
-        LabelOrType = GraphMigrationContract.Target(labelOrType);
-        ArgumentNullException.ThrowIfNull(properties);
-        Properties = Array.AsReadOnly(properties.Select(p => GraphIdentifier.Validate(p, nameof(properties))).ToArray());
-        if (Properties.Count == 0 || Properties.Distinct(StringComparer.Ordinal).Count() != Properties.Count)
-            throw new ArgumentException("A schema definition requires distinct ordered property names.", nameof(properties));
+        if (kind is GraphMigrationSchemaKind.VectorIndex or GraphMigrationSchemaKind.FullTextIndex)
+            throw new ArgumentException("Vector and full-text index definitions need their options; use VectorIndex or FullTextIndex.", nameof(kind));
         if (kind is GraphMigrationSchemaKind.ExistenceConstraint or GraphMigrationSchemaKind.PropertyTypeConstraint && Properties.Count != 1)
             throw new ArgumentException("Existence and type constraints require exactly one property.", nameof(properties));
         if (kind == GraphMigrationSchemaKind.PropertyTypeConstraint)
@@ -34,19 +30,75 @@ public sealed class GraphMigrationSchemaDefinition
             throw new ArgumentException("Only property type constraints accept a property type.", nameof(propertyType));
         PropertyType = propertyType;
     }
+
+    private GraphMigrationSchemaDefinition(string name, GraphMigrationSchemaKind kind, string entityType,
+        IEnumerable<string> labelsOrTypes, IEnumerable<string> properties)
+    {
+        Name = GraphMigrationContract.SchemaName(name);
+        if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
+        Kind = kind;
+        EntityType = GraphMigrationContract.EntityType(entityType);
+        ArgumentNullException.ThrowIfNull(labelsOrTypes);
+        LabelsOrTypes = Array.AsReadOnly(labelsOrTypes.Select(GraphMigrationContract.Target).ToArray());
+        if (LabelsOrTypes.Count is 0 or > 16 || LabelsOrTypes.Distinct(StringComparer.Ordinal).Count() != LabelsOrTypes.Count)
+            throw new ArgumentException("A schema definition requires 1 to 16 distinct labels or relationship types.", nameof(labelsOrTypes));
+        LabelOrType = LabelsOrTypes[0];
+        ArgumentNullException.ThrowIfNull(properties);
+        Properties = Array.AsReadOnly(properties.Select(p => GraphIdentifier.Validate(p, nameof(properties))).ToArray());
+        if (Properties.Count == 0 || Properties.Distinct(StringComparer.Ordinal).Count() != Properties.Count)
+            throw new ArgumentException("A schema definition requires distinct ordered property names.", nameof(properties));
+        if (kind == GraphMigrationSchemaKind.FullTextIndex && Properties.Count > 16)
+            throw new ArgumentException("A full-text index covers at most 16 properties.", nameof(properties));
+    }
+
+    /// <summary>A named vector index over one label (or relationship type) and one property, with its dimensions and similarity function.</summary>
+    public static GraphMigrationSchemaDefinition VectorIndex(string name, string entityType, string labelOrType,
+        string property, int dimensions, GraphVectorSimilarity similarity)
+    {
+        if (dimensions is < 1 or > 4096) throw new ArgumentOutOfRangeException(nameof(dimensions), "Vector dimensions must be 1 to 4,096.");
+        if (!Enum.IsDefined(similarity)) throw new ArgumentOutOfRangeException(nameof(similarity));
+        return new(name, GraphMigrationSchemaKind.VectorIndex, entityType, [labelOrType], [property])
+        {
+            VectorDimensions = dimensions,
+            VectorSimilarity = similarity
+        };
+    }
+
+    /// <summary>A named full-text index over 1 to 16 labels (or relationship types) and 1 to 16 properties.</summary>
+    /// <param name="analyzer">Always declared, so the result doesn't depend on the server's default analyzer setting.</param>
+    public static GraphMigrationSchemaDefinition FullTextIndex(string name, string entityType, IEnumerable<string> labelsOrTypes,
+        IEnumerable<string> properties, string analyzer = "standard-no-stop-words", bool eventuallyConsistent = false)
+    {
+        if (analyzer is null || analyzer.Length is 0 or > 64 || analyzer.Any(c => !char.IsAsciiLetterOrDigit(c) && c is not ('_' or '-')))
+            throw new ArgumentException("An analyzer name has 1 to 64 ASCII letters, digits, underscores or hyphens.", nameof(analyzer));
+        return new(name, GraphMigrationSchemaKind.FullTextIndex, entityType, labelsOrTypes, properties)
+        {
+            FullTextAnalyzer = analyzer,
+            FullTextEventuallyConsistent = eventuallyConsistent
+        };
+    }
+
     public string Name { get; }
     public GraphMigrationSchemaKind Kind { get; }
     public string EntityType { get; }
+    /// <summary>The first of <see cref="LabelsOrTypes"/>; only a full-text index has more than one.</summary>
     public string LabelOrType { get; }
+    public IReadOnlyList<string> LabelsOrTypes { get; }
     public IReadOnlyList<string> Properties { get; }
     public string? PropertyType { get; }
-    public bool IsIndex => Kind == GraphMigrationSchemaKind.RangeIndex;
+    public int? VectorDimensions { get; private init; }
+    public GraphVectorSimilarity? VectorSimilarity { get; private init; }
+    public string? FullTextAnalyzer { get; private init; }
+    public bool? FullTextEventuallyConsistent { get; private init; }
+    public bool IsIndex => Kind is GraphMigrationSchemaKind.RangeIndex or GraphMigrationSchemaKind.VectorIndex or GraphMigrationSchemaKind.FullTextIndex;
     public string DefinitionType => Kind switch
     {
         GraphMigrationSchemaKind.UniquenessConstraint => EntityType + "_PROPERTY_UNIQUENESS",
         GraphMigrationSchemaKind.ExistenceConstraint => EntityType + "_PROPERTY_EXISTENCE",
         GraphMigrationSchemaKind.PropertyTypeConstraint => EntityType + "_PROPERTY_TYPE",
         GraphMigrationSchemaKind.RangeIndex => "RANGE",
+        GraphMigrationSchemaKind.VectorIndex => "VECTOR",
+        GraphMigrationSchemaKind.FullTextIndex => "FULLTEXT",
         _ => throw new InvalidOperationException("Unknown schema definition kind.")
     };
 
@@ -96,15 +148,18 @@ public sealed class GraphMigrationDataScope
 
 public sealed class GraphMigrationImpact
 {
-    internal GraphMigrationImpact(string entityType, string labelOrType, IEnumerable<string> properties, int? maxRows)
+    internal GraphMigrationImpact(string entityType, IReadOnlyList<string> labelsOrTypes, IEnumerable<string> properties, int? maxRows)
     {
         EntityType = entityType;
-        LabelOrType = labelOrType;
+        LabelsOrTypes = labelsOrTypes;
+        LabelOrType = labelsOrTypes[0];
         Properties = Array.AsReadOnly(properties.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray());
         MaxRows = maxRows;
     }
     public string EntityType { get; }
+    /// <summary>The first of <see cref="LabelsOrTypes"/>; only a full-text index step has more than one.</summary>
     public string LabelOrType { get; }
+    public IReadOnlyList<string> LabelsOrTypes { get; }
     public IReadOnlyList<string> Properties { get; }
     public int? MaxRows { get; }
 }
@@ -128,13 +183,15 @@ public sealed class GraphMigrationStep
         RequiredCapabilities = Array.AsReadOnly(schema is null ? [] : new[] { schema.Kind switch
         {
             GraphMigrationSchemaKind.RangeIndex => GraphMigrationCapability.RangeIndexes,
+            GraphMigrationSchemaKind.VectorIndex => GraphMigrationCapability.VectorIndexes,
+            GraphMigrationSchemaKind.FullTextIndex => GraphMigrationCapability.FullTextIndexes,
             GraphMigrationSchemaKind.ExistenceConstraint => GraphMigrationCapability.PropertyExistence,
             GraphMigrationSchemaKind.PropertyTypeConstraint => GraphMigrationCapability.PropertyType,
             GraphMigrationSchemaKind.UniquenessConstraint when schema.EntityType == "NODE" => GraphMigrationCapability.NodeUniqueness,
             _ => GraphMigrationCapability.RelationshipUniqueness
         } });
-        Impact = schema is not null ? new(schema.EntityType, schema.LabelOrType, schema.Properties, null)
-            : new(scope!.EntityType, scope.LabelOrType,
+        Impact = schema is not null ? new(schema.EntityType, schema.LabelsOrTypes, schema.Properties, null)
+            : new(scope!.EntityType, Array.AsReadOnly(new[] { scope.LabelOrType }),
                 new[] { sourceProperty, targetProperty }.Where(p => p is not null).Select(p => p!), scope.MaxRows);
         Precondition = kind switch
         {
@@ -146,7 +203,7 @@ public sealed class GraphMigrationStep
         };
         Postcondition = kind switch
         {
-            GraphMigrationStepKind.CreateIndex => "The exact named RANGE index exists and is ONLINE; readiness is checked separately with a finite timeout.",
+            GraphMigrationStepKind.CreateIndex => $"The exact named {schema!.DefinitionType} index exists and is ONLINE; readiness is checked separately with a finite timeout.",
             GraphMigrationStepKind.CreateConstraint => "The exact named constraint exists; a uniqueness backing index must also be ONLINE.",
             GraphMigrationStepKind.DropConstraint or GraphMigrationStepKind.DropIndex => "The named schema object is absent.",
             GraphMigrationStepKind.AssertPrecondition => "No data changed; the bounded count assertion succeeded.",

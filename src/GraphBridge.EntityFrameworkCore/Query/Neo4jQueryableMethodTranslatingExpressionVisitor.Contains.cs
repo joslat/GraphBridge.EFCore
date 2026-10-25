@@ -16,6 +16,8 @@ internal sealed partial class Neo4jQueryableMethodTranslatingExpressionVisitor
     {
         var property = FindProperty(call.Arguments[1], entity, binding)
             ?? throw Unsupported("Contains item must be one directly mapped scalar property");
+        if (IsVector(property))
+            throw RefuseVector("Contains over a vector property");
         RequireContainsEquality(property.ModelProperty);
         var collection = StripIdentityConversion(call.Arguments[0]);
         // EF 10 normalizes ICollection<T>.Contains to Queryable.Contains(AsQueryable(source), item).

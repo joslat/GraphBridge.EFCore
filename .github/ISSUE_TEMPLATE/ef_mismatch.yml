@@ -12,7 +12,7 @@ body:
     id: package
     attributes:
       label: GraphBridge package and version
-      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.4
+      placeholder: GraphBridge.EntityFrameworkCore 0.1.0-preview.5
     validations:
       required: true
   - type: input
@@ -33,7 +33,7 @@ body:
     id: dotnet
     attributes:
       label: .NET and Neo4j.Driver versions
-      placeholder: .NET 10.0.x, Neo4j.Driver 6.3.0
+      placeholder: .NET 10.0.x, Neo4j.Driver 6.4.0
     validations:
       required: true
   - type: textarea

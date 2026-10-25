@@ -17,7 +17,7 @@ Generation reads restored metadata without fetching packages, accepting terms or
 
 | Artifact | Actual included assets at reviewed checkpoint | Dependency distinction |
 |---|---|---|
-| Provider `.nupkg` | GraphBridge provider DLL, README, MIT license, inventory and preserved notices | EF Core 10.0.13 and Neo4j.Driver 6.3.0 are references restored separately; no dependency DLL embedded |
+| Provider `.nupkg` | GraphBridge provider DLL, README, MIT license, inventory and preserved notices | EF Core 10.0.13 and Neo4j.Driver 6.4.0 are references restored separately; no dependency DLL embedded |
 | Generator `.nupkg` | GraphBridge analyzer DLL, README, MIT license, inventory and preserved notices | Roslyn is private build tooling, not a bundled DLL or published dependency |
 | Optional tooling library | GraphBridge tooling DLL, README, MIT license, inventory and preserved notices | Provider and five tooling dependencies are references; no dependency DLL embedded. Compiled CLI/application bundles remain outside this distribution. |
 | Starter template | Original starter source, SDK pin, license and attribution payloads | Package references restored by generated applications; no dependency DLL embedded |
@@ -36,7 +36,7 @@ GraphBridge implements its own casts, local helper and graph binding; readonly a
 | Source | Exact provenance | Text |
 |---|---|---|
 | EF Core | v10.0.12 checkout, commit above | [MIT](eng/dependencies/licenses/efcore-10.0.12-MIT.txt) |
-| Neo4j.Driver | Official repository commit `f8a4020c589489a92c969856d6a624619080d276`, identified in 6.3.0 nuspec | [LICENSE](eng/dependencies/licenses/neo4j.driver-6.3.0-LICENSE.txt), [NOTICE](eng/dependencies/licenses/neo4j.driver-6.3.0-NOTICE.txt) |
+| Neo4j.Driver | Official repository commit `4ed413b01906c5d1682c62a3ee3c982cb28f99cd`, identified in 6.4.0 nuspec | [LICENSE](eng/dependencies/licenses/neo4j.driver-6.4.0-LICENSE.txt), [NOTICE](eng/dependencies/licenses/neo4j.driver-6.4.0-NOTICE.txt) |
 | NETStandard.Library 2.0.3 | Restored package `LICENSE.TXT` | [MIT](eng/dependencies/licenses/netstandard.library-2.0.3.txt) |
 | Microsoft.NETCore.Platforms 1.1.0 | Restored package `dotnet_library_license.txt` | [Microsoft .NET Library terms](eng/dependencies/licenses/microsoft.netcore.platforms-1.1.0.txt) |
 

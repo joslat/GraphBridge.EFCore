@@ -1,3 +1,4 @@
+using GraphBridge.EntityFrameworkCore.Migrations;
 using GraphBridge.EntityFrameworkCore.Search;
 using GraphBridge.Tooling.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +75,40 @@ public sealed class SearchIndexDoctorIntegrationTests(DisposableNeo4jFixture fix
         {
             await Execute($"MATCH (n:{label}) DELETE n");
             foreach (var index in new[] { vector, empty, text }) await Execute($"DROP INDEX {index} IF EXISTS");
+        }
+    }
+
+    [Neo4jIntegrationFact]
+    public async Task Indexes_built_from_migration_steps_pass_Doctor_checks()
+    {
+        // The DDL comes from the migration step renderer (ADR 0053); the migration journal itself is covered by the
+        // provider's live migration tests, which own the fixture's journal.
+        var run = Guid.NewGuid().ToString("N")[..12];
+        var (label, section) = ("GbDoctorStep_" + run, "GbDoctorStepSection_" + run);
+        var vector = GraphMigrationSchemaDefinition.VectorIndex("gb_doctor_step_vec_" + run, "NODE", label, "embedding", 3, GraphVectorSimilarity.Cosine);
+        var text = GraphMigrationSchemaDefinition.FullTextIndex("gb_doctor_step_txt_" + run, "NODE", [label, section], ["title", "body"]);
+        try
+        {
+            foreach (var definition in new[] { vector, text })
+            {
+                await Execute(GraphMigrationStepRenderer.Render(GraphMigrationStep.CreateIndex("create", definition)).Cypher);
+                await Execute("CALL db.awaitIndex($index, 60)", new { index = definition.Name });
+            }
+            await Execute($"CREATE (:{label} {{title: 'graphs', embedding: [0.9, 0.1, 0.0]}}), (:{label} {{title: 'rows', embedding: [0.1, 0.9, 0.0]}}), (:{section} {{body: 'graphs'}})");
+            using var db = new Context(fixture.Driver, fixture.Database);
+            var catalog = new GraphQueryCatalog([],
+            [
+                GraphSearchIndexExpectation.Vector("chunks", vector.Name, label, "embedding", 3, "cosine"),
+                GraphSearchIndexExpectation.FullText("words", text.Name, [label, section], ["title", "body"])
+            ]);
+            var report = await GraphDoctor.InspectAsync(db, catalog, "owned.community.v1");
+            Assert.All(report.SearchIndexes!, index => Assert.Empty(index.Findings));
+            Assert.Equal(2, report.SearchIndexes!.Single(i => i.Id == "chunks").SampledValues);
+        }
+        finally
+        {
+            await Execute($"MATCH (n) WHERE n:{label} OR n:{section} DELETE n");
+            foreach (var definition in new[] { vector, text }) await Execute($"DROP INDEX {definition.Name} IF EXISTS");
         }
     }
 

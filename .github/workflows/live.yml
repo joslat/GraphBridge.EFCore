@@ -159,5 +159,13 @@ jobs:
             dotnet add package GraphBridge.EntityFrameworkCore.VectorData --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
             if ($LASTEXITCODE) { throw 'Adding GraphBridge.EntityFrameworkCore.VectorData from nuget.org failed.' }
           } else { "GraphBridge.EntityFrameworkCore.VectorData $env:PUBLISHED_VERSION is not on nuget.org; skipped." }
+          # The experimental GraphRAG packages are first published with 0.1.0-preview.5; earlier versions skip them.
+          $graphRag = try { (Invoke-RestMethod 'https://api.nuget.org/v3-flatcontainer/graphbridge.graphrag/index.json').versions } catch { @() }
+          if ($graphRag -contains $env:PUBLISHED_VERSION) {
+            foreach ($id in 'GraphBridge.GraphRag', 'GraphBridge.GraphRag.DataIngestion', 'GraphBridge.GraphRag.AgentFramework') {
+              dotnet add package $id --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
+              if ($LASTEXITCODE) { throw "Adding $id from nuget.org failed." }
+            }
+          } else { "GraphBridge.GraphRag $env:PUBLISHED_VERSION is not on nuget.org; skipped." }
           dotnet build
           if ($LASTEXITCODE) { throw 'Building with the optional packages failed.' }

@@ -70,6 +70,10 @@ internal static class GraphSchemaManifestCompiler
     private static GraphSchemaProperty Property(GraphPropertyBinding binding, string owner, List<string> caveats)
     {
         var property = binding.Property;
+        if (binding.VectorDimensions is { } dimensions)
+            return new GraphSchemaProperty(binding.Name, "LIST<FLOAT>", !property.IsNullable, isKey: false, GraphSchemaConcurrency.None,
+                property.ValueGenerated.ToString(), property.GetBeforeSaveBehavior().ToString(), property.GetAfterSaveBehavior().ToString(),
+                "native", dimensions);
         var mapping = property.GetTypeMapping();
         var providerClrType = mapping.Converter?.ProviderClrType ?? mapping.ClrType;
         var providerType = providerClrType == typeof(string) ? "STRING"

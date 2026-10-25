@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Experimental adapter between Microsoft.Extensions.DataIngestion and the GraphBridge GraphRAG toolkit: a chunk writer that stores pipeline chunks with exact positions in Neo4j through EF Core, and a span-aware chunker. Depends on a preview of DataIngestion. The API may change in any preview.</Description>
+    <Version>0.1.0-preview.5</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- The adapter builds on the experimental toolkit (ADR 0052) and is experimental itself. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DataIngestion" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="GraphBridge.GraphRag.Tests" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+  <PropertyGroup>
+    <PackageTags>$(PackageTags);GraphRAG;RAG;DataIngestion;Microsoft.Extensions.DataIngestion</PackageTags>
+  </PropertyGroup>
+</Project>

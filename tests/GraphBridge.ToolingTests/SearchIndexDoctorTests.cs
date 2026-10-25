@@ -1,5 +1,6 @@
 using GraphBridge.EntityFrameworkCore.Search;
 using GraphBridge.Tooling.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Neo4j.Driver;
 using Context = GraphBridge.ToolingTests.ConnectedDoctorTests.Context;
 using Protocol = GraphBridge.ToolingTests.ConnectedDoctorTests.Protocol;
@@ -164,6 +165,38 @@ public sealed class SearchIndexDoctorTests
         Assert.Throws<ArgumentException>(() => new GraphQueryCatalog([], [one, one]));
         Assert.Equal("cosine", GraphSearchIndexExpectation.Vector("a", "i", "L", "p", 4, "COSINE").Similarity);
     }
+
+    [Fact]
+    public async Task A_declaration_whose_dimensions_differ_from_the_model_vector_is_reported()
+    {
+        // ADR 0054: the model maps PrivateMovie.privateEmbedding with IsGraphVector; the catalog declares 4 dimensions.
+        using (var wider = new WideVectorContext(Script(Vector(), FullText(), present: 10).Driver))
+        {
+            var report = await GraphDoctor.InspectAsync(wider, Catalog(), "test.read.v1");
+            Assert.Equal(new[] { "GBD-SEARCH-012" }, report.SearchIndexes!.Single(i => i.Id == "movie-taste").Findings);
+            Assert.Empty(report.SearchIndexes!.Single(i => i.Id == "movie-text").Findings);
+            Assert.Contains(report.Diagnostics, d => d.Code == "GBD-SEARCH-012");
+            foreach (var text in new[] { report.ToJson(), report.ToText() })
+                foreach (var secret in new[] { VectorIndex, "PrivateMovie", "privateEmbedding" })
+                    Assert.DoesNotContain(secret, text);
+        }
+        using (var matching = new MatchingVectorContext(Script(Vector(), FullText(), present: 10).Driver))
+            Assert.Empty((await GraphDoctor.InspectAsync(matching, Catalog(), "test.read.v1")).SearchIndexes!.Single(i => i.Id == "movie-taste").Findings);
+    }
+
+    private sealed class Movie { public string Id { get; set; } = ""; public float[]? Embedding { get; set; } }
+    private abstract class VectorContext(IDriver driver, int dimensions) : DbContext(new DbContextOptionsBuilder().UseNeo4j(driver, "private_database").Options)
+    {
+        protected override void OnModelCreating(ModelBuilder b)
+        {
+            b.Entity<ConnectedDoctorTests.Item>().ToGraphNode("PrivateDoctorLabel");
+            b.Entity<ConnectedDoctorTests.Item>().Property(p => p.Id).HasGraphPropertyName("id");
+            b.Entity<Movie>().ToGraphNode("PrivateMovie").Property(m => m.Embedding).HasGraphPropertyName("privateEmbedding").IsGraphVector(dimensions);
+        }
+    }
+    // EF caches a model per context type, so each dimension count has its own type.
+    private sealed class WideVectorContext(IDriver driver) : VectorContext(driver, 8);
+    private sealed class MatchingVectorContext(IDriver driver) : VectorContext(driver, 4);
 
     private static GraphQueryCatalog Catalog() => new([],
     [

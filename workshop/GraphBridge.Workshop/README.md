@@ -97,8 +97,10 @@ Nine people, five movies, four reviews and the relationships between them:
 | 28 ★ | [Query Lab](Lessons/28-QueryLab/README.md) | ◇ | HTML report and VS Code evidence for your queries |
 | 29 | [Design-time migration commands](Lessons/29-DesignTime/README.md) | ◇● | In-app `list`, `preview` and `status` with JSON output |
 | 30 | [Authoring toolchains: database-first](Lessons/30-AuthoringToolchains/README.md) | ● | Inspect your graph, review keys, scaffold an EF model |
+| **G** | **GraphRAG (experimental)** | | |
+| 31 | [From documents to cited answers](Lessons/31-CitedAnswers/README.md) | ◇● | Chunks with exact positions, citations checked against the stored bytes, refusals (Neo4j 2026.09+) |
 
-The full track is 31 lessons (00–30); `list` shows them all with their modes.
+The full track is 32 lessons (00–31); `list` shows them all with their modes.
 
 ## Experimenting
 

@@ -61,6 +61,9 @@ internal sealed partial class Neo4jQueryableMethodTranslatingExpressionVisitor
                 value = StripIdentityConversion(lambda.Body);
                 if (FindProperty(value, lambda.Parameters[0], query.Binding) is { } copy)
                 {
+                    // A copy would move a stored list without the write-time vector checks.
+                    if (IsVector(copy) || IsVector(target))
+                        throw Unsupported("Bulk property copies of vector properties; set the vector from a value instead");
                     if (copy.ModelProperty.Property.ClrType != metadata.ClrType)
                         throw Unsupported("Bulk property copies require identical model scalar types");
                     assignments.Add(new(target, Neo4jBulkValueKind.Copy, copy));

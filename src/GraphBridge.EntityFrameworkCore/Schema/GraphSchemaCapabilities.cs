@@ -45,6 +45,11 @@ public sealed class GraphSchemaCapabilities
         PropertyType = Available(AtLeast5(9), enterpriseOnly: true);
         KeyConstraints = Available(AtLeast5(7), enterpriseOnly: true);
         RangeIndexes = Available(true);
+        // Vector and full-text index DDL is Community. GraphBridge has verified it on 2025 and 2026 releases only,
+        // so Neo4j 5 stays Unknown rather than Unsupported.
+        var searchIndexes = !known || major == 5 ? GraphSchemaCapabilitySupport.Unknown : GraphSchemaCapabilitySupport.Supported;
+        VectorIndexes = searchIndexes;
+        FullTextIndexes = searchIndexes;
         HasPropertyTypeObservation = knownVersion && AtLeast5(9);
         // Graph types were preview before 2026.06. Never infer the default dialect:
         // the inspector must explicitly execute CYPHER 25 for this optional observation.
@@ -63,6 +68,8 @@ public sealed class GraphSchemaCapabilities
     /// <summary>Whether both node and relationship key constraints are available.</summary>
     public GraphSchemaCapabilitySupport KeyConstraints { get; }
     public GraphSchemaCapabilitySupport RangeIndexes { get; }
+    public GraphSchemaCapabilitySupport VectorIndexes { get; }
+    public GraphSchemaCapabilitySupport FullTextIndexes { get; }
     public bool HasPropertyTypeObservation { get; }
     public bool CanShowCurrentGraphType { get; }
 

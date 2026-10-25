@@ -23,6 +23,7 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0016](adr/ADR-0016.md) | Identified relationships and native Cypher results |
 | [ADR-0021](adr/ADR-0021.md) | Native storage for ordinary node foreign keys (references) |
 | [ADR-0032](adr/ADR-0032.md) | Optional native references remain dependent-owned graph membership |
+| [ADR-0054](adr/ADR-0054.md) | Embeddings as EF properties, opted in with their dimensions |
 
 ## Schema and migrations
 
@@ -31,6 +32,7 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0017](adr/ADR-0017.md) | Storage witnesses and explicit schema comparison |
 | [ADR-0018](adr/ADR-0018.md) | Migration journal and recovery boundaries |
 | [ADR-0036](adr/ADR-0036.md) | A bounded design-time command subset |
+| [ADR-0053](adr/ADR-0053.md) | Vector and full-text index steps in migrations |
 
 ## Querying
 
@@ -44,7 +46,7 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0033](adr/ADR-0033.md) | Explicit typed native search with observed index provenance |
 | [ADR-0034](adr/ADR-0034.md) | Bounded native paths with typed projections and explicit direction |
 | [ADR-0038](adr/ADR-0038.md) | Bounded untracked bulk mutation batches |
-| [ADR-0051](adr/ADR-0051.md) | Typed batch upserts of nodes, keyed by a constrained EF key (extends 0038) |
+| [ADR-0051](adr/ADR-0051.md) | Typed batch upserts of nodes, keyed by a constrained EF key, and of relationships between existing nodes (extends 0038) |
 | [ADR-0045](adr/ADR-0045.md) | Native `DateTimeOffset` payloads with explicit query semantics |
 
 ## Fluent Cypher
@@ -82,5 +84,11 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0043](adr/ADR-0043.md) | Typed compiler snapshots for the static Query Lab report |
 | [ADR-0044](adr/ADR-0044.md) | A read-only compatibility probe for Neo4j 5.26 |
 | [ADR-0046](adr/ADR-0046.md) | Integrated VS Code Query Lab with application-owned capture |
+
+## GraphRAG toolkit
+
+| Record | Decision |
+|---|---|
+| [ADR-0052](adr/ADR-0052.md) | The `GraphBridge.GraphRag` toolkit: packages, lexical model, API of the first waves |
 
 Investigations behind some records: [EF service map](EF_SERVICE_MAP.md) (internal EF APIs the provider depends on) and the [join-entry experiment](JOIN_ENTRY_EXPERIMENT.md) behind ADR-0014.

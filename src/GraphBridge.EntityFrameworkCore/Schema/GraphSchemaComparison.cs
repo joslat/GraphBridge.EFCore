@@ -210,7 +210,11 @@ public static class GraphSchemaComparer
             }
             var types = Constraints(entityType, label).Where(value => IsType(value)
                 && SameSet(value.Properties, [property.Name])).ToArray();
-            if (types.Length == 0)
+            if (types.Length == 0 && property.VectorDimensions is not null)
+                // A migration step can't create a LIST<FLOAT> type constraint, so none is proposed; writes check vectors.
+                Add(GraphSchemaStatus.Warn, GraphSchemaIssueCategory.PropertyType, "PropertyTypeApplicationEnforced", subject,
+                    $"Provider checks {property.ProviderType} values of {property.VectorDimensions} dimensions on write; no property type constraint was observed or is proposed.");
+            else if (types.Length == 0)
             {
                 Add(GraphSchemaStatus.Warn, GraphSchemaIssueCategory.PropertyType, "PropertyTypeApplicationEnforced", subject,
                     $"Provider expects {property.ProviderType}; no property type constraint was observed.");

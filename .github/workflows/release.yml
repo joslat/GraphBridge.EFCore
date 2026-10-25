@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Package version; must equal <Version> in the five packable projects (for example 0.1.0-preview.4)
+        description: Package version; must equal <Version> in the five published projects (for example 0.1.0-preview.5)
         required: true
         type: string
       publish:
@@ -50,8 +50,10 @@ jobs:
           dotnet test tests/GraphBridge.UnitTests --no-build -c Release
           dotnet test tests/GraphBridge.ToolingTests --no-build -c Release
           dotnet test tests/GraphBridge.Generators.Tests --no-build -c Release
+          dotnet test tests/GraphBridge.GraphRag.Tests --no-build -c Release
       - name: Check the compiled query gallery
         run: dotnet run --project samples/05-FluentCypher/FluentCypher.Sample.csproj --no-build --no-restore -c Release -- --check
+      # The experimental GraphRAG projects are built and tested above, but not packed or published yet: they ship with a later preview.
       - name: Pack the five packages
         run: |
           for project in src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj src/GraphBridge.Tooling/GraphBridge.Tooling.csproj src/GraphBridge.Generators/GraphBridge.Generators.csproj; do
@@ -79,6 +81,11 @@ jobs:
               $repository = $nuspec.SelectSingleNode("//*[local-name()='repository']")
               if ($repository.GetAttribute('commit') -cne $env:GITHUB_SHA) { throw "$id was not built from $env:GITHUB_SHA." }
               if ($null -eq ($archive.Entries | Where-Object FullName -eq 'icon.png')) { throw "$id has no icon." }
+              # The GraphRAG packages are experimental (ADR 0052): their description says so and they ship their readme.
+              if ($id -like 'GraphBridge.GraphRag*') {
+                if ($nuspec.SelectSingleNode("//*[local-name()='description']").InnerText -notmatch '^Experimental') { throw "$id must describe itself as experimental." }
+                if ($null -eq ($archive.Entries | Where-Object FullName -eq 'README.md')) { throw "$id has no readme." }
+              }
             } finally { $archive.Dispose() }
           }
           Get-ChildItem artifacts/packages | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name } |

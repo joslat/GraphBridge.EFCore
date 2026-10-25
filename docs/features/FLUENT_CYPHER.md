@@ -153,6 +153,7 @@ Every other Fluent refusal is coded the same way, by family, and throws `FluentC
 | Code | Refused | Use instead |
 |---|---|---|
 | GBFC113 | Comparing two different converted properties | A reviewed native query |
+| GBFC114 | A vector property (`IsGraphVector`) in a comparison, `IN`, a string operator, `ORDER BY` or an aggregate other than `collect` | Return it or test it with `IsNull()`; find similar entities with typed vector search |
 | GBFC201–GBFC204 | Bounded or undirected patterns without a named path, mixed relationship mappings, a path bound twice | `Match(path, pattern.Repeat(min, max))` with one homogeneous relationship |
 | GBFC205–GBFC208 | A non-node endpoint, rebinding a symbol after WITH dropped it, reusing an edge or relationship list with other endpoints | A new symbol |
 | GBFC209–GBFC213 | Unmapped edge or node types, direction or endpoint types that contradict the mapping, EF query filters, unmapped or derived property slots | The mapped relationship and scalar properties, or EF LINQ for filtered entities |

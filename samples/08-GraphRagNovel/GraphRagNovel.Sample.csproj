@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- The GraphRAG toolkit is experimental (ADR 0052); this sample acknowledges that once here. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <Compile Include="../GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
+    <None Include="data/chapter-1-opening.txt;data/novel-replies.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

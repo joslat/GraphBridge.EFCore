@@ -119,7 +119,7 @@ public sealed class SaveChangesFailureTests
         var observed = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
 
         Assert.Same(person, Assert.Single(observed.Entries).Entity);
-        Assert.Contains("SET n.`appId` = n.`appId`", script.Mutations[0].Text);
+        Assert.Contains("SET n.`__graphbridge_lock` = true REMOVE n.`__graphbridge_lock`", script.Mutations[0].Text);
         var changes = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(script.Mutations[1].Parameters["changes"]);
         Assert.Equal(8L, changes["version"]);
         AssertPending(context, person, EntityState.Modified, version: 7);

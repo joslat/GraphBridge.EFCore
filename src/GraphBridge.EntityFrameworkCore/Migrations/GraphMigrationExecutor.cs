@@ -348,7 +348,7 @@ internal sealed class GraphMigrationExecutor(Neo4jDbContextOptionsExtension prov
         return state.Problem ?? "Migration schema postcondition does not match the expected named definition.";
     }
 
-    private static IEnumerable<string> CapabilityProblems(GraphMigrationPlan plan, GraphSchemaCapabilities capabilities)
+    internal static IEnumerable<string> CapabilityProblems(GraphMigrationPlan plan, GraphSchemaCapabilities capabilities)
     {
         foreach (var required in plan.Steps.SelectMany(step => step.RequiredCapabilities).Distinct())
         {
@@ -359,6 +359,8 @@ internal sealed class GraphMigrationExecutor(Neo4jDbContextOptionsExtension prov
                 GraphMigrationCapability.PropertyExistence => capabilities.PropertyExistence,
                 GraphMigrationCapability.PropertyType => capabilities.PropertyType,
                 GraphMigrationCapability.RangeIndexes => capabilities.RangeIndexes,
+                GraphMigrationCapability.VectorIndexes => capabilities.VectorIndexes,
+                GraphMigrationCapability.FullTextIndexes => capabilities.FullTextIndexes,
                 _ => GraphSchemaCapabilitySupport.Unknown
             };
             if (support != GraphSchemaCapabilitySupport.Supported)

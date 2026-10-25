@@ -33,11 +33,11 @@ A refused LINQ query throws `Neo4jQueryTranslationException` before any database
 | GBQ106 | `Last`, `Reverse`, `ElementAt`, `SkipWhile`, `TakeWhile` | Opposite ordering with `First`, or `Skip(n)` with `First` |
 | GBQ107 | `OfType`, `Cast` | The mapped type's own `DbSet` |
 | GBQ108 | `All`, `DefaultIfEmpty` | `Any` with the opposite condition, or Fluent OPTIONAL MATCH |
-| GBQ110 | Operators after `Skip`/`Take`, repeated `Take`, subqueries | Apply operators before paging, or split the query |
-| GBQ120 | Methods or computation over entity members, unsupported predicate operators and converter comparisons | Compare mapped scalars with variables or constants |
+| GBQ110 | Operators after `Skip`/`Take`, repeated `Take`, operators after a scalar projection | Apply operators before paging or projecting, or split the query |
+| GBQ120 | Methods or computation over entity members, unsupported predicate operators and converter comparisons; correlated subqueries and collection navigations in a filter, such as `Where(p => p.Pets.Any())` or `Where(p => db.Pets.Any(x => x.OwnerId == p.Id))`; a vector property in a predicate other than a null test, or in ordering | Compare mapped scalars with variables or constants; match the relationship in Fluent Cypher; [typed vector search](../features/GRAPH_SEARCH.md) for similarity |
 | GBQ130 | Unsupported `Contains` shapes | `Contains` over a captured array or `List<T>` of supported scalars (at most 1,024) |
 | GBQ140 | Nested, filtered, multiple or string `Include` | One direct native-reference `Include`, or a second query by key |
-| GBQ150 | Projections beyond mapped scalars and DTOs | [DTO projections](../features/LINQ_QUERIES.md#dto-projections) |
+| GBQ150 | Projections beyond mapped scalars and DTOs, including subqueries in a projection | [DTO projections](../features/LINQ_QUERIES.md#dto-projections) |
 | GBQ160 | Unsupported `ExecuteUpdateAsync`/`ExecuteDeleteAsync` shapes | Direct scalar setters on a mapped entity root ([bulk mutations](../features/BULK_MUTATIONS.md)) |
 | GBQ170 | Aggregates over association, identified-relationship or native-reference roots | Aggregate the related node set, or a reviewed native query |
 

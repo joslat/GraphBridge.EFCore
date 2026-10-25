@@ -39,8 +39,9 @@ Null always means an absent graph property. Converters with `ConvertsNulls=true`
 | `Guid` | Lowercase canonical `D` string | See [Guid and enum values](#guid-and-enum-values). |
 | Enum | Integer (checked signed 64-bit) | See [Guid and enum values](#guid-and-enum-values). |
 | `DateTimeOffset` | Zoned datetime | Payload only; see [native DateTimeOffset payloads](#native-datetimeoffset-payloads). |
+| `float[]`, `ReadOnlyMemory<float>` with `IsGraphVector(dimensions)` | List of floats | An embedding vector; payload only. See [writing vectors through EF](GRAPH_SEARCH.md#writing-vectors-through-ef). |
 
-Any other type, such as `decimal`, `float`, `DateTime`, `DateOnly`, `TimeOnly` or `TimeSpan`, needs an explicit `HasConversion` to one of these store types; see [explicit temporal representations](#explicit-temporal-representations). Collections, owned types and complex properties are not mapped. Key properties have extra rules; see [application keys](MAPPING_NODES.md#application-keys).
+Any other type, such as `decimal`, `float`, `DateTime`, `DateOnly`, `TimeOnly` or `TimeSpan`, needs an explicit `HasConversion` to one of these store types; see [explicit temporal representations](#explicit-temporal-representations). Other collections, owned types and complex properties are not mapped. Key properties have extra rules; see [application keys](MAPPING_NODES.md#application-keys).
 
 ## Guid and enum values
 

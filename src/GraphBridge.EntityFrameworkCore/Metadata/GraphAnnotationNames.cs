@@ -9,4 +9,5 @@ public static class GraphAnnotationNames
     public const string TargetForeignKeyProperties = "GraphBridge:TargetForeignKeyProperties";
     public const string IdentifiedEdgeKey = "GraphBridge:IdentifiedEdgeKey";
     public const string NodeReferenceType = "GraphBridge:NodeReferenceType";
+    public const string VectorDimensions = "GraphBridge:VectorDimensions";
 }

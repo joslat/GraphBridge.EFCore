@@ -27,6 +27,14 @@ public sealed class GraphObservedIndex
 {
     public GraphObservedIndex(string name, string state, string type, string entityType,
         IEnumerable<string>? labelsOrTypes, IEnumerable<string>? properties, string? owningConstraint = null)
+        : this(name, state, type, entityType, labelsOrTypes, properties, owningConstraint, null)
+    {
+    }
+
+    /// <param name="indexConfig">The observed <c>options.indexConfig</c> map, such as a vector index's dimensions; null when not observed.</param>
+    public GraphObservedIndex(string name, string state, string type, string entityType,
+        IEnumerable<string>? labelsOrTypes, IEnumerable<string>? properties, string? owningConstraint,
+        IReadOnlyDictionary<string, object?>? indexConfig)
     {
         Name = GraphSchemaObservationParser.NonEmpty(name, nameof(name));
         State = GraphSchemaObservationParser.NonEmpty(state, nameof(state));
@@ -35,6 +43,7 @@ public sealed class GraphObservedIndex
         LabelsOrTypes = GraphSchemaObservationParser.Copy(labelsOrTypes);
         Properties = GraphSchemaObservationParser.Copy(properties);
         OwningConstraint = owningConstraint;
+        IndexConfig = GraphSchemaObservationParser.CopyConfig(indexConfig);
     }
 
     public string Name { get; }
@@ -44,6 +53,10 @@ public sealed class GraphObservedIndex
     public IReadOnlyList<string>? LabelsOrTypes { get; }
     public IReadOnlyList<string>? Properties { get; }
     public string? OwningConstraint { get; }
+    /// <summary>A copy of the observed index configuration; null when it was not observed.</summary>
+    /// <remarks>Not serialized: scaffold snapshots keep their format, and scaffolding never selects index options.</remarks>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public IReadOnlyDictionary<string, object?>? IndexConfig { get; }
 }
 
 /// <summary>A copied schema observation. It does not assert that stored data complies with the EF model.</summary>
@@ -82,7 +95,7 @@ public static class GraphSchemaObservationParser
     {
         ArgumentNullException.ThrowIfNull(row);
         return new(Text(row, "name"), Text(row, "state"), Text(row, "type"), Text(row, "entityType"),
-            Strings(row, "labelsOrTypes"), Strings(row, "properties"), OptionalText(row, "owningConstraint"));
+            Strings(row, "labelsOrTypes"), Strings(row, "properties"), OptionalText(row, "owningConstraint"), Config(row));
     }
 
     internal static string NonEmpty(string value, string argument)
@@ -93,6 +106,25 @@ public static class GraphSchemaObservationParser
 
     internal static IReadOnlyList<string>? Copy(IEnumerable<string>? values)
         => values is null ? null : Array.AsReadOnly(values.Select(value => NonEmpty(value, nameof(values))).ToArray());
+
+    internal static IReadOnlyDictionary<string, object?>? CopyConfig(IReadOnlyDictionary<string, object?>? config)
+    {
+        if (config is null) return null;
+        var copy = new SortedDictionary<string, object?>(StringComparer.Ordinal);
+        foreach (var pair in config)
+            copy.Add(NonEmpty(pair.Key, nameof(config)), pair.Value is IEnumerable items and not string
+                ? Array.AsReadOnly(items.Cast<object?>().ToArray()) : pair.Value);
+        return new System.Collections.ObjectModel.ReadOnlyDictionary<string, object?>(copy);
+    }
+
+    // Absent, or null, when the observing query didn't select options; a vector or full-text index always has a configuration.
+    private static IReadOnlyDictionary<string, object?>? Config(IReadOnlyDictionary<string, object?> row)
+    {
+        if (!row.TryGetValue("options", out var options) || options is null) return null;
+        if (options is not IReadOnlyDictionary<string, object?> map) throw Malformed("options", "map or null");
+        if (!map.TryGetValue("indexConfig", out var config) || config is null) return null;
+        return config as IReadOnlyDictionary<string, object?> ?? throw Malformed("options.indexConfig", "map or null");
+    }
 
     private static string Text(IReadOnlyDictionary<string, object?> row, string name)
         => row.TryGetValue(name, out var value) && value is string text && !string.IsNullOrWhiteSpace(text)

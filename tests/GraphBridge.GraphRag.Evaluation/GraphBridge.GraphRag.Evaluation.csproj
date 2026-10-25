@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- A test-only library: users' own tests and the repository's suites reference it. Not a package of this release (ADR 0052, section 9). -->
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <PackageReference Include="AgentEval" />
+    <!-- Raises a vulnerable transitive dependency of AgentEval's PDF rendering to the patched servicing release. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <!-- The public corpus: sample 08's public-domain excerpt, with labelled questions. -->
+    <None Include="../../samples/08-GraphRagNovel/data/chapter-1-opening.txt" Link="corpus/alice-chapter-1-opening.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="corpus/alice-cases.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -81,6 +81,7 @@ internal sealed partial class CypherCompiler
             text.Append("ORDER BY ");
             text.AppendJoin(", ", query.Orderings.Select(order =>
             {
+                RefuseVector(order.Expression, "ORDER BY");
                 var direction = order.Descending ? " DESC" : " ASC";
                 var index = projection.Columns.FindIndex(c => c.Term == order.Expression);
                 if (index >= 0) return "c" + index + direction;

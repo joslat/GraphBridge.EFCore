@@ -35,6 +35,30 @@ public sealed partial class ProviderIdentifiedEdgeUpdateTests
     }
 
     [Neo4jIntegrationFact]
+    public async Task An_identified_edge_deleted_in_bulk_can_be_added_again_with_the_same_key_in_the_same_transaction()
+    {
+        // The GraphRAG toolkit's mentions are identified edges, deleted and added again under the same keys on re-ingestion.
+        var run = NewRun();
+        try
+        {
+            var graph = await InsertGraph(run);
+            await using var context = Context();
+            await using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                Assert.Equal(1, await context.Set<Event>().Where(e => e.Id == graph.First.Id).ExecuteDeleteAsync());
+                context.Add(new Event { Id = graph.First.Id, SourceId = graph.First.SourceId, TargetId = graph.First.TargetId, Role = "again" });
+                Assert.Equal(1, await context.SaveChangesAsync());
+                await transaction.CommitAsync();
+            }
+            var edge = Assert.Single(await ReadEdges(run));
+            Assert.Equal((graph.First.Id.ToString(), "again"), ((string)edge["edge_key"], (string)edge["role"]));
+            Assert.False(edge.ContainsKey("__graphbridge_lock"));
+            Assert.Equal(2L, await NodeCount(run));
+        }
+        finally { await Cleanup(run); }
+    }
+
+    [Neo4jIntegrationFact]
     public async Task Bulk_identified_edge_requires_type_wide_key_constraint_before_mutating()
     {
         var run = NewRun();

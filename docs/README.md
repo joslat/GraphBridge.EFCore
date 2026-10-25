@@ -21,6 +21,7 @@ GraphBridge is a real Entity Framework Core provider for Neo4j. EF Core owns you
 |---|---|
 | Mapping the graph | [Mapping nodes](features/MAPPING_NODES.md) · [References](features/REFERENCES.md) · [Associations](features/ASSOCIATIONS.md) · [Identified relationships](features/IDENTIFIED_RELATIONSHIPS.md) |
 | Querying | [LINQ queries](features/LINQ_QUERIES.md) · [Fluent Cypher](features/FLUENT_CYPHER.md) · [Native Cypher](features/NATIVE_CYPHER.md) · [Bounded paths](features/BOUNDED_PATHS.md) · [Graph search](features/GRAPH_SEARCH.md) · [Query inspection](features/QUERY_INSPECTION.md) |
+| GraphRAG (experimental) | In the repository, with packages in a later preview: [the GraphRAG pages on GitHub](https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/graphrag/README.md) |
 | Writing | [Transactions and concurrency](features/TRANSACTIONS_AND_CONCURRENCY.md) · [Bulk mutations](features/BULK_MUTATIONS.md) · [Nulls, types and time](features/NULLS_TYPES_AND_TIME.md) |
 | Operating | [Schema and migrations](features/SCHEMA_AND_MIGRATIONS.md) · [Command tracing](features/COMMAND_TRACING.md) |
 

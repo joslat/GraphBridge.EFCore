@@ -63,4 +63,32 @@ public sealed partial class ProviderQueryTests
         }
         finally { await CleanupAsync(runId); }
     }
+
+    [Neo4jIntegrationFact]
+    public async Task Instance_Equals_filters_match_live_values()
+    {
+        var runId = NewRunId();
+        var first = Person("instance-equals-first", 11);
+        var second = Person("instance-equals-second", 12);
+        second.State = PersonState.Active;
+        try
+        {
+            await SeedAsync(runId, first, second);
+            await using var context = CreateContext();
+            var key = first.Id;
+            var name = second.Name;
+            var query = context.People.AsNoTracking().Where(p => p.RunId == runId && p.Id.Equals(key));
+            var cypher = query.ToQueryString();
+            output.WriteLine(cypher);
+            Assert.DoesNotContain(key.ToString(), cypher);
+            Assert.Equal(first.Id, Assert.Single(await query.ToListAsync()).Id);
+            Assert.Equal(second.Id, Assert.Single(await context.People.AsNoTracking()
+                .Where(p => p.RunId == runId && p.Name!.Equals(name)).ToListAsync()).Id);
+            Assert.Equal(second.Id, Assert.Single(await context.People.AsNoTracking()
+                .Where(p => p.RunId == runId && !p.Id.Equals(key)).ToListAsync()).Id);
+            Assert.Equal(second.Id, Assert.Single(await context.People.AsNoTracking()
+                .Where(p => p.RunId == runId && p.State.Equals(PersonState.Active) && p.Age.Equals(12)).ToListAsync()).Id);
+        }
+        finally { await CleanupAsync(runId); }
+    }
 }

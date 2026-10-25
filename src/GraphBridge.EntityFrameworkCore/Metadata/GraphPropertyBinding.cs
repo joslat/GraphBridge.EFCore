@@ -1,3 +1,5 @@
+using GraphBridge.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Neo4j.Driver;
@@ -16,16 +18,21 @@ internal sealed class GraphPropertyBinding
         var mapping = property.GetTypeMapping();
         _converter = mapping.Converter;
         _storeType = _converter?.ProviderClrType ?? mapping.ClrType;
+        VectorDimensions = property.FindAnnotation(GraphAnnotationNames.VectorDimensions)?.Value as int?;
     }
 
     public IProperty Property { get; }
     public string Name { get; }
     internal bool UsesNativeInstantSemantics => _converter is null && _storeType == typeof(DateTimeOffset);
+    /// <summary>Set for a property mapped with <c>IsGraphVector</c>; its values are lists of floats of this length.</summary>
+    internal int? VectorDimensions { get; }
 
     public object? ToStore(object? value)
     {
         if (value is null)
             return ValidateNull();
+        if (VectorDimensions is { } dimensions)
+            return Neo4jVectorValues.ToStore(value, dimensions, Describe);
         var modelValue = value;
         value = _converter is null ? value : _converter.ConvertToProvider(value);
         if (value is null)
@@ -44,6 +51,8 @@ internal sealed class GraphPropertyBinding
     {
         if (value is null)
             return ValidateNull();
+        if (VectorDimensions is { } dimensions)
+            return Neo4jVectorValues.FromStore(value, dimensions, _storeType, Describe);
         if (_storeType == typeof(DateTimeOffset))
         {
             if (value is not ZonedDateTime temporal) throw WrongType(value);
@@ -59,6 +68,8 @@ internal sealed class GraphPropertyBinding
         var modelValue = _converter is null ? value : _converter.ConvertFromProvider(value);
         return modelValue is null ? ValidateNull() : modelValue;
     }
+
+    private string Describe => $"'{Property.DeclaringType.DisplayName()}.{Property.Name}'";
 
     private object? ValidateNull()
         => Property.IsNullable ? null

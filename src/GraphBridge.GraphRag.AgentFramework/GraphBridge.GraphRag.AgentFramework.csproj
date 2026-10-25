@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Experimental Microsoft Agent Framework adapter for the GraphBridge GraphRAG toolkit: a context provider that gives an agent document tools whose answers carry citations checked against the stored text. The API may change in any preview.</Description>
+    <Version>0.1.0-preview.5</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- The adapter builds on the experimental toolkit (ADR 0052) and is experimental itself. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <PackageReference Include="Microsoft.Agents.AI.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+  <PropertyGroup>
+    <PackageTags>$(PackageTags);GraphRAG;RAG;agents;Microsoft.Agents.AI</PackageTags>
+  </PropertyGroup>
+</Project>

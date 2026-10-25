@@ -35,7 +35,7 @@ var assemblies = new[] { typeof(DbContext).Assembly, typeof(IDriver).Assembly,
     typeof(GraphBridge.EntityFrameworkCore.FluentCypher.CypherCommand).Assembly, typeof(OntologyCompiler).Assembly };
 var evidence = assemblies.Select(a => new { name = a.GetName().Name, assemblyVersion = a.GetName().Version!.ToString(),
     productVersion = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion }).ToArray();
-var expected = new Dictionary<string, string> { ["Microsoft.EntityFrameworkCore"] = "10.0.13", ["Neo4j.Driver"] = "6.3.0" };
+var expected = new Dictionary<string, string> { ["Microsoft.EntityFrameworkCore"] = "10.0.13", ["Neo4j.Driver"] = "6.4.0" };
 foreach (var entry in evidence.Where(e => expected.ContainsKey(e.name!)))
     Require(entry.productVersion.Split('+')[0] == expected[entry.name!], "Loaded dependency differs from the tested patch: " + entry.name);
 if (args.Length > 1 || args.Length == 1 && args[0] != "--live") throw new ArgumentException("Only --live is supported.");

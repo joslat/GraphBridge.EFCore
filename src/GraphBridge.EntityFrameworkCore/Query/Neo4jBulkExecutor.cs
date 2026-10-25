@@ -1,3 +1,4 @@
+using System.Collections;
 using GraphBridge.EntityFrameworkCore.Cypher;
 using GraphBridge.EntityFrameworkCore.Diagnostics;
 using GraphBridge.EntityFrameworkCore.Metadata;
@@ -66,10 +67,9 @@ internal static class Neo4jBulkExecutor
                 Dictionary<string, Snapshot> locked;
                 if (root is CypherNodeRoot)
                 {
-                    var key = Key(bulk.Target.Node!);
                     var columns = string.Join(", ", bulk.Source.Binding.Properties.Select(p =>
                         $"n.{CypherQueryRenderer.Identifier(p.ModelProperty.Name)} AS {CypherQueryRenderer.Identifier(p.Column.Alias)}"));
-                    locked = await Read(await Run($"{match}\nSET n.{key} = n.{key}\nRETURN elementId(n) AS {Neo4jBulkExpression.IdentityAlias}, {columns}",
+                    locked = await Read(await Run($"{match}\n{CypherMutationRenderer.LockWrite("n")}\nRETURN elementId(n) AS {Neo4jBulkExpression.IdentityAlias}, {columns}",
                         rowParameters, GraphCommandKind.Mutation).ConfigureAwait(false)).ConfigureAwait(false);
                 }
                 else
@@ -88,7 +88,7 @@ internal static class Neo4jBulkExecutor
                             ["__gb_bulk_limit"] = Neo4jBulkExpression.MaxRows + 1L }, GraphCommandKind.Linq).ConfigureAwait(false)).ConfigureAwait(false);
                 }
                 if (locked.Count != selected.Count || locked.Any(pair => !selected.TryGetValue(pair.Key, out var original)
-                    || bulk.Source.Binding.Properties.Any(p => !Equals(original.Store[p.Column.Alias], pair.Value.Store[p.Column.Alias]))))
+                    || bulk.Source.Binding.Properties.Any(p => !SameStoreValue(original.Store[p.Column.Alias], pair.Value.Store[p.Column.Alias]))))
                     throw new DbUpdateConcurrencyException("Bulk candidates changed after selection. The transaction was aborted; re-evaluate explicitly.");
 
                 var mutationRows = locked.OrderBy(p => p.Key, StringComparer.Ordinal).Select(pair =>
@@ -176,27 +176,19 @@ internal static class Neo4jBulkExecutor
         }
     }
 
-    private static string Key(NodeBinding node)
-        => CypherQueryRenderer.Identifier(node.StoredProperties.Single(p => p.Property == node.KeyProperties[0]).Name);
+    // Two reads of one element: a list (a vector, ADR 0054) arrives as a new instance each time, so its items are compared.
+    internal static bool SameStoreValue(object? left, object? right)
+        => left is IList first && right is IList second
+            ? first.Count == second.Count && Enumerable.Range(0, first.Count).All(i => SameStoreValue(first[i], second[i]))
+            : Equals(left, right);
 
     private static string LockClause(Neo4jBulkExpression bulk)
     {
         if (bulk.Target.Reference is { } reference)
-        {
-            var dependentKey = Key(reference.Dependent);
-            var principalKey = CypherQueryRenderer.Identifier(reference.PrincipalKeyProperties[0].Name);
-            return $"SET n.{dependentKey} = n.{dependentKey}\nWITH row, n\nOPTIONAL MATCH (s:{CypherQueryRenderer.Identifier(reference.Principal.Label)})-[:{CypherQueryRenderer.Identifier(reference.RelationshipType)}]->(n)"
-                + $"\nFOREACH (parent IN CASE WHEN s IS NULL THEN [] ELSE [s] END | SET parent.{principalKey} = parent.{principalKey})";
-        }
-        var sourceKey = CypherQueryRenderer.Identifier(bulk.Target.Source!.PrincipalKeyProperties[0].Name);
-        var targetKey = CypherQueryRenderer.Identifier(bulk.Target.Target!.PrincipalKeyProperties[0].Name);
-        var command = $"SET s.{sourceKey} = s.{sourceKey}, t.{targetKey} = t.{targetKey}";
-        if (bulk.Target.RelationshipLock is { } property)
-        {
-            var key = CypherQueryRenderer.Identifier(property.Name);
-            command += $", r.{key} = r.{key}";
-        }
-        return command;
+            return $"{CypherMutationRenderer.LockWrite("n")}\nWITH row, n\nOPTIONAL MATCH (s:{CypherQueryRenderer.Identifier(reference.Principal.Label)})-[:{CypherQueryRenderer.Identifier(reference.RelationshipType)}]->(n)"
+                + $"\nFOREACH (parent IN CASE WHEN s IS NULL THEN [] ELSE [s] END | {CypherMutationRenderer.LockWrite("parent")})";
+        // A relationship with its own key or a required payload property is locked too, as the endpoints are.
+        return bulk.Target.RelationshipLock is null ? CypherMutationRenderer.LockWrite("s", "t") : CypherMutationRenderer.LockWrite("s", "t", "r");
     }
 
     private static Dictionary<string, object?> Changes(Neo4jBulkExpression bulk, ValueBuffer row, IReadOnlyDictionary<string, object> parameters)

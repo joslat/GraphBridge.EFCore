@@ -1,0 +1,11 @@
+{
+  "corpus": "alice-chapter-1-opening.txt",
+  "labels": "Written by the implementing agent on 25 October 2026 from the public-domain opening of chapter I; awaiting the owner's review.",
+  "cases": [
+    { "id": "rabbit-watch", "question": "What did the Rabbit take out of its waistcoat-pocket?", "answerable": true, "requiredEvidence": ["took a watch out of its waistcoat-pocket"] },
+    { "id": "rabbit-eyes", "question": "What colour were the White Rabbit's eyes?", "answerable": true, "requiredEvidence": ["White Rabbit with pink eyes"] },
+    { "id": "alice-book", "question": "What use is a book without pictures or conversations, thought Alice?", "answerable": true, "requiredEvidence": ["without pictures or conversations"] },
+    { "id": "queen", "question": "What did the Queen of Hearts shout at the croquet ground?", "answerable": false, "requiredEvidence": [] },
+    { "id": "capital", "question": "What is the capital of Mongolia?", "answerable": false, "requiredEvidence": [] }
+  ]
+}

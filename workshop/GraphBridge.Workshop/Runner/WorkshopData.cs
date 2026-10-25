@@ -14,8 +14,10 @@ public static class WorkshopData
     public static readonly IReadOnlyList<string> Labels = ["Person", "Movie", "Review"];
     public const string Marker = "GraphBridgeWorkshop";
     // The repository fixture's marker and GraphBridge's migration journal (lesson 23) are infrastructure, not application data.
+    // Lesson 31's labels are its own and removed when it ends; allowing them keeps an interrupted run from blocking the next.
     private static readonly HashSet<string> Allowed =
-        [.. Labels, Marker, "GraphBridgeFixture", "__GraphBridgeMigrationControl", "__GraphBridgeMigration", "__GraphBridgeMigrationStep"];
+        [.. Labels, Marker, "GraphBridgeFixture", "__GraphBridgeMigrationControl", "__GraphBridgeMigration", "__GraphBridgeMigrationStep",
+         "WorkshopDocument", "WorkshopSection", "WorkshopChunk", "WorkshopIngestionRun", "WorkshopLease"];
     private const string WorkshopNodes = "(n:Person OR n:Movie OR n:Review)";
 
     /// <summary>Refuses to write unless the database is empty or holds only workshop data. Creates the ownership marker.</summary>

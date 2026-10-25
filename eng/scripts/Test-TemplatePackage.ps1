@@ -70,6 +70,8 @@ try {
         foreach ($pin in $templatePins) {
             $id, $version = $pin.Split('/')
             $tested = @($central.Project.ItemGroup.PackageVersion | Where-Object Include -ceq $id)[0].Version
+            # A central range such as [10.0.13, 11.0.0) (PL-46) is tested at its minimum.
+            if ($tested -match '^\[\s*([^,\]\s]+)\s*,') { $tested = $Matches[1] }
             if ($tested -cne $version) { throw "Template pins $pin, but the repository tests $id $tested." }
         }
     }

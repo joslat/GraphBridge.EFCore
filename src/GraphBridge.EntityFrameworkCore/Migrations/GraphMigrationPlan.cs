@@ -78,6 +78,17 @@ public sealed class GraphMigrationPlan
             writer.WriteString("labelOrType", schema.LabelOrType);
             Strings(writer, "properties", schema.Properties);
             writer.WriteString("propertyType", schema.PropertyType);
+            // Written only for the search index kinds, so plans of the earlier kinds keep their checksums.
+            if (schema.Kind is GraphMigrationSchemaKind.VectorIndex or GraphMigrationSchemaKind.FullTextIndex)
+            {
+                Strings(writer, "labelsOrTypes", schema.LabelsOrTypes);
+                if (schema.VectorDimensions is { } dimensions) writer.WriteNumber("vectorDimensions", dimensions);
+                else writer.WriteNull("vectorDimensions");
+                writer.WriteString("vectorSimilarity", schema.VectorSimilarity?.ToString());
+                writer.WriteString("fullTextAnalyzer", schema.FullTextAnalyzer);
+                if (schema.FullTextEventuallyConsistent is { } eventual) writer.WriteBoolean("fullTextEventuallyConsistent", eventual);
+                else writer.WriteNull("fullTextEventuallyConsistent");
+            }
             writer.WriteEndObject();
         }
         writer.WritePropertyName("scope");
@@ -101,6 +112,8 @@ public sealed class GraphMigrationPlan
         writer.WriteStartObject("impact");
         writer.WriteString("entityType", step.Impact.EntityType);
         writer.WriteString("labelOrType", step.Impact.LabelOrType);
+        if (step.Schema?.Kind is GraphMigrationSchemaKind.VectorIndex or GraphMigrationSchemaKind.FullTextIndex)
+            Strings(writer, "labelsOrTypes", step.Impact.LabelsOrTypes);
         Strings(writer, "properties", step.Impact.Properties);
         if (step.Impact.MaxRows is { } maxRows) writer.WriteNumber("maxRows", maxRows);
         else writer.WriteNull("maxRows");

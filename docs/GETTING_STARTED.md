@@ -14,13 +14,13 @@ Reference the provider and pin the EF Core and driver versions it is tested with
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="0.1.0-preview.4" />
+  <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="0.1.0-preview.5" />
   <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.13]" />
-  <PackageReference Include="Neo4j.Driver" Version="[6.3.0]" />
+  <PackageReference Include="Neo4j.Driver" Version="[6.4.0]" />
 </ItemGroup>
 ```
 
-`0.1.0-preview.4` is the current preview on nuget.org; pin it exactly, because previews may change. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
+`0.1.0-preview.5` is the current preview on nuget.org; pin it exactly, because previews may change. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
 
 ## 2. Map an entity and configure the context
 
@@ -166,7 +166,7 @@ and add the packages:
 ```powershell
 dotnet add package GraphBridge.EntityFrameworkCore --version $version
 dotnet add package Microsoft.EntityFrameworkCore --version '[10.0.13]'
-dotnet add package Neo4j.Driver --version '[6.3.0]'
+dotnet add package Neo4j.Driver --version '[6.4.0]'
 ```
 
-The driver package 6.3.0 reports assembly version 6.3.11.0; its informational version identifies 6.3.0. To check packed bytes end to end, `eng/scripts/Test-ProviderPackage.ps1` packs the provider with a unique version and builds an isolated PackageReference-only consumer from it. The [`dotnet new` template](tools/TEMPLATE.md) produces the same kind of package-only application with two offline query tests.
+The driver package 6.4.0 reports assembly version 6.4.12.0; its informational version identifies 6.4.0. To check packed bytes end to end, `eng/scripts/Test-ProviderPackage.ps1` packs the provider with a unique version and builds an isolated PackageReference-only consumer from it. The [`dotnet new` template](tools/TEMPLATE.md) produces the same kind of package-only application with two offline query tests.

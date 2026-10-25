@@ -32,7 +32,17 @@ internal static class GraphMigrationSchemaState
 
     internal static string? CreationConflict(GraphMigrationSchemaDefinition definition, GraphSchemaObservation observation)
     {
-        if (definition.IsIndex)
+        if (definition.Kind is GraphMigrationSchemaKind.VectorIndex or GraphMigrationSchemaKind.FullTextIndex)
+        {
+            // Any index of the kind over the same schema blocks creation, whatever its options. Neo4j allows one vector index per
+            // label and property; for full-text it refuses only the same order, but GraphBridge compares full-text schemas as sets.
+            var equivalent = observation.Indexes.FirstOrDefault(value => value.Type == definition.DefinitionType
+                && value.EntityType == definition.EntityType && SameSet(definition.LabelsOrTypes, value.LabelsOrTypes)
+                && SameSet(definition.Properties, value.Properties));
+            if (equivalent is not null)
+                return $"An equivalent {definition.DefinitionType} index already exists under another name: '{equivalent.Name}'.";
+        }
+        else if (definition.IsIndex)
         {
             if (observation.Indexes.Any(value => Matches(definition, value)))
                 return "An equivalent range index already exists under another name.";
@@ -60,9 +70,24 @@ internal static class GraphMigrationSchemaState
             && Owner(definition, constraint.EntityType, constraint.LabelsOrTypes)
             && SameSet(definition.Properties, constraint.Properties)
             && constraint.PropertyType == definition.PropertyType;
-    private static bool Matches(GraphMigrationSchemaDefinition definition, GraphObservedIndex index)
-        => index.Type == "RANGE" && Owner(definition, index.EntityType, index.LabelsOrTypes)
-            && index.Properties?.SequenceEqual(definition.Properties, StringComparer.Ordinal) == true;
+    private static bool Matches(GraphMigrationSchemaDefinition definition, GraphObservedIndex index) => definition.Kind switch
+    {
+        GraphMigrationSchemaKind.VectorIndex => index.Type == "VECTOR" && Owner(definition, index.EntityType, index.LabelsOrTypes)
+            && index.Properties?.SequenceEqual(definition.Properties, StringComparer.Ordinal) == true
+            && Config(index, "vector.dimensions") is long dimensions && dimensions == definition.VectorDimensions
+            && Config(index, "vector.similarity_function") is string similarity
+            && similarity.Equals(definition.VectorSimilarity.ToString(), StringComparison.OrdinalIgnoreCase),
+        GraphMigrationSchemaKind.FullTextIndex => index.Type == "FULLTEXT" && index.EntityType == definition.EntityType
+            // Property order doesn't change a full-text index, so labels and properties compare as sets.
+            && SameSet(definition.LabelsOrTypes, index.LabelsOrTypes) && SameSet(definition.Properties, index.Properties)
+            && Config(index, "fulltext.analyzer") is string analyzer
+            && analyzer.Equals(definition.FullTextAnalyzer, StringComparison.OrdinalIgnoreCase)
+            && Config(index, "fulltext.eventually_consistent") is bool eventual && eventual == definition.FullTextEventuallyConsistent,
+        _ => index.Type == "RANGE" && Owner(definition, index.EntityType, index.LabelsOrTypes)
+            && index.Properties?.SequenceEqual(definition.Properties, StringComparer.Ordinal) == true
+    };
+    private static object? Config(GraphObservedIndex index, string key)
+        => index.IndexConfig is { } config && config.TryGetValue(key, out var value) ? value : null;
     private static bool Owner(GraphMigrationSchemaDefinition definition, string entityType, IReadOnlyList<string>? labels)
         => definition.EntityType == entityType && labels is { Count: 1 } && labels[0] == definition.LabelOrType;
     private static bool SameSet(IReadOnlyList<string> expected, IReadOnlyList<string>? actual)

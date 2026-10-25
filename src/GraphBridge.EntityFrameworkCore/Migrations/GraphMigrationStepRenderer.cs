@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Text;
 
 namespace GraphBridge.EntityFrameworkCore.Migrations;
@@ -38,11 +39,19 @@ public static class GraphMigrationStepRenderer
         if (step.Kind is GraphMigrationStepKind.DropConstraint or GraphMigrationStepKind.DropIndex)
             return new($"DROP {kind} `{schema.Name}`", new Dictionary<string, object?>());
         var variable = schema.EntityType == "NODE" ? "n" : "r";
-        var pattern = schema.EntityType == "NODE" ? $"(n:`{schema.LabelOrType}`)" : $"()-[r:`{schema.LabelOrType}`]-()";
+        var tokens = string.Join("|", schema.LabelsOrTypes.Select(t => $"`{t}`"));
+        var pattern = schema.EntityType == "NODE" ? $"(n:{tokens})" : $"()-[r:{tokens}]-()";
         var slots = string.Join(", ", schema.Properties.Select(p => $"{variable}.`{p}`"));
+        // Index DDL takes no parameters, so options are literals rendered from validated values only.
         var cypher = schema.Kind switch
         {
             GraphMigrationSchemaKind.RangeIndex => $"CREATE RANGE INDEX `{schema.Name}` FOR {pattern} ON ({slots})",
+            GraphMigrationSchemaKind.VectorIndex => $"CREATE VECTOR INDEX `{schema.Name}` FOR {pattern} ON ({slots})\n"
+                + $"OPTIONS {{indexConfig: {{`vector.dimensions`: {schema.VectorDimensions!.Value.ToString(CultureInfo.InvariantCulture)}, "
+                + $"`vector.similarity_function`: '{(schema.VectorSimilarity == GraphVectorSimilarity.Cosine ? "cosine" : "euclidean")}'}}}}",
+            GraphMigrationSchemaKind.FullTextIndex => $"CREATE FULLTEXT INDEX `{schema.Name}` FOR {pattern} ON EACH [{slots}]\n"
+                + $"OPTIONS {{indexConfig: {{`fulltext.analyzer`: '{schema.FullTextAnalyzer}', "
+                + $"`fulltext.eventually_consistent`: {(schema.FullTextEventuallyConsistent == true ? "true" : "false")}}}}}",
             GraphMigrationSchemaKind.UniquenessConstraint => $"CREATE CONSTRAINT `{schema.Name}` FOR {pattern} REQUIRE ({slots}) IS UNIQUE",
             GraphMigrationSchemaKind.ExistenceConstraint => $"CREATE CONSTRAINT `{schema.Name}` FOR {pattern} REQUIRE {slots} IS NOT NULL",
             GraphMigrationSchemaKind.PropertyTypeConstraint => $"CREATE CONSTRAINT `{schema.Name}` FOR {pattern} REQUIRE {slots} IS :: {schema.PropertyType}",

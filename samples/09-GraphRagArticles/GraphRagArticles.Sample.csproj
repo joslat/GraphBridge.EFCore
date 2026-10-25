@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- The GraphRAG toolkit is experimental (ADR 0052); this sample acknowledges that once here. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The serve command's endpoint stays inside the sample; the framework ships with the SDK, no package. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <Compile Include="../GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
+    <None Include="data/articles/*.md;data/articles.json;data/article-replies.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -168,7 +168,7 @@ async Task<int> MenuAsync(WorkshopRunner runner, WorkshopConnection? connection)
 static string PartName(char part) => part switch
 {
     'A' => "Foundations", 'B' => "Relationships", 'C' => "Correctness", 'D' => "Graph-native querying",
-    'E' => "Operating the graph", 'F' => "Developer extensions", _ => "Other"
+    'E' => "Operating the graph", 'F' => "Developer extensions", 'G' => "GraphRAG (experimental)", _ => "Other"
 };
 
 static int Usage(string? problem = null)

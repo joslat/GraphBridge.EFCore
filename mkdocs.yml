@@ -51,6 +51,10 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
 
+# The experimental GraphRAG pages stay in the repository, and join the site when their packages ship.
+exclude_docs: |
+  graphrag/
+
 validation:
   omitted_files: info
   absolute_links: info

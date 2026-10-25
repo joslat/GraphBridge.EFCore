@@ -1,5 +1,7 @@
 using System.Globalization;
+using GraphBridge.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -16,6 +18,19 @@ public sealed class Neo4jTypeMappingSource(TypeMappingSourceDependencies depende
         type = Nullable.GetUnderlyingType(type) ?? type;
         return IsNativeScalar(type) || type == typeof(Guid) || type.IsEnum;
     }
+
+    /// <summary>The CLR types <c>IsGraphVector</c> maps: <c>float[]</c> and <c>ReadOnlyMemory&lt;float&gt;</c>, nullable or not.</summary>
+    public static bool IsVectorType(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+        return type == typeof(float[]) || type == typeof(ReadOnlyMemory<float>);
+    }
+
+    /// <summary>A property opted in with <c>IsGraphVector</c> gets the vector mapping (ADR 0054); every other property keeps EF's lookup.</summary>
+    public override CoreTypeMapping? FindMapping(IProperty property)
+        => property.FindAnnotation(GraphAnnotationNames.VectorDimensions)?.Value is int && IsVectorType(property.ClrType)
+            ? Neo4jVectorValues.Mapping(Nullable.GetUnderlyingType(property.ClrType) ?? property.ClrType)
+            : base.FindMapping(property);
 
     protected override CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
     {

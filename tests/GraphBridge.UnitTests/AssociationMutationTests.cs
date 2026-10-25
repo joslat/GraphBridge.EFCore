@@ -41,8 +41,8 @@ public sealed class AssociationMutationTests : IDisposable
         Assert.Equal(2, edge.LockCommands.Count);
         Assert.Empty(plan.Operations[0].LockCommands);
         Assert.Empty(plan.Operations[1].LockCommands);
-        Assert.Equal("MATCH (n:`Actor` {`actorId`: $k0})\nSET n.`actorId` = n.`actorId`\nRETURN count(n) AS count", edge.LockCommands[0].Text);
-        Assert.Equal("MATCH (n:`Film` {`filmId`: $k0})\nSET n.`filmId` = n.`filmId`\nRETURN count(n) AS count", edge.LockCommands[1].Text);
+        Assert.Equal("MATCH (n:`Actor` {`actorId`: $k0})\nSET n.`__graphbridge_lock` = true REMOVE n.`__graphbridge_lock`\nRETURN count(n) AS count", edge.LockCommands[0].Text);
+        Assert.Equal("MATCH (n:`Film` {`filmId`: $k0})\nSET n.`__graphbridge_lock` = true REMOVE n.`__graphbridge_lock`\nRETURN count(n) AS count", edge.LockCommands[1].Text);
         Assert.Equal(actor.Id.ToString("D"), edge.LockCommands[0].Parameters["k0"]);
         Assert.Equal(film.Id.ToString("D"), edge.LockCommands[1].Parameters["k0"]);
         Assert.Contains("MERGE (s)-[r:`ACTED_IN`]->(t)", edge.Command.Text);
@@ -344,7 +344,7 @@ public sealed class AssociationMutationTests : IDisposable
         context.AttachRange(actor, film);
         context.Add(new CompositeCredit { SourceTenant = actor.Tenant, SourceCode = actor.Code, FilmId = film.Id });
         var edge = Assert.Single((await Plan(context)).Operations);
-        Assert.Equal("MATCH (n:`CompositeActor` {`tenant`: $k0, `code`: $k1})\nSET n.`tenant` = n.`tenant`\nRETURN count(n) AS count", edge.LockCommands[0].Text);
+        Assert.Equal("MATCH (n:`CompositeActor` {`tenant`: $k0, `code`: $k1})\nSET n.`__graphbridge_lock` = true REMOVE n.`__graphbridge_lock`\nRETURN count(n) AS count", edge.LockCommands[0].Text);
         Assert.Equal(5L, edge.Command.Parameters["s0"]);
         Assert.Equal(actor.Code, edge.Command.Parameters["s1"]);
         Assert.Equal(FilmId.ToString("D"), edge.Command.Parameters["t0"]);

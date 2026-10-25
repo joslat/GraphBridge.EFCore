@@ -159,13 +159,44 @@ Applying the same plan again returns `AlreadyApplied` and changes nothing.
 | Step | Factory | Behavior |
 |---|---|---|
 | Create constraint | `GraphMigrationStep.CreateConstraint(id, definition)` | Uniqueness, existence or property type (`STRING`, `INTEGER`, `FLOAT`, `BOOLEAN`). Existence and type need Enterprise |
-| Create index | `GraphMigrationStep.CreateIndex(id, definition)` | Range index; waits until it is `ONLINE`, up to `IndexWaitTimeout` |
+| Create index | `GraphMigrationStep.CreateIndex(id, definition)` | Range, vector or full-text index; waits until it is `ONLINE`, up to `IndexWaitTimeout` |
 | Drop constraint or index | `DropConstraint(id, definition, destructiveReason)`, `DropIndex(...)` | The named object must exactly match the expected definition |
 | Backfill | `Backfill(id, scope, property, value, expectedCount)` | Sets an absent property on exactly `expectedCount` elements |
 | Rename property | `RenameProperty(id, scope, from, to, expectedCount, destructiveReason)` | Copies to an absent destination, then removes the source |
 | Assert precondition | `AssertPrecondition(id, scope, expectedCount)` | Checks a bounded count; changes nothing |
 
-`GraphMigrationSchemaDefinition(name, kind, "NODE" or "RELATIONSHIP", labelOrType, properties, propertyType)` names one exact schema object. `GraphMigrationDataScope(entityType, labelOrType, filters, maxRows)` selects elements by label or type and parameterized equality filters, with a cap of 1 to 100,000 candidates. Selected elements are locked and rechecked before they change. The cap bounds candidates and mutations, not the work of finding matches. Concurrent insertions are not fenced: stop application writers when you need a complete label or type snapshot.
+`GraphMigrationSchemaDefinition(name, kind, "NODE" or "RELATIONSHIP", labelOrType, properties, propertyType)` names one exact constraint or range index. Vector and full-text indexes have their own factories, below. `GraphMigrationDataScope(entityType, labelOrType, filters, maxRows)` selects elements by label or type and parameterized equality filters, with a cap of 1 to 100,000 candidates. Selected elements are locked and rechecked before they change. The cap bounds candidates and mutations, not the work of finding matches. Concurrent insertions are not fenced: stop application writers when you need a complete label or type snapshot.
+
+### Vector and full-text indexes
+
+[Typed search](GRAPH_SEARCH.md) reads vector and full-text indexes; a migration creates them with the same preview, journal and readiness wait as a range index:
+
+```csharp
+var embedding = GraphMigrationSchemaDefinition.VectorIndex("chunk_embedding", "NODE", "Chunk", "embedding",
+    dimensions: 1536, GraphVectorSimilarity.Cosine);
+var text = GraphMigrationSchemaDefinition.FullTextIndex("chunk_text", "NODE", ["Chunk", "Section"], ["text", "title"],
+    analyzer: "english");
+
+var searchIndexes = new GraphMigrationPlan("app-002-search-indexes", "app-001-keys",
+    [GraphMigrationStep.CreateIndex("embedding-index", embedding), GraphMigrationStep.CreateIndex("text-index", text)],
+    GraphMigrationRollbackPolicy.NoRollback("Dropping a search index is a separate, reviewed migration."));
+```
+
+```cypher
+CREATE VECTOR INDEX `chunk_embedding` FOR (n:`Chunk`) ON (n.`embedding`)
+OPTIONS {indexConfig: {`vector.dimensions`: 1536, `vector.similarity_function`: 'cosine'}}
+CREATE FULLTEXT INDEX `chunk_text` FOR (n:`Chunk`|`Section`) ON EACH [n.`text`, n.`title`]
+OPTIONS {indexConfig: {`fulltext.analyzer`: 'english', `fulltext.eventually_consistent`: false}}
+```
+
+- **Definitions:** a vector index covers one label or relationship type and one property, with 1 to 4,096 dimensions and `Cosine` or `Euclidean` similarity. A full-text index covers 1 to 16 labels or types and 1 to 16 properties. Its analyzer defaults to `standard-no-stop-words`, Neo4j's own default, and is always written, so the result doesn't depend on the server's default setting.
+- **Matching:** an index under the step's name is the declared one only when its type, target, properties and declared options match: the dimensions and similarity for a vector index, and the analyzer and consistency for a full-text index. Labels and properties of a full-text index compare as sets. Anything else under that name is a conflict that stops the step for review.
+- **One per schema:** if an index of the same kind already covers the same labels and properties under another name, creation is refused and the message names it, whatever its options. For vector indexes this is Neo4j's rule: one per label and property. For full-text indexes Neo4j refuses only the same labels and properties in the same order, and accepts a reordered list as a second index; GraphBridge refuses that too, because a full-text index's order doesn't change what it indexes.
+- **Options left to the server:** options a definition doesn't declare, such as vector quantization, which Neo4j 2026.09 enables by default, are neither written nor compared.
+- **Eventual consistency:** an eventually consistent full-text index can be `ONLINE` before recent writes are searchable. The migration doesn't wait for that.
+- **Capabilities:** `VectorIndexes` and `FullTextIndexes` are `Supported` on recognized 2025 and 2026 releases and `Unknown` on Neo4j 5, whose index DDL GraphBridge hasn't verified. A plan that needs an `Unknown` capability doesn't run.
+
+Adding these kinds didn't change the checksums of plans made of the earlier kinds, so journals of applied migrations still match them.
 
 ### Apply contract
 

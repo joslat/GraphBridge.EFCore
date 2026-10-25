@@ -12,11 +12,24 @@ internal static class CypherMutationRenderer
             new Dictionary<string, object> { ["properties"] = properties });
     }
 
+    /// <summary>
+    /// A transient property that a lock writes and removes in one statement. Writing it takes the element's write lock without
+    /// touching a key: on Neo4j 2026.09, writing a unique key to itself before deleting the element keeps that key taken for the
+    /// rest of the transaction, so the element couldn't be deleted and added again in one transaction.
+    /// </summary>
+    internal const string LockProperty = "__graphbridge_lock";
+
+    /// <summary>Takes the write lock of each element: sets and removes <see cref="LockProperty"/>, leaving no trace.</summary>
+    internal static string LockWrite(params string[] elements)
+    {
+        var property = Identifier(LockProperty);
+        return "SET " + string.Join(", ", elements.Select(e => $"{e}.{property} = true")) + " REMOVE " + string.Join(", ", elements.Select(e => $"{e}.{property}"));
+    }
+
     public static CypherMutationCommand Lock(string label, IReadOnlyDictionary<string, object?> keys)
     {
         var (match, parameters) = Match(label, keys);
-        var key = Identifier(keys.Keys.First());
-        return new($"{match}\nSET n.{key} = n.{key}\nRETURN count(n) AS count", parameters);
+        return new($"{match}\n{LockWrite("n")}\nRETURN count(n) AS count", parameters);
     }
 
     public static CypherMutationCommand Update(string label, IReadOnlyDictionary<string, object?> keys,

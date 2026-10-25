@@ -25,7 +25,7 @@ Pin the EF Core and driver versions GraphBridge is tested with:
 
 ```xml
 <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.13]" />
-<PackageReference Include="Neo4j.Driver" Version="[6.3.0]" />
+<PackageReference Include="Neo4j.Driver" Version="[6.4.0]" />
 ```
 
 ## Quick start
@@ -120,7 +120,7 @@ A query that cannot be translated faithfully is refused before it reaches the da
 |---|---|
 | .NET SDK | 10.0.401 |
 | EF Core | 10.0.13 |
-| Neo4j.Driver | 6.3.0 |
+| Neo4j.Driver | 6.4.0 |
 | Neo4j | 2026.09 Community; Enterprise reader/writer permissions verified separately |
 
 Other versions, Enterprise schema deployment and clustering are not verified yet. Details: [compatibility](https://joslat.github.io/GraphBridge.EFCore/reference/COMPATIBILITY.html).

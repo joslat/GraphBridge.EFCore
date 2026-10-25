@@ -85,6 +85,18 @@ internal static class GraphModelValidation
                 GraphIdentifier.Validate(name, "propertyName");
                 if (!derivedReferenceSlots.Contains(property) && !names.Add(name))
                     Fail(entity, $"store property name '{name}' is mapped more than once");
+                var vector = property.FindAnnotation(GraphAnnotationNames.VectorDimensions)?.Value;
+                if (vector is not null)
+                {
+                    // ADR 0054: an opted-in embedding is payload only, stored as a list of floats without a converter.
+                    if (vector is not int dimensions || dimensions is < 1 or > 4096 || !Neo4jTypeMappingSource.IsVectorType(property.ClrType))
+                        Fail(entity, $"vector property '{property.Name}' must be float[] or ReadOnlyMemory<float> with 1 to 4,096 dimensions");
+                    if (property.IsKey() || property.IsForeignKey() || property.IsConcurrencyToken || property.ValueGenerated != ValueGenerated.Never)
+                        Fail(entity, $"vector property '{property.Name}' is payload only; it can't be a key, a foreign key, a concurrency token or a generated value");
+                    if (property.GetValueConverter() is not null || property.GetProviderClrType() is not null)
+                        Fail(entity, $"vector property '{property.Name}' is stored as a list of floats and can't also have a value converter");
+                    continue;
+                }
                 if (!Neo4jTypeMappingSource.IsSupportedModelScalar(property.ClrType)
                     && property.GetValueConverter() is null && property.GetProviderClrType() is null)
                     Fail(entity, $"property '{property.Name}' of CLR type '{property.ClrType.Name}' requires an explicit HasConversion mapping");

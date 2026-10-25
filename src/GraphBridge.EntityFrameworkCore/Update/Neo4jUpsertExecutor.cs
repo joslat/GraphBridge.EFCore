@@ -15,10 +15,12 @@ using Neo4j.Driver;
 
 namespace GraphBridge.EntityFrameworkCore.Update;
 
-internal sealed record GraphUpsertCommand(NodeBinding Node, string Text, IDictionary<string, object> Parameters, int Rows);
+/// <summary>A prepared upsert: the node constraints to check, an identified edge's constraint, an optional preflight, the MERGE.</summary>
+internal sealed record GraphUpsertCommand(IReadOnlyList<NodeBinding> Nodes, IdentifiedEdgeBinding? IdentifiedEdge, string? Preflight,
+    string Text, IDictionary<string, object> Parameters, int Rows, bool Relationship);
 
 /// <summary>Typed batch upserts (ADR 0051): one constrained MERGE over at most 10,000 rows, in one transaction, untracked.</summary>
-internal static class Neo4jUpsertExecutor
+internal static partial class Neo4jUpsertExecutor
 {
     internal const string RowsParameter = "__gb_upsert_rows";
 
@@ -31,8 +33,8 @@ internal static class Neo4jUpsertExecutor
     internal static GraphUpsertCommand Prepare(GraphBindingCompiler compiler, IEntityType entityType, IEnumerable<object> entities,
         LambdaExpression? updateProperties)
     {
-        if (compiler.GetStorageKind(entityType) != GraphStorageKind.Node)
-            throw new NotSupportedException($"Upserts support node entities only; '{entityType.DisplayName()}' is stored as a relationship.");
+        var kind = compiler.GetStorageKind(entityType);
+        if (kind != GraphStorageKind.Node) return PrepareEdge(compiler, entityType, kind, entities, updateProperties);
         var node = compiler.GetNode(entityType);
         if (entityType.GetForeignKeys().Any(GraphModelValidation.IsNodeReference))
             throw new NotSupportedException($"Upserts don't support '{entityType.DisplayName()}': its native-reference foreign keys are stored as relationships, which an upsert would not write.");
@@ -41,7 +43,8 @@ internal static class Neo4jUpsertExecutor
         if (node.StoredProperties.FirstOrDefault(p => p.Property.IsShadowProperty()) is { } shadow)
             throw new NotSupportedException($"Upserts read values from the entities passed in; shadow property '{entityType.DisplayName()}.{shadow.Property.Name}' has none.");
         var keys = node.KeyProperties.Select(key => node.StoredProperties.Single(p => p.Property == key)).ToArray();
-        var update = UpdateSet(node, entityType, updateProperties);
+        var update = UpdateSet(node.StoredProperties.Where(p => !node.KeyProperties.Contains(p.Property)).ToArray(), entityType, updateProperties,
+            node.KeyProperties.Select(k => k.Name).ToHashSet(StringComparer.Ordinal), "is part of the key, which identifies the node");
 
         var rows = new List<Dictionary<string, object?>>();
         var seen = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -63,14 +66,14 @@ internal static class Neo4jUpsertExecutor
                 throw new InvalidOperationException($"Entities {seen[Identity(key)]} and {rows.Count} (zero-based) in one upsert have the same key; nothing was sent. Remove the duplicate: an upsert never chooses between them.");
             var create = new Dictionary<string, object?>(StringComparer.Ordinal);
             foreach (var property in node.StoredProperties)
-                if (property.ToStore(Value(property, entity)) is { } stored)
+                if (StoreAt(property, Value(property, entity), rows.Count) is { } stored)
                     create[property.Name] = stored;
             var row = new Dictionary<string, object?>(StringComparer.Ordinal) { ["key"] = key, ["create"] = create };
             if (update.Count != 0)
             {
                 // A null removes the property, as an EF null does on update.
                 var changes = new Dictionary<string, object?>(StringComparer.Ordinal);
-                foreach (var property in update) changes[property.Name] = property.ToStore(Value(property, entity));
+                foreach (var property in update) changes[property.Name] = StoreAt(property, Value(property, entity), rows.Count);
                 row["update"] = changes;
             }
             rows.Add(row);
@@ -81,7 +84,7 @@ internal static class Neo4jUpsertExecutor
             .Append("})\nON CREATE SET n += row.create");
         if (update.Count != 0) text.Append("\nON MATCH SET n += row.update");
         text.Append("\nRETURN count(n) AS affected");
-        return new(node, text.ToString(), new Dictionary<string, object> { [RowsParameter] = rows.ToArray() }, rows.Count);
+        return new([node], null, null, text.ToString(), new Dictionary<string, object> { [RowsParameter] = rows.ToArray() }, rows.Count, Relationship: false);
     }
 
     private static async Task<GraphUpsertResult> ExecuteCoreAsync(DbContext context, IEntityType entityType, IEnumerable<object> entities,
@@ -101,8 +104,8 @@ internal static class Neo4jUpsertExecutor
         try
         {
             var runner = manager.CurrentDriverTransaction!;
-            const string preflight = "SHOW CONSTRAINTS YIELD type, entityType, labelsOrTypes, properties RETURN type, entityType, labelsOrTypes, properties";
-            var schema = await GraphBridgeDiagnostics.RunAsync(runner, preflight, null, schema: true, kind: GraphCommandKind.SchemaPreflight).ConfigureAwait(false);
+            const string constraintQuery = "SHOW CONSTRAINTS YIELD type, entityType, labelsOrTypes, properties RETURN type, entityType, labelsOrTypes, properties";
+            var schema = await GraphBridgeDiagnostics.RunAsync(runner, constraintQuery, null, schema: true, kind: GraphCommandKind.SchemaPreflight).ConfigureAwait(false);
             var constraints = new List<GraphSchemaConstraint>();
             while (await schema.FetchAsync().ConfigureAwait(false))
             {
@@ -112,14 +115,28 @@ internal static class Neo4jUpsertExecutor
                 constraints.Add(new(record["entityType"].As<string>(), record["type"].As<string>(),
                     record["labelsOrTypes"].As<List<string>>(), record["properties"].As<List<string>>()));
             }
-            GraphKeyConstraintValidator.Validate([command.Node], constraints);
+            GraphKeyConstraintValidator.Validate(command.Nodes, constraints);
+            if (command.IdentifiedEdge is { } edge) GraphKeyConstraintValidator.ValidateIdentifiedEdges([edge], constraints);
             cancellationToken.ThrowIfCancellationRequested();
+            if (command.Preflight is { } preflight)
+            {
+                // ADR 0051, section 6: endpoints found and locked, conflicts counted, before the MERGE writes anything.
+                var checking = await GraphBridgeDiagnostics.RunAsync(runner, preflight, command.Parameters, kind: GraphCommandKind.Mutation).ConfigureAwait(false);
+                var records = new List<IRecord>();
+                while (await checking.FetchAsync().ConfigureAwait(false))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    records.Add(checking.Current);
+                }
+                await checking.ConsumeAsync().ConfigureAwait(false);
+                CheckPreflight(command, records);
+            }
 
             logger.LogInformation("Executing GraphBridge upsert Cypher: {Cypher}", command.Text);
             var cursor = await GraphBridgeDiagnostics.RunAsync(runner, command.Text, command.Parameters, kind: GraphCommandKind.Mutation).ConfigureAwait(false);
             if (!await cursor.FetchAsync().ConfigureAwait(false) || cursor.Current["affected"].As<long>() != command.Rows
                 || await cursor.FetchAsync().ConfigureAwait(false))
-                throw new DbUpdateException("The upsert did not affect exactly one node per entity. The transaction was aborted.");
+                throw new DbUpdateException($"The upsert did not affect exactly one {(command.Relationship ? "relationship" : "node")} per entity. The transaction was aborted.");
             // ADR 0050: the summary arrived with the last record; its counters give the created count without a round trip.
             var summary = await cursor.ConsumeAsync().ConfigureAwait(false);
             var counters = summary?.Counters is { } server ? GraphWriteCounters.From(server) : GraphWriteCounters.None;
@@ -129,7 +146,8 @@ internal static class Neo4jUpsertExecutor
                 commitStarted = true;
                 await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             }
-            return new(counters.NodesCreated, command.Rows - counters.NodesCreated, counters);
+            var created = command.Relationship ? counters.RelationshipsCreated : counters.NodesCreated;
+            return new(created, command.Rows - created, counters);
         }
         catch (Exception error)
         {
@@ -148,10 +166,10 @@ internal static class Neo4jUpsertExecutor
         }
     }
 
-    // The properties an existing node receives: every stored non-key property, or those the selector names.
-    private static IReadOnlyList<GraphPropertyBinding> UpdateSet(NodeBinding node, IEntityType entityType, LambdaExpression? updateProperties)
+    // The properties an existing element receives: every updatable property, or those the selector names.
+    private static IReadOnlyList<GraphPropertyBinding> UpdateSet(IReadOnlyList<GraphPropertyBinding> updatable, IEntityType entityType,
+        LambdaExpression? updateProperties, IReadOnlySet<string> reserved, string reservedReason)
     {
-        var updatable = node.StoredProperties.Where(p => !node.KeyProperties.Contains(p.Property)).ToArray();
         if (updateProperties is null) return updatable;
         var body = Unwrap(updateProperties.Body);
         IEnumerable<Expression> members = body switch
@@ -166,8 +184,8 @@ internal static class Neo4jUpsertExecutor
             if (Unwrap(argument) is not MemberExpression { Expression: ParameterExpression parameter, Member: var member }
                 || parameter != updateProperties.Parameters[0])
                 throw Refused();
-            if (node.KeyProperties.Any(k => k.Name == member.Name))
-                throw new ArgumentException($"'{entityType.DisplayName()}.{member.Name}' is part of the key, which identifies the node and is never updated.", nameof(updateProperties));
+            if (reserved.Contains(member.Name))
+                throw new ArgumentException($"'{entityType.DisplayName()}.{member.Name}' {reservedReason} and is never updated.", nameof(updateProperties));
             var property = updatable.FirstOrDefault(p => p.Property.Name == member.Name)
                 ?? throw new ArgumentException($"'{entityType.DisplayName()}.{member.Name}' is not a stored property an upsert can update.", nameof(updateProperties));
             if (!selected.Contains(property)) selected.Add(property);
@@ -178,6 +196,16 @@ internal static class Neo4jUpsertExecutor
             => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } convert ? convert.Operand : expression;
 
         ArgumentException Refused() => new("updateProperties must name properties of the entity, as 'p => p.Name' or 'p => new { p.Name, p.Email }'.", nameof(updateProperties));
+    }
+
+    // A refused vector names the entity's position; its values and key stay out of the message.
+    private static object? StoreAt(GraphPropertyBinding property, object? value, int position)
+    {
+        try { return property.ToStore(value); }
+        catch (InvalidOperationException error) when (property.VectorDimensions is not null)
+        {
+            throw new InvalidOperationException($"Entity {position} (zero-based) in one upsert: {error.Message}", error);
+        }
     }
 
     private static object? Value(GraphPropertyBinding property, object entity)

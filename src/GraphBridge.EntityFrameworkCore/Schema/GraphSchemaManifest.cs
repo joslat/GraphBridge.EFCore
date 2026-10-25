@@ -112,6 +112,8 @@ public sealed class GraphSchemaManifest
             json.WriteString("beforeSaveBehavior", property.BeforeSaveBehavior);
             json.WriteString("afterSaveBehavior", property.AfterSaveBehavior);
             json.WriteString("conversion", property.Conversion);
+            // Written only for vector properties, so manifests without vectors keep their fingerprints.
+            if (property.VectorDimensions is { } dimensions) json.WriteNumber("vectorDimensions", dimensions);
             json.WriteEndObject();
         }
         json.WriteEndArray();
@@ -239,12 +241,15 @@ public sealed class GraphSchemaProperty
 {
     internal GraphSchemaProperty(string name, string providerType, bool isRequired, bool isKey,
         GraphSchemaConcurrency concurrency, string valueGeneration, string beforeSaveBehavior,
-        string afterSaveBehavior, string conversion)
-        => (Name, ProviderType, IsRequired, IsKey, Concurrency, ValueGeneration, BeforeSaveBehavior, AfterSaveBehavior, Conversion)
-            = (name, providerType, isRequired, isKey, concurrency, valueGeneration, beforeSaveBehavior, afterSaveBehavior, conversion);
+        string afterSaveBehavior, string conversion, int? vectorDimensions = null)
+        => (Name, ProviderType, IsRequired, IsKey, Concurrency, ValueGeneration, BeforeSaveBehavior, AfterSaveBehavior, Conversion, VectorDimensions)
+            = (name, providerType, isRequired, isKey, concurrency, valueGeneration, beforeSaveBehavior, afterSaveBehavior, conversion, vectorDimensions);
     public string Name { get; }
-    /// <summary>Neo4j wire type: STRING, INTEGER, FLOAT or BOOLEAN. Both Int32 and Int64 use INTEGER.</summary>
+    /// <summary>Neo4j wire type: STRING, INTEGER, FLOAT, BOOLEAN or ZONED DATETIME, or LIST&lt;FLOAT&gt; for a vector property.
+    /// Both Int32 and Int64 use INTEGER.</summary>
     public string ProviderType { get; }
+    /// <summary>The dimensions of a property mapped with <c>IsGraphVector</c>; null for scalar properties.</summary>
+    public int? VectorDimensions { get; }
     public bool IsRequired { get; }
     /// <summary>Whether the stored property participates in any primary or alternate EF key.</summary>
     public bool IsKey { get; }

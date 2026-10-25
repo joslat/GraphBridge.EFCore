@@ -30,11 +30,6 @@
         "resolved": "10.0.13",
         "contentHash": "zBx6VeEz/hkhlm0BJ2V+9xebUuDDIszcKvurJceQHuZPEXuXubrL6Lneo9VZiliRyJbQlB2oNKLkJXd3gHteQA=="
       },
-      "Microsoft.Extensions.AI.Abstractions": {
-        "type": "Transitive",
-        "resolved": "10.11.0",
-        "contentHash": "h4DX/TdJU4fk1GGaf19n6Kujkj6VXbGeL4UEOsQ8+ZJC5fVApPauokCtvBP684BYbczUYZQNfo1mbmyHG4WVSg=="
-      },
       "Microsoft.Extensions.Caching.Abstractions": {
         "type": "Transitive",
         "resolved": "10.0.13",
@@ -154,8 +149,8 @@
       "graphbridge.entityframeworkcore": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "[10.0.13, )",
-          "Neo4j.Driver": "[6.3.0, )"
+          "Microsoft.EntityFrameworkCore": "[10.0.13, 11.0.0)",
+          "Neo4j.Driver": "[6.4.0, 7.0.0)"
         }
       },
       "graphbridge.entityframeworkcore.vectordata": {
@@ -163,6 +158,13 @@
         "dependencies": {
           "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
           "Microsoft.Extensions.VectorData.Abstractions": "[10.11.0, )"
+        }
+      },
+      "graphbridge.graphrag": {
+        "type": "Project",
+        "dependencies": {
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "Microsoft.Extensions.AI.Abstractions": "[10.11.0, )"
         }
       },
       "graphbridge.tooling": {
@@ -224,7 +226,7 @@
       },
       "Microsoft.EntityFrameworkCore": {
         "type": "CentralTransitive",
-        "requested": "[10.0.13, )",
+        "requested": "[10.0.13, 11.0.0)",
         "resolved": "10.0.13",
         "contentHash": "u/z4nTQUJ5nJEXAQekgQEQZkh0delp4gL+ESHn7Z6k037c8HC5mSNu1/YdBgxGm7DtLjhOxktNl+aQMzw6wN7A==",
         "dependencies": {
@@ -233,6 +235,12 @@
           "Microsoft.Extensions.Caching.Memory": "10.0.13",
           "Microsoft.Extensions.Logging": "10.0.13"
         }
+      },
+      "Microsoft.Extensions.AI.Abstractions": {
+        "type": "CentralTransitive",
+        "requested": "[10.11.0, )",
+        "resolved": "10.11.0",
+        "contentHash": "h4DX/TdJU4fk1GGaf19n6Kujkj6VXbGeL4UEOsQ8+ZJC5fVApPauokCtvBP684BYbczUYZQNfo1mbmyHG4WVSg=="
       },
       "Microsoft.Extensions.VectorData.Abstractions": {
         "type": "CentralTransitive",
@@ -245,9 +253,9 @@
       },
       "Neo4j.Driver": {
         "type": "CentralTransitive",
-        "requested": "[6.3.0, )",
-        "resolved": "6.3.0",
-        "contentHash": "USPPWixK2RkGO+BVuPa4WAH1p0BZpp4d5iIukXEL7/muoYT4bjB62pVlAuQyaW/3PfC0JTDlehsjKwOVf+yQdg=="
+        "requested": "[6.4.0, 7.0.0)",
+        "resolved": "6.4.0",
+        "contentHash": "y4HRrzUL3B3TxOMhF7BFgm7mAQxXporngAx+MN3KrR73T8Von316tkzcP+8knmfqlEFlfJ9y5QaM/l4j3gvn/A=="
       },
       "YamlDotNet": {
         "type": "CentralTransitive",

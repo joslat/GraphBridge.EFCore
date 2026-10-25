@@ -27,6 +27,8 @@ internal sealed partial class CypherCompiler
 
     private string Comparison(CypherComparisonTerm comparison)
     {
+        RefuseVector(comparison.Left, "a comparison");
+        RefuseVector(comparison.Right, "a comparison");
         if (comparison.ClrSemantics) ValidateAgreement(comparison);
         var left = Render(comparison.Left);
         string right;
@@ -95,6 +97,7 @@ internal sealed partial class CypherCompiler
 
     private string In(CypherInTerm inList)
     {
+        RefuseVector(inList.Operand, "IN");
         if (inList.Values.Count > MaxListValues)
             throw CypherDiagnostics.Create("GBFC107", $"The IN list has {inList.Values.Count} values; Fluent sends at most {MaxListValues}, like LINQ Contains. Query in batches or use a reviewed native query.");
         var elements = inList.Values;
@@ -115,6 +118,8 @@ internal sealed partial class CypherCompiler
 
     private string Text(CypherStringTerm text)
     {
+        RefuseVector(text.Operand, text.Operator);
+        RefuseVector(text.Argument, text.Operator);
         foreach (var operand in new[] { text.Operand, text.Argument })
             if (Converted(operand))
                 throw CypherDiagnostics.Create("GBFC111", $"{text.Operator} over converted property '{Describe(operand)}' is not translated: a value converter does not preserve prefixes or substrings. Use an unconverted representation or a reviewed native query.");
@@ -155,6 +160,13 @@ internal sealed partial class CypherCompiler
         }
     }
 
+    /// <summary>ADR 0054: a vector is returned, collected and tested for null; similarity belongs to typed vector search.</summary>
+    private void RefuseVector(CypherTerm term, string use)
+    {
+        if (term is CypherPropertyTerm property && Property(property).Binding.VectorDimensions is not null)
+            throw CypherDiagnostics.Create("GBFC114", $"Vector property '{property.Property.Name}' in {use} is not translated. Return it or test it for null; find similar entities with typed vector search (Database.QueryVectorNodesAsync).");
+    }
+
     private bool Converted(CypherTerm term)
         => term is CypherPropertyTerm property && Property(property).Binding.Property.GetTypeMapping().Converter is not null;
 
@@ -182,6 +194,7 @@ internal sealed partial class CypherCompiler
         if (aggregate.Operand is not CypherPropertyTerm property)
             throw Unsupported("GBFC406", $"{aggregate.Function} aggregates a mapped scalar property expression, such as alias.Property(p => p.Year).");
         var binding = Property(property).Binding;
+        if (aggregate.Function != "collect") RefuseVector(property, aggregate.Function);
         if (aggregate.Function != "collect" && binding.Property.GetTypeMapping().Converter is not null)
             throw CypherDiagnostics.Create("GBFC406", $"{aggregate.Function} over converted property '{property.Property.Name}' is not translated: the server would aggregate the stored form. Use an unconverted property or a reviewed native query.");
         var text = aggregate.Function + "(" + (aggregate.Distinct ? "DISTINCT " : "") + Render(property) + ")";

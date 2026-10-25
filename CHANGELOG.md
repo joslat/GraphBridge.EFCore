@@ -2,6 +2,73 @@
 
 All notable changes to GraphBridge. Every version so far is a developer preview; the [compatibility contract](docs/reference/COMPATIBILITY.md) describes what may change between previews.
 
+## Unreleased: the GraphRAG toolkit
+
+The toolkit's source, samples 07 to 09 and its docs are in the repository. Its three experimental packages, `GraphBridge.GraphRag`, `GraphBridge.GraphRag.DataIngestion` and `GraphBridge.GraphRag.AgentFramework`, ship with a later preview, once they have been verified with a real model. So far they have run only with stand-ins for the models.
+
+### GraphRAG toolkit (experimental)
+
+- **Added:** `GraphBridge.GraphRag`, building blocks for graph-based retrieval-augmented generation on GraphBridge ([ADR 0052](docs/architecture/adr/ADR-0052.md)). It is experimental: using it reports `GBRAG001`, and its API may change in any preview. Requires Neo4j 2026.09 or later.
+  - **Store:** `modelBuilder.AddGraphRag(dimensions)` maps documents, sections and chunks with child-to-parent links that carry the run that wrote them. `GraphRagLayout.Neo4jGraphRag` writes the names Neo4j's Python `neo4j-graphrag` library reads. `GraphRagSchema` returns the constraints and indexes as steps for your own migration plan.
+  - **Ingest:** text and Markdown loaders, a structure-aware chunker whose chunks are exactly their documents' UTF-8 bytes, and resumable ingestion: one transaction and one lease per document, unchanged documents skipped, embeddings in bounded parallel batches with transient-only retries.
+  - **Retrieve and answer:** vector and full-text routes fused by reciprocal rank on chunk identity, with a per-item trace, a byte budget, neighbouring chunks and read-only Cypher expansions as labelled context. Answers come from any `IChatClient` with every quote located in its chunk, or a refusal with a reason.
+  - **Maintain:** re-ingest only what changed, remove a source, reset by run or document, remove orphans, and a health report. Removal refuses nodes the toolkit didn't write.
+  - **Ontologies and extraction:** `AddGraphRag(dimensions, o => o.Ontology = GraphRagOntologies.Article)` maps an ontology's classes as nodes, a mention relationship per class, its facts as associations and its who-said-it quotes. The standard ontologies are the generic document, the novel and the article; `GraphRagOntology.Custom(...)` takes your own classes, and `WithLabelPrefix(...)` keeps their labels apart from yours.
+    - Ingestion then extracts each chunk through an `IChatClient` under a JSON schema read from the model (`GraphRagModelSchema`).
+    - It prunes unknown kinds, disallowed relationships and quotes that aren't in the chunk, and records why in the receipt. Unreadable replies are quarantined, and an optional `IGraphRagExtractionVerifier` can refuse any candidate.
+    - Things resolve by exact normalised name; placeholders such as "the man" never merge.
+    - Facts list every document that states them, and are written so that concurrent runs don't lose each other's documents.
+    - Removing a document takes it off its facts, and orphan clean-up removes things no mention points to.
+  - **Sources:** `GraphRagSourceMetadata` sets a document's title, publication date, publisher and URL from the source itself.
+  - **Agent tools:** `GraphRagTools.Create<TContext>(services)` returns `AIFunction`s:
+    - `answer_from_documents`, with checked citations or a refusal;
+    - `search_documents`, passages with exact spans;
+    - with an ontology, `find_things` and `related_facts`.
+
+    An optional `IGraphRagToolTrail` records each call with the evidence it returned.
+  - **Re-embedding:** `GraphRagReembedding.Plan(layout, from, to, stagingProperty)` writes the new set to a staging property with its own index, then cuts over by layout and cleans up. Each stage previews first, and nothing is replaced in place.
+  - **Chunked documents:** `IGraphRagIngestion.IngestChunkedAsync` ingests documents whose chunks were decided elsewhere, with the same lease, unchanged check, embeddings, extraction and transaction. `GraphRagChunkers.Create` exposes the core chunker.
+  - **Tracing and receipts:** the `GraphBridge.GraphRag` activity source traces each stage: ingest, document, embed, extract, write, retrieve and answer. Tags hold IDs, counts, outcomes and timings only, never document text, questions, quotes or source URIs. Every answer carries a `Receipt` with its chat calls, tokens and the time spent retrieving and answering.
+  - **Docs:** a GraphRAG section in `docs/graphrag`, marked experimental; it joins the docs site with the packages. It covers the overview with the provider gap list, the quick start, ontologies, ingestion, retrieval, answers with evidence ("GraphRAG you can trust"), agents and APIs, maintenance, evaluation and interop.
+  - **Workshop:** lesson 31, "From documents to cited answers".
+  - **Evaluation:** `tests/GraphBridge.GraphRag.Evaluation`, a test-only harness on AgentEval with deterministic metrics (citation validity, abstention and retrieval coverage), offline stand-ins and a labelled public-domain corpus. It isn't a package.
+- **Added:** `GraphBridge.GraphRag.DataIngestion` (experimental), a `Microsoft.Extensions.DataIngestion` chunk writer that stores pipeline chunks with exact positions in their document's Markdown. Spans come from `GraphRagSpanChunker`'s metadata, or are recovered byte-exact or with whitespace runs normalised; a chunk that can't be placed fails its document and nothing of it is written.
+- **Added:** `GraphBridge.GraphRag.AgentFramework` (experimental), a Microsoft Agent Framework `AIContextProvider`. It gives an agent the toolkit's tools and instructions to answer through `answer_from_documents`, so its citations are checked against the stored text.
+- **Samples:** [08 GraphRAG novel](samples/08-GraphRagNovel/README.md), on *Alice's Adventures in Wonderland*, and [09 GraphRAG articles](samples/09-GraphRagArticles/README.md), on fictional articles. Both run offline with extraction replies written by hand; the real-model path through an OpenAI-compatible endpoint hasn't been run yet.
+
+## 0.1.0-preview.5 (2026-10-26)
+
+**Developer preview; not production-supported.** Five packages: the provider, the VectorData adapter, Tooling, Generators and Templates. This preview adds three provider features: embeddings as EF properties, vector and full-text index steps in migrations, and typed relationship upserts. The provider now declares EF Core below 11 and Neo4j.Driver below 7. The GraphRAG toolkit is in the repository; its packages come with a later preview (see "Unreleased" above).
+
+### Relationship upserts
+
+- **Added:** `ExecuteUpsertAsync` upserts associations (matched on their endpoint pair) and identified relationships (matched on their key) between existing nodes ([bulk mutations](docs/features/BULK_MUTATIONS.md#upserts), ADR 0051 amendment). A preflight in the same transaction locks both endpoints of every entity and refuses the call, writing nothing, when an endpoint is missing, an identified key belongs to a relationship between other endpoints, or a pair already has two associations. Earlier previews refused relationship types.
+
+### Embeddings as EF properties
+
+- **Added:** `Property(c => c.Embedding).IsGraphVector(dimensions)` maps a `float[]` or `ReadOnlyMemory<float>` property as an embedding, stored as a list of floats ([writing vectors through EF](docs/features/GRAPH_SEARCH.md#writing-vectors-through-ef)). SaveChanges, typed upserts and bulk updates write it with change tracking. A vector of another length, with a NaN or infinite value, or all zeros is refused before anything is sent.
+- **Added:** queries return vectors and test them for null; other uses are refused with GBQ120, GBQ130, GBQ105, GBQ160 or the new Fluent Cypher code GBFC114. Doctor reports a declared vector index whose dimensions differ from the mapped property's (new finding GBD-SEARCH-012).
+- The schema manifest records a vector property as `LIST<FLOAT>` with its dimensions. Manifests of models without vectors keep their fingerprints.
+
+### Migrations: vector and full-text indexes
+
+- **Added:** typed migration plans create and drop vector and full-text indexes, with the same preview, journal, exact-definition check and wait until `ONLINE` as range indexes ([schema and migrations](docs/features/SCHEMA_AND_MIGRATIONS.md#vector-and-full-text-indexes)). `GraphMigrationSchemaDefinition.VectorIndex(...)` takes the dimensions and similarity; `FullTextIndex(...)` takes up to 16 labels or types and properties, an analyzer and the consistency mode. A differently configured index under the step's name stops the step for review, and an equivalent index under another name refuses creation.
+- **Added:** `GraphObservedIndex.IndexConfig`, the observed `options.indexConfig`, and the `VectorIndexes` and `FullTextIndexes` capabilities: supported on 2025 and 2026 releases, unknown on Neo4j 5.
+- Checksums of plans made of the earlier step kinds are unchanged, so journals of applied migrations still match.
+
+### LINQ
+
+- **Instance `Equals` in predicates:** `Where(p => p.Name.Equals(name))` and the same on `Guid`, `int`, `long`, `bool` and enum properties now translate as `==`, with the same null handling and value checks as `object.Equals`. They were refused with GBQ120. Overloads that take a comparison, such as `string.Equals(value, StringComparison)`, are still refused.
+
+### Fixes
+
+- **Fixed:** a node or identified relationship deleted in a transaction can be added again under the same key in that transaction. GraphBridge took an element's write lock by writing its key to itself; on Neo4j 2026.09 that keeps the key taken until the transaction ends, so adding the element again failed with an index entry conflict. Locks now set and remove a transient property, `__graphbridge_lock`, which leaves nothing behind. Found when the GraphRAG toolkit re-ingested a document under new settings: its chunks are deleted and written again with the same IDs.
+
+### Dependencies
+
+- **Changed:** the provider package declares `Microsoft.EntityFrameworkCore` as `[10.0.13, 11.0.0)` and `Neo4j.Driver` as `[6.4.0, 7.0.0)`. Earlier previews declared minimums only, so NuGet could pair GraphBridge with EF Core 11, whose internal provider APIs it hasn't been built against. NuGet now flags EF Core 11 or driver 7 at restore ([compatibility](docs/reference/COMPATIBILITY.md#exact-stack)).
+- **Changed:** Neo4j.Driver 6.3.0 → 6.4.0, which fixes two security issues: its certificate validator accepted a server that presented no certificate, and `CustomAuthToken.ToString()` printed credentials. GraphBridge's use of the driver is unchanged.
+
 ## 0.1.0-preview.4 (2026-10-23)
 
 **Developer preview; not production-supported.** Five packages: the provider, the VectorData adapter, Tooling, Generators and Templates. This preview adopts what Neo4jClient users rely on: whole entities from Fluent Cypher, typed node upserts, query tags, command timeouts and write counters, with a [guide for Neo4jClient users](docs/COMING_FROM_NEO4JCLIENT.md). Doctor also warns early about search indexes. NuGet package validation against 0.1.0-preview.3 finds no binary-breaking API change in the provider, VectorData, Tooling or Generators packages; behavior changes are marked **Changed** below.

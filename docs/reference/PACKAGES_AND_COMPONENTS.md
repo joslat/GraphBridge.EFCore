@@ -1,6 +1,6 @@
 # Packages and components
 
-GraphBridge has one runtime provider package and four optional packages. The diagnostic tools (Doctor, Verify and Query Lab) are components inside the optional `GraphBridge.Tooling` package, not separate packages. The packages are prereleases on nuget.org; `GraphBridge.EntityFrameworkCore.VectorData` is first published with 0.1.0-preview.3. [Getting started](../GETTING_STARTED.md#install-from-a-local-feed) shows how to try unreleased changes from a local feed.
+GraphBridge has one runtime provider package and four optional packages on NuGet, and three experimental GraphRAG projects in the repository, whose packages ship with a later preview. The diagnostic tools (Doctor, Verify and Query Lab) are components inside the optional `GraphBridge.Tooling` package, not separate packages. The packages are prereleases on nuget.org; `GraphBridge.EntityFrameworkCore.VectorData` is first published with 0.1.0-preview.3. [Getting started](../GETTING_STARTED.md#install-from-a-local-feed) shows how to try unreleased changes from a local feed.
 
 | Package ID | Purpose | Dependency / installation boundary |
 |---|---|---|
@@ -9,6 +9,9 @@ GraphBridge has one runtime provider package and four optional packages. The dia
 | `GraphBridge.Tooling` | Optional model authoring, ontology/schema-first generation, database-first inspection/scaffolding, design-time helpers and diagnostic evidence | References the provider and RDF/YAML/Roslyn libraries. Install in a trusted application or development host when needed. No CLI executable is bundled. |
 | [`GraphBridge.Generators`](../tools/MAPPING_GENERATOR.md) | Optional incremental mapping generator and build-time authoring diagnostics | Roslyn analyzer asset; not an application runtime assembly or runtime provider dependency. |
 | [`GraphBridge.Templates`](../tools/TEMPLATE.md) | Optional `dotnet new` starter with a package-based application and contract tests | Template content; generated applications reference the provider separately. No server or runtime libraries are bundled in the template. |
+| [`GraphBridge.GraphRag`](../../src/GraphBridge.GraphRag/README.md) | **Experimental; not on NuGet yet.** GraphRAG building blocks: documents and chunks with exact positions, resumable ingestion, retrieval, answers with checked citations, ontologies and extraction, maintenance, agent tools and re-embedding | References the provider and `Microsoft.Extensions.AI.Abstractions` 10.11.0 or later. Reports `GBRAG001`. First published with 0.1.0-preview.5. |
+| [`GraphBridge.GraphRag.DataIngestion`](../../src/GraphBridge.GraphRag.DataIngestion/README.md) | **Experimental; not on NuGet yet.** A `Microsoft.Extensions.DataIngestion` chunk writer that stores pipeline chunks with exact positions, and a span-aware chunker | References `GraphBridge.GraphRag` and the `Microsoft.Extensions.DataIngestion` 10.11.0 preview. |
+| [`GraphBridge.GraphRag.AgentFramework`](../../src/GraphBridge.GraphRag.AgentFramework/README.md) | **Experimental; not on NuGet yet.** A Microsoft Agent Framework context provider whose answers carry checked citations | References `GraphBridge.GraphRag` and `Microsoft.Agents.AI.Abstractions` 1.26.0 or later. |
 
 Use the same GraphBridge version for every package, and pin the tested EF Core and driver versions. NuGet dependency ranges can allow newer versions than the [compatibility contract](COMPATIBILITY.md) covers; resolving one is not a support claim. Upgrade notes are in the [changelog](../../CHANGELOG.md).
 

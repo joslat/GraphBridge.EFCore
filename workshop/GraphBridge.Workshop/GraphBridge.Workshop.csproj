@@ -3,12 +3,16 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <RootNamespace>GraphBridge.Workshop</RootNamespace>
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
     <AssemblyName>GraphBridge.Workshop</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
     <ProjectReference Include="../../src/GraphBridge.Tooling/GraphBridge.Tooling.csproj" />
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj" />
+    <!-- Lesson 31 uses the experimental GraphRAG toolkit (ADR 0052) and the samples' offline model stand-ins. -->
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
     <ProjectReference Include="Mapping/GraphBridge.Workshop.Mapping.csproj" />
     <!-- The mapping project builds itself with the source generator; its files are not part of this project. -->
     <Compile Remove="Mapping/**" />

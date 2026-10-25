@@ -28,7 +28,7 @@ Mode: offline | Status: pass
 Database observation: not-run
 Parameter values: excluded
 Statement and schema text: excluded
-Loaded provider: 0.1.0-preview.4…
+Loaded provider: 0.1.0-preview.5…
 …
 Model fingerprint: …
 Mapped nodes: … | relationships: …
@@ -104,7 +104,7 @@ var catalog = new GraphQueryCatalog(contracts,
 var report = await GraphDoctor.InspectAsync(db, catalog, "myapp.staging.v1");
 ```
 
-For each declared index, Doctor reads `SHOW INDEXES` and a bounded sample of stored values in its own read transaction, which it always rolls back. It never creates, repairs or drops an index. It catches these mistakes:
+For each declared index, Doctor reads `SHOW INDEXES` and a bounded sample of stored values in its own read transaction, which it always rolls back. It never creates, repairs or drops an index; a [migration step](../features/SCHEMA_AND_MIGRATIONS.md#vector-and-full-text-indexes) can create it. It catches these mistakes:
 
 | Code | What it means | Typical cause |
 |---|---|---|
@@ -119,6 +119,7 @@ For each declared index, Doctor reads `SHOW INDEXES` and a bounded sample of sto
 | GBD-SEARCH-009 | Nothing to search (warning) | No sampled entity has the property: ingestion or embedding hasn't run, or the name differs |
 | GBD-SEARCH-010 | Typed search unsupported on this server | Typed search needs Neo4j 2026 with Cypher 25 (full-text 2026.09+); native Cypher still works |
 | GBD-SEARCH-011 | Eventually consistent full-text index (information) | Recent writes appear after a delay; fine for bulk loads |
+| GBD-SEARCH-012 | The declaration's dimensions differ from the model's | The property is mapped with `IsGraphVector(1024)` but the index is declared with 1536, so the application writes vectors the index can't use |
 | GBD-SEARCH-000 | Every declared index passes | |
 
 GBD-SEARCH-008 matters most because Neo4j raises no error: values it can't index are simply left out, and a search just returns fewer results. The live test for this feature checks it against the server: a real search returns exactly the values Doctor counted as usable.

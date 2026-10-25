@@ -4,22 +4,23 @@ using Neo4j.Driver;
 namespace GraphBridge.Benchmarks;
 
 /// <summary>
-/// An untimed, single-connection observer for the exact Neo4j.Driver 6.3.0 logging contract.
+/// An untimed, single-connection observer for the exact Neo4j.Driver 6.4.0 logging contract.
 /// Counts completed serial Bolt batch exchanges, never TCP packets, physical RTT latency or API calls.
 /// Install directly with WithLogger; Begin only after connection/authentication/warmup is fully drained.
 /// The logger inspects only templates and argument runtime types. It never formats, reads payload fields,
 /// retains arguments, hex buffers, exceptions, query text, credentials or response data.
 /// </summary>
 /// <remarks>
-/// Pinned source f8a4020c589489a92c969856d6a624619080d276: SocketClient.SendAsync emits one Debug C event
+/// Pinned source 4ed413b01906c5d1682c62a3ee3c982cb28f99cd (6.4.0; these four files are unchanged from 6.3.0 except that SocketClient
+/// gains SystemReportsDead()): SocketClient.SendAsync emits one Debug C event
 /// per request; ChunkWriter.SendAsync emits one Trace C event before its network write. ResponsePipeline
 /// emits Debug S events before dispatch; SUCCESS/FAILURE/IGNORED each dequeue one request handler,
 /// RECORD only peeks. PrefixNeo4JLogger preserves the argument objects and prefixes connection identity.
 /// This is a version-sensitive benchmark observation, not a supported driver protocol instrumentation API.
-/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/f8a4020c589489a92c969856d6a624619080d276/Neo4j.Driver/Neo4j.Driver/Internal/Connector/SocketClient.cs
-/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/f8a4020c589489a92c969856d6a624619080d276/Neo4j.Driver/Neo4j.Driver/Internal/IO/ChunkWriter.cs
-/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/f8a4020c589489a92c969856d6a624619080d276/Neo4j.Driver/Neo4j.Driver/Internal/MessageHandling/ResponsePipeline.cs
-/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/f8a4020c589489a92c969856d6a624619080d276/Neo4j.Driver/Neo4j.Driver/Internal/Logging/ReformattedNeo4JLogger.cs
+/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/4ed413b01906c5d1682c62a3ee3c982cb28f99cd/Neo4j.Driver/Neo4j.Driver/Internal/Connector/SocketClient.cs
+/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/4ed413b01906c5d1682c62a3ee3c982cb28f99cd/Neo4j.Driver/Neo4j.Driver/Internal/IO/ChunkWriter.cs
+/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/4ed413b01906c5d1682c62a3ee3c982cb28f99cd/Neo4j.Driver/Neo4j.Driver/Internal/MessageHandling/ResponsePipeline.cs
+/// Source: https://github.com/neo4j/neo4j-dotnet-driver/blob/4ed413b01906c5d1682c62a3ee3c982cb28f99cd/Neo4j.Driver/Neo4j.Driver/Internal/Logging/ReformattedNeo4JLogger.cs
 /// </remarks>
 public sealed class BoltProtocolObservation : INeo4jLogger
 {
@@ -48,10 +49,10 @@ public sealed class BoltProtocolObservation : INeo4jLogger
             Array.Clear(_requestCounts);
             _flushed = false;
             _connection = null;
-            // This NuGet release's assembly version is 6.3.11.0; pin the actual package/source identity.
+            // This NuGet release's assembly version is 6.4.12.0; pin the actual package/source identity.
             _invalidReason = typeof(IDriver).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-                == "6.3.0+f8a4020c589489a92c969856d6a624619080d276"
-                ? null : "Only the pinned Neo4j.Driver 6.3.0 protocol logging contract is supported.";
+                == "6.4.0+4ed413b01906c5d1682c62a3ee3c982cb28f99cd"
+                ? null : "Only the pinned Neo4j.Driver 6.4.0 protocol logging contract is supported.";
             _events = _requestMessages = _flushes = _successes = _failures = _ignored = _records = _completed = 0;
             _active = true;
         }
