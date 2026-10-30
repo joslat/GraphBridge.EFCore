@@ -159,14 +159,14 @@ internal sealed class GraphRagAnswerer(IGraphRagRetriever retriever, Func<IChatC
 
     internal static string RewritePrompt(IReadOnlyList<GraphRagTurn> turns, string question)
     {
-        var text = new StringBuilder("Conversation:").AppendLine();
+        var text = new StringBuilder("Conversation:").Append('\n');
         foreach (var turn in turns)
         {
-            text.Append("Q: ").AppendLine(OneLine(turn.Question));
+            text.Append("Q: ").Append(OneLine(turn.Question)).Append('\n');
             if (turn.Answer is { Length: > 0 } answer)
-                text.Append("A: ").AppendLine(OneLine(answer.Length > MaxTurnAnswerLength ? Cut(answer) + "…" : answer));
+                text.Append("A: ").Append(OneLine(answer.Length > MaxTurnAnswerLength ? Cut(answer) + "…" : answer)).Append('\n');
         }
-        return text.AppendLine().Append("Last question: ").AppendLine(OneLine(question)).ToString();
+        return text.Append('\n').Append("Last question: ").Append(OneLine(question)).Append('\n').ToString();
     }
 
     // The rewritten question, on one line, or null when the reply isn't the JSON asked for or is empty or too long.
@@ -211,13 +211,13 @@ internal sealed class GraphRagAnswerer(IGraphRagRetriever retriever, Func<IChatC
 
     internal static string Prompt(GraphRagEvidence evidence)
     {
-        var text = new StringBuilder("Question: ").AppendLine(evidence.Question).AppendLine().AppendLine("Evidence:");
+        var text = new StringBuilder("Question: ").Append(evidence.Question).Append('\n').Append('\n').Append("Evidence:").Append('\n');
         for (var i = 0; i < evidence.Items.Count; i++)
-            text.Append('[').Append((i + 1).ToString(CultureInfo.InvariantCulture)).Append("] ").AppendLine(evidence.Items[i].Text.Trim());
+            text.Append('[').Append((i + 1).ToString(CultureInfo.InvariantCulture)).Append("] ").Append(evidence.Items[i].Text.Trim()).Append('\n');
         if (evidence.Context.Count > 0)
         {
-            text.AppendLine().AppendLine("Context (never cite):");
-            foreach (var item in evidence.Context) text.Append("- ").AppendLine(item.Text.Trim());
+            text.Append('\n').Append("Context (never cite):").Append('\n');
+            foreach (var item in evidence.Context) text.Append("- ").Append(item.Text.Trim()).Append('\n');
         }
         return text.ToString();
     }

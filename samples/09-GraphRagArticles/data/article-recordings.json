@@ -2,28 +2,16 @@
   "about": "Model calls recorded by GraphBridge's real-model tests (GR-46): keyed by a hash of each request, replayed offline at zero calls.",
   "chat": [
     {
-      "request": "11955a3521665806306695db47e9697f",
-      "hint": "Question: What is the title of the release published on 2026-04-06? Graph: Nodes…",
+      "request": "04100da0347dc55efdcabf73081b677c",
+      "hint": "Question: Who is quoted in the releases? Graph: Nodes (label: properties): - Art…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (a:Article) WHERE toString(a.Published) STARTS WITH '2026-04-06' RETURN a.Title AS title LIMIT 50\"}",
+      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[q:QUOTED]->(passage:ArticlePassage)-[:IN_DOCUMENT]->(a:Article) RETURN DISTINCT p.Name AS Person, q.Words AS Quoted, a.Title AS Article ORDER BY Person, Article LIMIT 50\"}",
       "finish": "stop",
-      "inputTokens": 1851,
-      "outputTokens": 851,
-      "reasoningTokens": 813
-    },
-    {
-      "request": "161a04283b25f605a008285b9c26e98e",
-      "hint": "Question: How far from Earth did the Artemis II crew travel? Evidence: [1] # NAS…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"At its farthest point, the Artemis II crew traveled 252,756 miles from Earth, completing a nearly 10-day journey. This set a new record for human spaceflight, surpassing the previous record of 248,655 miles from Earth set by the Apollo 13 mission in 1970.\", \"citations\": [{\"evidence\": 2, \"quote\": \"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"}, {\"evidence\": 3, \"quote\": \"At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles, before looping back toward our home planet\"}, {\"evidence\": 3, \"quote\": \"traveling 248,655 miles from Earth, surpassing the record for human spaceflight’s farthest distance previously set by the Apollo 13 mission in 1970.\"}]}",
-      "finish": "stop",
-      "inputTokens": 2456,
-      "outputTokens": 713,
-      "reasoningTokens": 502
+      "inputTokens": 1841,
+      "outputTokens": 259,
+      "reasoningTokens": 195
     },
     {
       "request": "17f5bd9b356729fbc8fa54fe6b91bc04",
@@ -38,7 +26,7 @@
       "reasoningTokens": 20325
     },
     {
-      "request": "237c3a6b62b63e61219b66a461652a70",
+      "request": "1cb52ec1e98b093e5b03a3acbbc68680",
       "hint": "Question: Which topics is the release published on 2026-04-02 about? Graph: Node…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
@@ -48,6 +36,18 @@
       "inputTokens": 1850,
       "outputTokens": 1718,
       "reasoningTokens": 1665
+    },
+    {
+      "request": "20c774eb64e371e04ef29d604e98c925",
+      "hint": "Question: Which people work for NASA? Graph: Nodes (label: properties): - Articl…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[r:WORKS_FOR]->(o:NewsOrganization)\\nWHERE toLower(o.Name) = 'nasa'\\n   OR any(a IN split(coalesce(o.Aliases, ''), '\\\\n') WHERE toLower(trim(a)) = 'nasa')\\nRETURN DISTINCT p.Name AS person, r.Role AS role\\nORDER BY person\\nLIMIT 50\"}",
+      "finish": "stop",
+      "inputTokens": 1840,
+      "outputTokens": 496,
+      "reasoningTokens": 407
     },
     {
       "request": "2c562a88d4a2fb2121ca65d0d80f4740",
@@ -77,6 +77,30 @@
           }
         }
       ]
+    },
+    {
+      "request": "3c879e8e103f1ebd48cbfe788fd2ad49",
+      "hint": "Question: How many news releases are there? Graph: Nodes (label: properties): - …",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"insufficient\": \"The graph has no label, property, or relationship type that identifies 'news releases'. Articles have no Type/Category property distinguishing press releases from other articles, and NewsEvent nodes (whose description mentions 'release' as a possible event) have no attribute marking them as releases, so they cannot be counted reliably.\"}",
+      "finish": "stop",
+      "inputTokens": 1841,
+      "outputTokens": 432,
+      "reasoningTokens": 363
+    },
+    {
+      "request": "3cf348d4ee9bacfd568c0e9b4c1eacdb",
+      "hint": "Question: How far from Earth did the four Artemis II astronauts travel? Evidence…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-29",
+      "reply": "{\"answer\": \"The four Artemis II astronauts traveled 252,756 miles from Earth at their farthest point during the mission, surpassing the previous human spaceflight distance record set by Apollo 13 in 1970 (a record they first broke at 248,655 miles from Earth).\", \"citations\": [{\"evidence\": 3, \"quote\": \"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"}, {\"evidence\": 1, \"quote\": \"At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles\"}, {\"evidence\": 1, \"quote\": \"traveling 248,655 miles from Earth, surpassing the record for human spaceflight's farthest distance previously set by the Apollo 13 mission in 1970\"}]}",
+      "finish": "stop",
+      "inputTokens": 2457,
+      "outputTokens": 859,
+      "reasoningTokens": 663
     },
     {
       "request": "4033727a785a02fe23a0be31f1ffa25b",
@@ -115,19 +139,19 @@
       "reasoningTokens": 30945
     },
     {
-      "request": "506c73a8f2ca00b38401b644621fe801",
-      "hint": "Question: How many quotations are attributed to Jared Isaacman? Graph: Nodes (la…",
+      "request": "4dc2f934fde5bf237cf5f63dc7598b72",
+      "hint": "Question: What is the capital of Mongolia? Evidence: [1] # NASA’s Artemis II Mis…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[q:QUOTED]->(:ArticlePassage)\\nWHERE p.Name = 'Jared Isaacman'\\nRETURN count(q) AS quotationCount\"}",
+      "reply": "{\"insufficient\": \"The evidence provided consists entirely of NASA press releases about the Artemis II lunar mission, including its launch, lunar flyby, record-setting distances, and crew return. None of the passages mention Mongolia or any information about its capital city, so the question cannot be answered from this evidence.\"}",
       "finish": "stop",
-      "inputTokens": 1844,
-      "outputTokens": 287,
-      "reasoningTokens": 242
+      "inputTokens": 2451,
+      "outputTokens": 112,
+      "reasoningTokens": 48
     },
     {
-      "request": "5e44ef857bcf86360c0ebdda11fe19bc",
+      "request": "52b364885f26efd6991bdde0878db765",
       "hint": "Question: When and where did Artemis II splash down? Evidence: [1] # NASA Welcom…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
@@ -139,28 +163,64 @@
       "reasoningTokens": 957
     },
     {
-      "request": "61998ef399d2c5efdc0468bd699db44f",
-      "hint": "Question: Which people work for NASA? Graph: Nodes (label: properties): - Articl…",
+      "request": "667f610cd8b9f0cc43a6b8ae41bac1e4",
+      "hint": "Question: How many quotations are attributed to Jared Isaacman? Graph: Nodes (la…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[r:WORKS_FOR]->(o:NewsOrganization)\\nWHERE toLower(o.Name) = 'nasa'\\n   OR any(a IN split(coalesce(o.Aliases, ''), '\\\\n') WHERE toLower(trim(a)) = 'nasa')\\nRETURN DISTINCT p.Name AS person, r.Role AS role\\nORDER BY person\\nLIMIT 50\"}",
+      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[q:QUOTED]->(:ArticlePassage)\\nWHERE p.Name = 'Jared Isaacman'\\nRETURN count(q) AS quotationCount\"}",
       "finish": "stop",
-      "inputTokens": 1840,
-      "outputTokens": 496,
-      "reasoningTokens": 407
+      "inputTokens": 1844,
+      "outputTokens": 287,
+      "reasoningTokens": 242
     },
     {
-      "request": "90bd6ab413a91b5d4a9c978a0437ba6b",
-      "hint": "Question: Who is quoted in the releases? Graph: Nodes (label: properties): - Art…",
+      "request": "7880aee9d0c8026f8c5ff35fbeb502bb",
+      "hint": "Question: Where is Johnson Space Center located? Graph: Nodes (label: properties…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[q:QUOTED]->(passage:ArticlePassage)-[:IN_DOCUMENT]->(a:Article) RETURN DISTINCT p.Name AS Person, q.Words AS Quoted, a.Title AS Article ORDER BY Person, Article LIMIT 50\"}",
+      "reply": "{\"cypher\": \"MATCH path = (jsc)-[:LOCATED_IN*0..3]->(p:NewsPlace)\\nWHERE (jsc:NewsOrganization OR jsc:NewsPlace)\\n  AND (toLower(jsc.Name) CONTAINS 'johnson space center'\\n       OR any(a IN split(coalesce(jsc.Aliases, ''), '\\\\n') WHERE toLower(trim(a)) CONTAINS 'johnson space center'))\\nRETURN jsc.Name AS Entity,\\n       [n IN nodes(path) | n.Name] AS LocationChain,\\n       p.Name AS MostSpecificPlace\\nORDER BY length(path)\\nLIMIT 50\"}",
       "finish": "stop",
       "inputTokens": 1841,
-      "outputTokens": 259,
-      "reasoningTokens": 195
+      "outputTokens": 1165,
+      "reasoningTokens": 1029
+    },
+    {
+      "request": "79c027656f11c1fce3baf8d2a0e7ea2c",
+      "hint": "Conversation: Q: Who are the four Artemis II astronauts? A: The four Artemis II …",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-29",
+      "reply": "{\"question\": \"How far from Earth did the four Artemis II astronauts travel?\"}",
+      "finish": "stop",
+      "inputTokens": 141,
+      "outputTokens": 158,
+      "reasoningTokens": 139
+    },
+    {
+      "request": "7c5b0f02871daf920452da3ae6dbd160",
+      "hint": "Question: How far from Earth did the Artemis II crew travel, and whose record di…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"answer\": \"The Artemis II crew traveled 252,756 miles from Earth at their farthest distance, breaking the distance record previously set by the Apollo 13 mission's astronauts in 1970. (The moment they surpassed the record occurred at 248,655 miles from Earth, with the final farthest point reaching about 252,756 miles.)\", \"citations\": [{\"evidence\": 2, \"quote\": \"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"}, {\"evidence\": 2, \"quote\": \"Their lunar flyby took them farther than any humans have ever traveled before, surpassing the previous distance record set by Apollo 13 astronauts in 1970.\"}, {\"evidence\": 1, \"quote\": \"traveling 248,655 miles from Earth, surpassing the record for human spaceflight's farthest distance previously set by the Apollo 13 mission in 1970. At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles, before looping back toward our home planet, setting the new record for human spaceflight.\"}]}",
+      "finish": "stop",
+      "inputTokens": 2463,
+      "outputTokens": 607,
+      "reasoningTokens": 344
+    },
+    {
+      "request": "7f6df1cfda021be6ac9fbf89b7d52cb0",
+      "hint": "Question: What is the title of the release published on 2026-04-06? Graph: Nodes…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"cypher\": \"MATCH (a:Article) WHERE toString(a.Published) STARTS WITH '2026-04-06' RETURN a.Title AS title LIMIT 50\"}",
+      "finish": "stop",
+      "inputTokens": 1851,
+      "outputTokens": 851,
+      "reasoningTokens": 813
     },
     {
       "request": "9423e21c10420ad04a04122c28582221",
@@ -175,40 +235,16 @@
       "reasoningTokens": 38678
     },
     {
-      "request": "95802b59321da28a3d2ab89dac28254d",
-      "hint": "Question: What is the capital of Mongolia? Evidence: [1] # NASA’s Artemis II Mis…",
+      "request": "9c63abf077bb91c871c37cd202b15846",
+      "hint": "Question: How far from Earth did the Artemis II crew travel? Evidence: [1] # NAS…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"insufficient\": \"The evidence provided consists entirely of NASA press releases about the Artemis II lunar mission, including its launch, lunar flyby, record-setting distances, and crew return. None of the passages mention Mongolia or any information about its capital city, so the question cannot be answered from this evidence.\"}",
+      "reply": "{\"answer\": \"At its farthest point, the Artemis II crew traveled 252,756 miles from Earth, completing a nearly 10-day journey. This set a new record for human spaceflight, surpassing the previous record of 248,655 miles from Earth set by the Apollo 13 mission in 1970.\", \"citations\": [{\"evidence\": 2, \"quote\": \"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"}, {\"evidence\": 3, \"quote\": \"At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles, before looping back toward our home planet\"}, {\"evidence\": 3, \"quote\": \"traveling 248,655 miles from Earth, surpassing the record for human spaceflight’s farthest distance previously set by the Apollo 13 mission in 1970.\"}]}",
       "finish": "stop",
-      "inputTokens": 2451,
-      "outputTokens": 112,
-      "reasoningTokens": 48
-    },
-    {
-      "request": "95b7cd230a11086f8dfc5c514d555153",
-      "hint": "Question: Who are the four Artemis II astronauts? Evidence: [1] # Liftoff! NASA …",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"The four Artemis II astronauts are NASA astronauts Reid Wiseman, Victor Glover, and Christina Koch, and CSA (Canadian Space Agency) astronaut Jeremy Hansen.\", \"citations\": [{\"evidence\": 1, \"quote\": \"The successful launch is the beginning of an approximately 10-day mission for NASA astronauts Reid Wiseman, Victor Glover, Christina Koch, and CSA (Canadian Space Agency) astronaut Jeremy Hansen.\"}, {\"evidence\": 2, \"quote\": \"NASA astronauts Reid Wiseman, Victor Glover, and Christina Koch, and CSA (Canadian Space Agency) astronaut Jeremy Hansen splashed down at 5:07 p.m. PDT Friday off the coast of San Diego\"}]}",
-      "finish": "stop",
-      "inputTokens": 2453,
-      "outputTokens": 470,
-      "reasoningTokens": 326
-    },
-    {
-      "request": "9f23ad52503b1b1c8cae2a037777f85c",
-      "hint": "Question: How many releases state that Reid Wiseman works for NASA? Graph: Nodes…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[w:WORKS_FOR]->(o:NewsOrganization)\\nWHERE (toLower(p.Name) CONTAINS 'reid wiseman' OR coalesce(p.Aliases, '') CONTAINS 'Reid Wiseman')\\n  AND (toLower(o.Name) CONTAINS 'nasa' OR coalesce(o.Aliases, '') CONTAINS 'NASA')\\nWITH w.DocumentIds AS raw\\nWITH CASE\\n       WHEN raw IS :: LIST<STRING> THEN [x IN raw | toString(x)]\\n       ELSE split(coalesce(toString(raw), ''), '\\\\n')\\n     END AS lines\\nUNWIND lines AS line\\nWITH trim(line) AS docId\\nWHERE docId <> ''\\nMATCH (a:Article {Id: docId})\\nRETURN count(DISTINCT a) AS releases\"}",
-      "finish": "stop",
-      "inputTokens": 1846,
-      "outputTokens": 2878,
-      "reasoningTokens": 2692
+      "inputTokens": 2456,
+      "outputTokens": 713,
+      "reasoningTokens": 502
     },
     {
       "request": "b53eac23960b69363ddf0035acce91d6",
@@ -223,43 +259,31 @@
       "reasoningTokens": 32
     },
     {
-      "request": "ce23a03320481c57356551f69bfff3b4",
-      "hint": "Question: How far from Earth did the Artemis II crew travel, and whose record di…",
+      "request": "c21389621a8749cfe07b9a0f08cdad30",
+      "hint": "Question: What is the capital of Mongolia? Graph: Nodes (label: properties): - A…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"The Artemis II crew traveled 252,756 miles from Earth at their farthest distance, breaking the distance record previously set by the Apollo 13 mission's astronauts in 1970. (The moment they surpassed the record occurred at 248,655 miles from Earth, with the final farthest point reaching about 252,756 miles.)\", \"citations\": [{\"evidence\": 2, \"quote\": \"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"}, {\"evidence\": 2, \"quote\": \"Their lunar flyby took them farther than any humans have ever traveled before, surpassing the previous distance record set by Apollo 13 astronauts in 1970.\"}, {\"evidence\": 1, \"quote\": \"traveling 248,655 miles from Earth, surpassing the record for human spaceflight's farthest distance previously set by the Apollo 13 mission in 1970. At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles, before looping back toward our home planet, setting the new record for human spaceflight.\"}]}",
-      "finish": "stop",
-      "inputTokens": 2463,
-      "outputTokens": 607,
-      "reasoningTokens": 344
-    },
-    {
-      "request": "d00d7b857aa087d460bc6d9eec343264",
-      "hint": "Question: Where is Johnson Space Center located? Graph: Nodes (label: properties…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH path = (jsc)-[:LOCATED_IN*0..3]->(p:NewsPlace)\\nWHERE (jsc:NewsOrganization OR jsc:NewsPlace)\\n  AND (toLower(jsc.Name) CONTAINS 'johnson space center'\\n       OR any(a IN split(coalesce(jsc.Aliases, ''), '\\\\n') WHERE toLower(trim(a)) CONTAINS 'johnson space center'))\\nRETURN jsc.Name AS Entity,\\n       [n IN nodes(path) | n.Name] AS LocationChain,\\n       p.Name AS MostSpecificPlace\\nORDER BY length(path)\\nLIMIT 50\"}",
+      "reply": "{\"cypher\": \"MATCH (m:NewsPlace) WHERE toLower(m.Name) CONTAINS 'mongolia' MATCH (cap:NewsPlace)-[r:PART_OF|LOCATED_IN|RELATED_TO]-(m) WHERE cap <> m AND (toLower(coalesce(cap.Description, '')) CONTAINS 'capital' OR toLower(coalesce(r.Description, '')) CONTAINS 'capital') WITH DISTINCT cap.Name AS capital, cap.Description AS description, type(r) AS via, coalesce(r.Description, '') AS evidence LIMIT 25 RETURN capital, description, via, evidence UNION ALL MATCH (cap:NewsPlace) WHERE toLower(coalesce(cap.Description, '')) CONTAINS 'capital' AND toLower(coalesce(cap.Description, '')) CONTAINS 'mongolia' AND NOT toLower(cap.Name) CONTAINS 'mongolia' RETURN cap.Name AS capital, cap.Description AS description, 'description' AS via, cap.Description AS evidence LIMIT 25\"}",
       "finish": "stop",
       "inputTokens": 1841,
-      "outputTokens": 1165,
-      "reasoningTokens": 1029
+      "outputTokens": 3593,
+      "reasoningTokens": 3395
     },
     {
-      "request": "df085426e4abbc430a61bcb40aefa8b9",
-      "hint": "Question: How many news releases are there? Graph: Nodes (label: properties): - …",
+      "request": "c42d0037542bf2f8e62bf9ae575df6db",
+      "hint": "Question: Who are the four Artemis II astronauts? Evidence: [1] # Liftoff! NASA …",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"insufficient\": \"The graph has no label, property, or relationship type that identifies 'news releases'. Articles have no Type/Category property distinguishing press releases from other articles, and NewsEvent nodes (whose description mentions 'release' as a possible event) have no attribute marking them as releases, so they cannot be counted reliably.\"}",
+      "reply": "{\"answer\": \"The four Artemis II astronauts are NASA astronauts Reid Wiseman, Victor Glover, and Christina Koch, and CSA (Canadian Space Agency) astronaut Jeremy Hansen.\", \"citations\": [{\"evidence\": 1, \"quote\": \"The successful launch is the beginning of an approximately 10-day mission for NASA astronauts Reid Wiseman, Victor Glover, Christina Koch, and CSA (Canadian Space Agency) astronaut Jeremy Hansen.\"}, {\"evidence\": 2, \"quote\": \"NASA astronauts Reid Wiseman, Victor Glover, and Christina Koch, and CSA (Canadian Space Agency) astronaut Jeremy Hansen splashed down at 5:07 p.m. PDT Friday off the coast of San Diego\"}]}",
       "finish": "stop",
-      "inputTokens": 1841,
-      "outputTokens": 432,
-      "reasoningTokens": 363
+      "inputTokens": 2453,
+      "outputTokens": 470,
+      "reasoningTokens": 326
     },
     {
-      "request": "e61e44642cb5661593acad0839d227ad",
+      "request": "dfdce444f6c67b328aebf2724927288b",
       "hint": "Question: Which organization does Jeremy Hansen work for? Graph: Nodes (label: p…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
@@ -271,40 +295,16 @@
       "reasoningTokens": 223
     },
     {
-      "request": "ea274e46e9671313fd2512d74fed01de",
-      "hint": "Conversation: Q: Who are the four Artemis II astronauts? A: The four Artemis II …",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-29",
-      "reply": "{\"question\": \"How far from Earth did the four Artemis II astronauts travel?\"}",
-      "finish": "stop",
-      "inputTokens": 141,
-      "outputTokens": 158,
-      "reasoningTokens": 139
-    },
-    {
-      "request": "ea3df7cc8610773300bceb942629c2f0",
-      "hint": "Question: How far from Earth did the four Artemis II astronauts travel? Evidence…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-29",
-      "reply": "{\"answer\": \"The four Artemis II astronauts traveled 252,756 miles from Earth at their farthest point during the mission, surpassing the previous human spaceflight distance record set by Apollo 13 in 1970 (a record they first broke at 248,655 miles from Earth).\", \"citations\": [{\"evidence\": 3, \"quote\": \"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"}, {\"evidence\": 1, \"quote\": \"At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles\"}, {\"evidence\": 1, \"quote\": \"traveling 248,655 miles from Earth, surpassing the record for human spaceflight's farthest distance previously set by the Apollo 13 mission in 1970\"}]}",
-      "finish": "stop",
-      "inputTokens": 2457,
-      "outputTokens": 859,
-      "reasoningTokens": 663
-    },
-    {
-      "request": "f7dc4eb4a12d77272a4285bfabb32a19",
-      "hint": "Question: What is the capital of Mongolia? Graph: Nodes (label: properties): - A…",
+      "request": "fea1efa5fac6013accbace3aeef66300",
+      "hint": "Question: How many releases state that Reid Wiseman works for NASA? Graph: Nodes…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (m:NewsPlace) WHERE toLower(m.Name) CONTAINS 'mongolia' MATCH (cap:NewsPlace)-[r:PART_OF|LOCATED_IN|RELATED_TO]-(m) WHERE cap <> m AND (toLower(coalesce(cap.Description, '')) CONTAINS 'capital' OR toLower(coalesce(r.Description, '')) CONTAINS 'capital') WITH DISTINCT cap.Name AS capital, cap.Description AS description, type(r) AS via, coalesce(r.Description, '') AS evidence LIMIT 25 RETURN capital, description, via, evidence UNION ALL MATCH (cap:NewsPlace) WHERE toLower(coalesce(cap.Description, '')) CONTAINS 'capital' AND toLower(coalesce(cap.Description, '')) CONTAINS 'mongolia' AND NOT toLower(cap.Name) CONTAINS 'mongolia' RETURN cap.Name AS capital, cap.Description AS description, 'description' AS via, cap.Description AS evidence LIMIT 25\"}",
+      "reply": "{\"cypher\": \"MATCH (p:NewsPerson)-[w:WORKS_FOR]->(o:NewsOrganization)\\nWHERE (toLower(p.Name) CONTAINS 'reid wiseman' OR coalesce(p.Aliases, '') CONTAINS 'Reid Wiseman')\\n  AND (toLower(o.Name) CONTAINS 'nasa' OR coalesce(o.Aliases, '') CONTAINS 'NASA')\\nWITH w.DocumentIds AS raw\\nWITH CASE\\n       WHEN raw IS :: LIST<STRING> THEN [x IN raw | toString(x)]\\n       ELSE split(coalesce(toString(raw), ''), '\\\\n')\\n     END AS lines\\nUNWIND lines AS line\\nWITH trim(line) AS docId\\nWHERE docId <> ''\\nMATCH (a:Article {Id: docId})\\nRETURN count(DISTINCT a) AS releases\"}",
       "finish": "stop",
-      "inputTokens": 1841,
-      "outputTokens": 3593,
-      "reasoningTokens": 3395
+      "inputTokens": 1846,
+      "outputTokens": 2878,
+      "reasoningTokens": 2692
     }
   ],
   "embeddings": [

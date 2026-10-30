@@ -260,28 +260,28 @@ internal sealed partial class GraphRagText2Cypher<TContext>(IServiceScopeFactory
     internal static string Schema(GraphRagLayout layout, GraphRagOntology? ontology)
     {
         var text = new StringBuilder();
-        text.AppendLine("Nodes (label: properties):");
-        text.AppendLine($"- {layout.DocumentLabel}: a source document. Id, Title, Published, Publisher, Url, SourceUri");
-        text.AppendLine($"- {layout.ChunkLabel}: a passage of a document. {layout.ChunkIdProperty}, DocumentId, {layout.ChunkTextProperty}, {layout.ChunkOrderProperty}");
+        text.Append("Nodes (label: properties):").Append('\n');
+        text.Append($"- {layout.DocumentLabel}: a source document. Id, Title, Published, Publisher, Url, SourceUri").Append('\n');
+        text.Append($"- {layout.ChunkLabel}: a passage of a document. {layout.ChunkIdProperty}, DocumentId, {layout.ChunkTextProperty}, {layout.ChunkOrderProperty}").Append('\n');
         var labels = new Dictionary<string, string>(StringComparer.Ordinal) { [GraphRagOntologyBuilder.DocumentKind] = layout.DocumentLabel };
         foreach (var type in ontology?.Classes ?? [])
         {
             labels[type.Kind] = type.Label;
             var extra = type.Properties.Count > 0 ? ", " + string.Join(", ", type.Properties) : "";
-            text.AppendLine($"- {type.Label}: {type.Kind}, {type.Description} Id, {ontology!.NameProperty}, Aliases (one per line), Description, IsPlaceholder{extra}");
+            text.Append($"- {type.Label}: {type.Kind}, {type.Description} Id, {ontology!.NameProperty}, Aliases (one per line), Description, IsPlaceholder{extra}").Append('\n');
         }
-        text.AppendLine("Relationships:");
-        text.AppendLine($"- ({layout.ChunkLabel})-[:{layout.ChunkDocumentType}]->({layout.DocumentLabel})");
+        text.Append("Relationships:").Append('\n');
+        text.Append($"- ({layout.ChunkLabel})-[:{layout.ChunkDocumentType}]->({layout.DocumentLabel})").Append('\n');
         foreach (var type in ontology?.Classes ?? [])
-            text.AppendLine($"- ({type.Label})-[:{type.MentionType} {{Quote}}]->({layout.ChunkLabel}): the {type.Kind} is mentioned in the passage.");
+            text.Append($"- ({type.Label})-[:{type.MentionType} {{Quote}}]->({layout.ChunkLabel}): the {type.Kind} is mentioned in the passage.").Append('\n');
         foreach (var fact in ontology?.Relationships ?? [])
         {
             var extra = fact.Properties.Count > 0 ? ", " + string.Join(", ", fact.Properties) : "";
-            text.AppendLine($"- ({labels.GetValueOrDefault(fact.FromKind, fact.FromKind)})-[:{fact.Type} {{DocumentIds{extra}}}]->({labels.GetValueOrDefault(fact.ToKind, fact.ToKind)}): {fact.Description}");
+            text.Append($"- ({labels.GetValueOrDefault(fact.FromKind, fact.FromKind)})-[:{fact.Type} {{DocumentIds{extra}}}]->({labels.GetValueOrDefault(fact.ToKind, fact.ToKind)}): {fact.Description}").Append('\n');
         }
         foreach (var quote in ontology?.Quotes ?? [])
-            text.AppendLine($"- ({labels.GetValueOrDefault(quote.SpeakerKind, quote.SpeakerKind)})-[:{quote.Type} {{Words{(quote.Addressee ? ", Addressee" : "")}}}]->({layout.ChunkLabel}): {quote.Description}");
-        text.AppendLine("DocumentIds holds the Ids of the documents that state a fact, one per line.");
+            text.Append($"- ({labels.GetValueOrDefault(quote.SpeakerKind, quote.SpeakerKind)})-[:{quote.Type} {{Words{(quote.Addressee ? ", Addressee" : "")}}}]->({layout.ChunkLabel}): {quote.Description}").Append('\n');
+        text.Append("DocumentIds holds the Ids of the documents that state a fact, one per line.").Append('\n');
         return text.ToString();
     }
 

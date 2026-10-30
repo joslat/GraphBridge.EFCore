@@ -2,18 +2,6 @@
   "about": "Model calls recorded by GraphBridge's real-model tests (GR-46): keyed by a hash of each request, replayed offline at zero calls.",
   "chat": [
     {
-      "request": "00422b21dc28a3d1a29320ea2d1bb370",
-      "hint": "Question: Who was sitting between the March Hare and the Hatter at the tea-table…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"The Dormouse was sitting between the March Hare and the Hatter at the tea-table, fast asleep.\", \"citations\": [{\"evidence\": 1, \"quote\": \"There was a table set out under a tree in front of the house, and the\\nMarch Hare and the Hatter were having tea at it: a Dormouse was sitting\\nbetween them, fast asleep\"}]}",
-      "finish": "stop",
-      "inputTokens": 8109,
-      "outputTokens": 316,
-      "reasoningTokens": 230
-    },
-    {
       "request": "036d8eae49e1d626816e724a8fca8078",
       "hint": "Document: alice Passage: She drew her foot as far down the chimney as she could,…",
       "provider": "bitdeer",
@@ -26,16 +14,28 @@
       "reasoningTokens": 14259
     },
     {
-      "request": "04609f65fc5bdda844988b4cfe0d394e",
-      "hint": "Question: How did Alice describe shrinking and then growing again? Evidence: [1]…",
+      "request": "05999fb9fc8b8470602192c3ebae9ac2",
+      "hint": "Question: How many brothers does the Hatter have? Evidence: [1] Alice looked all…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"After the Caterpillar told her that one side of the mushroom makes you taller and the other shorter, Alice shrank by nibbling the right-hand bit: the next moment she felt a violent blow underneath her chin (it had struck her foot) and realized she was shrinking rapidly. She then grew again by swallowing a morsel of the left-hand bit, which stretched her into an immense, serpent-like neck rising like a stalk above the treetops. Alice herself later described the whole back-and-forth process as nibbling first at one piece and then the other, and 'growing sometimes taller and sometimes shorter, until she had succeeded in bringing herself down to her usual height.'\", \"citations\": [{\"evidence\": 3, \"quote\": \"nibbled a little of the right-hand bit to try the effect: the next moment she felt a violent blow underneath her chin: it had struck her foot!\"}, {\"evidence\": 3, \"quote\": \"she set to work at once to eat some of the other bit... managed to swallow a morsel of the lefthand bit.\"}, {\"evidence\": 3, \"quote\": \"all she could see, when she looked down, was an immense length of neck, which seemed to rise like a stalk out of a sea of green leaves that lay far below her.\"}, {\"evidence\": 4, \"quote\": \"nibbling first at one and then at the other, and growing sometimes taller and sometimes shorter, until she had succeeded in bringing herself down to her usual height.\"}]}",
+      "reply": "{\"insufficient\": \"The evidence never mentions the Hatter having any brothers, so there is no way to determine how many brothers he has. The Hatter appears at the tea-party quarrelling with the March Hare and Dormouse (evidence 1) and as a nervous witness at the trial (evidence 2 and 4), but no siblings of his are ever named or counted. The only family mentioned at all is in the Dormouse's story of 'three little sisters' (evidence 3), which are sisters in a tale, not the Hatter's brothers.\"}",
       "finish": "stop",
-      "inputTokens": 11003,
-      "outputTokens": 2086,
-      "reasoningTokens": 1757
+      "inputTokens": 8111,
+      "outputTokens": 345,
+      "reasoningTokens": 222
+    },
+    {
+      "request": "0b9c01f20118eccbdc5f3ddadfffc6ac",
+      "hint": "Question: What did the Hatter ask Alice next? Evidence: [1] “Nor I,” said the Ma…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-29",
+      "reply": "{\"answer\": \"The Hatter asked Alice, \\\"What day of the month is it?\\\" (turning to her while looking unhappily at his watch), and later, turning to Alice again, he asked, \\\"Have you guessed the riddle yet?\\\"\", \"citations\": [{\"evidence\": 3, \"quote\": \"“What day of the month is it?” he said, turning to Alice...\"}, {\"evidence\": 3, \"quote\": \"“Have you guessed the riddle yet?” the Hatter said, turning to Alice again.\"}]}",
+      "finish": "stop",
+      "inputTokens": 9092,
+      "outputTokens": 3816,
+      "reasoningTokens": 3696
     },
     {
       "request": "0c1fe2d6919f4cac769b2f202ccc6b4c",
@@ -50,6 +50,18 @@
       "reasoningTokens": 14167
     },
     {
+      "request": "0c344a39ec2c5e73618d520620901f33",
+      "hint": "Question: According to the verses read at the trial, who stole the tarts? Eviden…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"According to the verses read at the trial, the Knave of Hearts stole the tarts. The accusation read by the White Rabbit ran: \\\"The Knave of Hearts, he stole those tarts,\\n    And took them quite away!\\\" The King likewise treated the later verses as describing what the Knave \\\"did with the tarts.\\\"\", \"citations\": [{\"evidence\": 2, \"quote\": \"The Knave of Hearts, he stole those tarts,\\n    And took them quite away!\"}, {\"evidence\": 3, \"quote\": \"why, that must be what he did with the tarts, you know—\"}]}",
+      "finish": "stop",
+      "inputTokens": 6777,
+      "outputTokens": 2246,
+      "reasoningTokens": 2105
+    },
+    {
       "request": "0fd860777d7be93c04a57eed24741a71",
       "hint": "Document: alice Passage: Down, down, down. Would the fall _never_ come to an end…",
       "provider": "bitdeer",
@@ -62,18 +74,6 @@
       "reasoningTokens": 14796
     },
     {
-      "request": "13369afbfbddd87472298111eb38b553",
-      "hint": "Conversation: Q: At the mad tea-party, who told Alice that her hair wanted cutti…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-29",
-      "reply": "{\"question\": \"What did the Hatter ask Alice next?\"}",
-      "finish": "stop",
-      "inputTokens": 119,
-      "outputTokens": 113,
-      "reasoningTokens": 98
-    },
-    {
       "request": "13e6fbd1c4844b358e64e00538c8eb9a",
       "hint": "Document: alice Passage: “Well, then,” the Gryphon went on, “if you don’t know w…",
       "provider": "bitdeer",
@@ -84,18 +84,6 @@
       "inputTokens": 1478,
       "outputTokens": 11364,
       "reasoningTokens": 8640
-    },
-    {
-      "request": "1784301e82a6660f18083abe17203f2b",
-      "hint": "Conversation: Q: What is the name of Alice's cat? A: Dinah. Last question: What …",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"question\": \"What is Dinah good at catching?\"}",
-      "finish": "stop",
-      "inputTokens": 112,
-      "outputTokens": 459,
-      "reasoningTokens": 445
     },
     {
       "request": "196568b4633770876dbc521843bf06b6",
@@ -122,19 +110,7 @@
       "reasoningTokens": 6424
     },
     {
-      "request": "21bddc9276fb4607af386dabfa5e1b3c",
-      "hint": "Question: What is Dinah good at catching? Evidence: [1] The Mouse only growled i…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"Dinah, Alice's cat, is good at catching mice.\", \"citations\": [{\"evidence\": 1, \"quote\": \"Dinah's our cat. And she's such a capital one for catching mice you can't think!\"}, {\"evidence\": 4, \"quote\": \"she's such a capital one for catching mice\"}]}",
-      "finish": "stop",
-      "inputTokens": 14108,
-      "outputTokens": 513,
-      "reasoningTokens": 434
-    },
-    {
-      "request": "22fb26a6209f84a97f99cf040f733512",
+      "request": "1bfc1a4977e415768147d68bb2fd9f8e",
       "hint": "Question: What is the name of Alice's sister? Evidence: [1] “Oh, I’ve had such a…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
@@ -146,28 +122,64 @@
       "reasoningTokens": 234
     },
     {
-      "request": "2aa97877242fe4f55e83e6ddd9a18d93",
-      "hint": "Conversation: Q: Who asked Alice why a raven is like a writing-desk? A: The Hatt…",
+      "request": "1f28ca4b2e464969ab516fd897e0a240",
+      "hint": "Question: What was the Caterpillar smoking on top of the mushroom? Evidence: [1]…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"question\": \"How many brothers does the Hatter have?\"}",
+      "reply": "{\"answer\": \"The Caterpillar was smoking a long hookah.\", \"citations\": [{\"evidence\": 1, \"quote\": \"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah\"}]}",
       "finish": "stop",
-      "inputTokens": 118,
-      "outputTokens": 87,
-      "reasoningTokens": 72
+      "inputTokens": 9904,
+      "outputTokens": 181,
+      "reasoningTokens": 120
     },
     {
-      "request": "2c0d2880825d196de85fe6be27851b3b",
-      "hint": "Question: Who did the White Rabbit mistake Alice for? Evidence: [1] The Mouse on…",
+      "request": "2f7aee533e2fced65e0c7c450d41d8b0",
+      "hint": "Question: What song did the Hatter sing at the Queen of Hearts' concert? Evidenc…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The White Rabbit mistook Alice for Mary Ann, his housemaid.\", \"citations\": [{\"evidence\": 1, \"quote\": \"Why, Mary Ann, what _are_ you doing out here? Run home this moment, and fetch me a pair of gloves and a fan! Quick, now!\"}, {\"evidence\": 1, \"quote\": \"\\\"He took me for his housemaid,\\\" she said to herself as she ran.\"}]}",
+      "reply": "{\"answer\": \"At the great concert given by the Queen of Hearts, the Hatter sang \\\"Twinkle, twinkle, little bat! How I wonder what you're at!\\\" — a song that, as the Hatter continued, goes on with \\\"Up above the world you fly, Like a tea-tray in the sky.\\\"\", \"citations\": [{\"evidence\": 1, \"quote\": \"it was at the great concert given by the Queen of Hearts, and I had to sing\\n\\n'Twinkle, twinkle, little bat!\\nHow I wonder what you're at!'\"}, {\"evidence\": 1, \"quote\": \"'Up above the world you fly,\\nLike a tea-tray in the sky.\"}]}",
       "finish": "stop",
-      "inputTokens": 11098,
-      "outputTokens": 469,
-      "reasoningTokens": 371
+      "inputTokens": 9963,
+      "outputTokens": 589,
+      "reasoningTokens": 433
+    },
+    {
+      "request": "3150a423d174dd0f67b80515c8d1f029",
+      "hint": "Question: Who was sitting between the March Hare and the Hatter at the tea-table…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"answer\": \"The Dormouse was sitting between the March Hare and the Hatter at the tea-table, fast asleep.\", \"citations\": [{\"evidence\": 1, \"quote\": \"There was a table set out under a tree in front of the house, and the\\nMarch Hare and the Hatter were having tea at it: a Dormouse was sitting\\nbetween them, fast asleep\"}]}",
+      "finish": "stop",
+      "inputTokens": 8109,
+      "outputTokens": 316,
+      "reasoningTokens": 230
+    },
+    {
+      "request": "32b95564e43faddaaec752a3c3737497",
+      "hint": "Question: What colour were the White Rabbit's eyes? Evidence: [1] “You ought to …",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"insufficient\": \"The evidence mentions the White Rabbit several times—returning 'splendidly dressed, with a pair of white kid gloves in one hand and a large fan in the other' (evidence 1), acting as herald and reading the accusation at the trial (evidence 3), and running by in the sister's dream (evidence 4)—but none of these passages describe the colour of his eyes. The famous description of the White Rabbit's pink eyes appears in the opening of the story, which is not included in the provided evidence.\"}",
+      "finish": "stop",
+      "inputTokens": 12017,
+      "outputTokens": 366,
+      "reasoningTokens": 249
+    },
+    {
+      "request": "333f3894a70cc495a605b3c7cd69c7b5",
+      "hint": "Question: What is the White Rabbit's first name? Evidence: [1] The Mouse only gr…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"The text never gives the White Rabbit a full first name. The only name provided is on the brass plate of his house, which reads \\\"W. RABBIT\\\"—so his first name appears only as the initial \\\"W.\\\" (which matches his title, the White Rabbit).\", \"citations\": [{\"evidence\": 1, \"quote\": \"a bright brass plate with the name “W. RABBIT,” engraved upon it\"}, {\"evidence\": 1, \"quote\": \"It was the White Rabbit, trotting slowly back again\"}]}",
+      "finish": "stop",
+      "inputTokens": 12001,
+      "outputTokens": 1081,
+      "reasoningTokens": 961
     },
     {
       "request": "33a48607d9c639081f24f994ad71e3a6",
@@ -182,18 +194,6 @@
       "reasoningTokens": 16905
     },
     {
-      "request": "33c12d00b0065fe2f8ef90aa05d0e966",
-      "hint": "Question: What did the Hatter ask Alice next? Evidence: [1] “Nor I,” said the Ma…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-29",
-      "reply": "{\"answer\": \"The Hatter asked Alice, \\\"What day of the month is it?\\\" (turning to her while looking unhappily at his watch), and later, turning to Alice again, he asked, \\\"Have you guessed the riddle yet?\\\"\", \"citations\": [{\"evidence\": 3, \"quote\": \"“What day of the month is it?” he said, turning to Alice...\"}, {\"evidence\": 3, \"quote\": \"“Have you guessed the riddle yet?” the Hatter said, turning to Alice again.\"}]}",
-      "finish": "stop",
-      "inputTokens": 9092,
-      "outputTokens": 3816,
-      "reasoningTokens": 3696
-    },
-    {
       "request": "3466485d9f8b07274efac9fa716f9de6",
       "hint": "Document: alice Passage: “You may go,” said the King, and the Hatter hurriedly l…",
       "provider": "bitdeer",
@@ -206,16 +206,16 @@
       "reasoningTokens": 21098
     },
     {
-      "request": "35e6d0384c2f177206fe9022912f2ac6",
-      "hint": "Question: What did Alice eat or drink to change her size, from the little bottle…",
+      "request": "3639a6b46edd9a04635d1b283e36e3c4",
+      "hint": "Question: What is Dinah good at catching? Evidence: [1] The Mouse only growled i…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"From the little bottle to the mushroom, the numbered evidence shows Alice changing size with three things. First, she drank from the little bottle labeled “DRINK ME,” which shrank her until she was only ten inches high. Second, in the White Rabbit's house she drank from another little bottle—this one with no “DRINK ME” label—and it made her grow until her head pressed against the ceiling and she filled the room. Third, following the Caterpillar's advice about the mushroom, she broke off a bit of the edge with each hand, since one side would make her grow taller and the other shorter: nibbling the right-hand bit made her shrink rapidly, and swallowing a morsel of the left-hand bit made her grow, leaving her with an immense length of neck rising like a stalk out of a sea of green leaves. (Note: the numbered evidence does not include every size-changing episode that occurs between these two events.)\", \"citations\": [{\"evidence\": 1, \"quote\": \"round the neck of the bottle was a paper label, with the words “DRINK ME,” beautifully printed on it in large letters\"}, {\"evidence\": 1, \"quote\": \"she was now only ten inches high\"}, {\"evidence\": 3, \"quote\": \"There was no label this time with the words “DRINK ME,” but nevertheless she uncorked it and put it to her lips\"}, {\"evidence\": 3, \"quote\": \"before she had drunk half the bottle, she found her head pressing against the ceiling\"}, {\"evidence\": 3, \"quote\": \"very soon had to kneel down on the floor: in another minute there was not even room for this\"}, {\"evidence\": 3, \"quote\": \"the little magic bottle had now had its full effect\"}, {\"evidence\": 4, \"quote\": \"“Of the mushroom,” said the Caterpillar, just as if she had asked it aloud\"}, {\"evidence\": 4, \"quote\": \"One side will make you grow taller, and the other side will make you grow shorter.\"}, {\"evidence\": 4, \"quote\": \"broke off a bit of the edge with each hand\"}, {\"evidence\": 4, \"quote\": \"nibbled a little of the right-hand bit to try the effect\"}, {\"evidence\": 4, \"quote\": \"she was shrinking rapidly\"}, {\"evidence\": 4, \"quote\": \"managed to swallow a morsel of the lefthand bit\"}, {\"evidence\": 4, \"quote\": \"an immense length of neck, which seemed to rise like a stalk out of a sea of green leaves\"}]}",
+      "recorded": "2026-10-26",
+      "reply": "{\"answer\": \"Dinah, Alice's cat, is good at catching mice.\", \"citations\": [{\"evidence\": 1, \"quote\": \"Dinah's our cat. And she's such a capital one for catching mice you can't think!\"}, {\"evidence\": 4, \"quote\": \"she's such a capital one for catching mice\"}]}",
       "finish": "stop",
-      "inputTokens": 10833,
-      "outputTokens": 6684,
-      "reasoningTokens": 6120
+      "inputTokens": 14108,
+      "outputTokens": 513,
+      "reasoningTokens": 434
     },
     {
       "request": "3697bbde4ba104ac4c1a0a4e989978f0",
@@ -230,6 +230,18 @@
       "reasoningTokens": 13567
     },
     {
+      "request": "36d0b83d507a5ec4f1dbe7c42d273c21",
+      "hint": "Question: What did Alice eat or drink to change her size, from the little bottle…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"From the little bottle to the mushroom, the numbered evidence shows Alice changing size with three things. First, she drank from the little bottle labeled “DRINK ME,” which shrank her until she was only ten inches high. Second, in the White Rabbit's house she drank from another little bottle—this one with no “DRINK ME” label—and it made her grow until her head pressed against the ceiling and she filled the room. Third, following the Caterpillar's advice about the mushroom, she broke off a bit of the edge with each hand, since one side would make her grow taller and the other shorter: nibbling the right-hand bit made her shrink rapidly, and swallowing a morsel of the left-hand bit made her grow, leaving her with an immense length of neck rising like a stalk out of a sea of green leaves. (Note: the numbered evidence does not include every size-changing episode that occurs between these two events.)\", \"citations\": [{\"evidence\": 1, \"quote\": \"round the neck of the bottle was a paper label, with the words “DRINK ME,” beautifully printed on it in large letters\"}, {\"evidence\": 1, \"quote\": \"she was now only ten inches high\"}, {\"evidence\": 3, \"quote\": \"There was no label this time with the words “DRINK ME,” but nevertheless she uncorked it and put it to her lips\"}, {\"evidence\": 3, \"quote\": \"before she had drunk half the bottle, she found her head pressing against the ceiling\"}, {\"evidence\": 3, \"quote\": \"very soon had to kneel down on the floor: in another minute there was not even room for this\"}, {\"evidence\": 3, \"quote\": \"the little magic bottle had now had its full effect\"}, {\"evidence\": 4, \"quote\": \"“Of the mushroom,” said the Caterpillar, just as if she had asked it aloud\"}, {\"evidence\": 4, \"quote\": \"One side will make you grow taller, and the other side will make you grow shorter.\"}, {\"evidence\": 4, \"quote\": \"broke off a bit of the edge with each hand\"}, {\"evidence\": 4, \"quote\": \"nibbled a little of the right-hand bit to try the effect\"}, {\"evidence\": 4, \"quote\": \"she was shrinking rapidly\"}, {\"evidence\": 4, \"quote\": \"managed to swallow a morsel of the lefthand bit\"}, {\"evidence\": 4, \"quote\": \"an immense length of neck, which seemed to rise like a stalk out of a sea of green leaves\"}]}",
+      "finish": "stop",
+      "inputTokens": 10833,
+      "outputTokens": 6684,
+      "reasoningTokens": 6120
+    },
+    {
       "request": "3850d0eb11fb47a3274045fe6952ed5b",
       "hint": "Document: alice Passage: This did not seem to encourage the witness at all: he k…",
       "provider": "bitdeer",
@@ -242,39 +254,39 @@
       "reasoningTokens": 25981
     },
     {
-      "request": "40058ec2861ec7148645c21dd8da490c",
-      "hint": "Question: What is the capital of Mongolia? Evidence: [1] CHAPTER I. Down the Rab…",
+      "request": "3fad85e07528f4af5215e2be25a1bddf",
+      "hint": "Question: What did the Rabbit take out of its waistcoat-pocket? Evidence: [1] CH…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"insufficient\": \"The evidence contains only an excerpt from the opening chapter of Alice in Wonderland, describing Alice following the White Rabbit down a rabbit-hole. It contains no information about Mongolia, its capital, or any geography, so the question cannot be answered from this evidence.\"}",
+      "reply": "{\"answer\": \"The Rabbit took a watch out of its waistcoat-pocket, looked at it, and then hurried on.\", \"citations\": [{\"evidence\": 1, \"quote\": \"the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on\"}]}",
       "finish": "stop",
-      "inputTokens": 435,
-      "outputTokens": 125
+      "inputTokens": 440,
+      "outputTokens": 228
     },
     {
-      "request": "4f166f45db96f9c9203ff63379c4fb5b",
-      "hint": "Question: What did the Duchess's baby turn into? Evidence: [1] “Here! you may nu…",
+      "request": "4c4047fa66f17408cc963fec45605598",
+      "hint": "Question: What riddle did the Hatter ask Alice at the tea-party? Evidence: [1] A…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The Duchess's baby turned into a pig. After Alice took the baby outside, she noticed it grunting, its nose turning into a snout, and its eyes getting extremely small; then \\\"it was neither more nor less than a pig,\\\" and she set it down and let it trot away into the wood.\", \"citations\": [{\"evidence\": 1, \"quote\": \"This time there could be _no_ mistake about it: it was neither more nor less than a pig, and she felt that it would be quite absurd for her to carry it further.\"}]}",
+      "recorded": "2026-10-26",
+      "reply": "{\"answer\": \"At the tea-party, the Hatter asked Alice the riddle: \\\"Why is a raven like a writing-desk?\\\"\", \"citations\": [{\"evidence\": 1, \"quote\": \"The Hatter opened his eyes very wide on hearing this; but all he _said_ was, \\\"Why is a raven like a writing-desk?\\\"\"}]}",
       "finish": "stop",
-      "inputTokens": 8986,
-      "outputTokens": 240,
-      "reasoningTokens": 117
+      "inputTokens": 8122,
+      "outputTokens": 487,
+      "reasoningTokens": 405
     },
     {
-      "request": "4fe840434ba8fb645a79684355e4c338",
-      "hint": "Question: What is the White Rabbit's first name? Evidence: [1] The Mouse only gr…",
+      "request": "5080f604ff12ae5b04ee1fdc9ea90fac",
+      "hint": "Question: What did the White Rabbit take out of its waistcoat-pocket? Evidence: …",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The text never gives the White Rabbit a full first name. The only name provided is on the brass plate of his house, which reads \\\"W. RABBIT\\\"—so his first name appears only as the initial \\\"W.\\\" (which matches his title, the White Rabbit).\", \"citations\": [{\"evidence\": 1, \"quote\": \"a bright brass plate with the name “W. RABBIT,” engraved upon it\"}, {\"evidence\": 1, \"quote\": \"It was the White Rabbit, trotting slowly back again\"}]}",
+      "recorded": "2026-10-26",
+      "reply": "{\"answer\": \"The White Rabbit took a watch out of its waistcoat-pocket.\", \"citations\": [{\"evidence\": 1, \"quote\": \"but when the Rabbit actually _took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on\"}]}",
       "finish": "stop",
-      "inputTokens": 12001,
-      "outputTokens": 1081,
-      "reasoningTokens": 961
+      "inputTokens": 10123,
+      "outputTokens": 194,
+      "reasoningTokens": 134
     },
     {
       "request": "51ac588e4e1c1609e98458e96cd02cec",
@@ -289,30 +301,6 @@
       "reasoningTokens": 8303
     },
     {
-      "request": "5714a9a039e6e309bd449ca361eeb642",
-      "hint": "Question: According to the verses read at the trial, who stole the tarts? Eviden…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"According to the verses read at the trial, the Knave of Hearts stole the tarts. The accusation read by the White Rabbit ran: \\\"The Knave of Hearts, he stole those tarts,\\n    And took them quite away!\\\" The King likewise treated the later verses as describing what the Knave \\\"did with the tarts.\\\"\", \"citations\": [{\"evidence\": 2, \"quote\": \"The Knave of Hearts, he stole those tarts,\\n    And took them quite away!\"}, {\"evidence\": 3, \"quote\": \"why, that must be what he did with the tarts, you know—\"}]}",
-      "finish": "stop",
-      "inputTokens": 6777,
-      "outputTokens": 2246,
-      "reasoningTokens": 2105
-    },
-    {
-      "request": "5e00b3bc7ddb8c21b146ac5923af488f",
-      "hint": "Question: What colour were the White Rabbit's eyes? Evidence: [1] “You ought to …",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"insufficient\": \"The evidence mentions the White Rabbit several times—returning 'splendidly dressed, with a pair of white kid gloves in one hand and a large fan in the other' (evidence 1), acting as herald and reading the accusation at the trial (evidence 3), and running by in the sister's dream (evidence 4)—but none of these passages describe the colour of his eyes. The famous description of the White Rabbit's pink eyes appears in the opening of the story, which is not included in the provided evidence.\"}",
-      "finish": "stop",
-      "inputTokens": 12017,
-      "outputTokens": 366,
-      "reasoningTokens": 249
-    },
-    {
       "request": "5e236fb358b64dc8606fbc395962a0e4",
       "hint": "Document: alice-chapter-1 Passage: CHAPTER I. Down the Rabbit-Hole Alice was beg…",
       "provider": "bitdeer",
@@ -325,40 +313,16 @@
       "reasoningTokens": 9988
     },
     {
-      "request": "615ef3da3afeefb892fe73998dff8436",
-      "hint": "Question: Which characters speak? Graph: Nodes (label: properties): - Book: a so…",
+      "request": "645d644cc365b378321193265ce87279",
+      "hint": "Conversation: Q: Who asked Alice why a raven is like a writing-desk? A: The Hatt…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (c:Character)-[:SAYS]->(:Passage) RETURN DISTINCT c.Name AS character ORDER BY character LIMIT 50\"}",
+      "reply": "{\"question\": \"How many brothers does the Hatter have?\"}",
       "finish": "stop",
-      "inputTokens": 637,
-      "outputTokens": 308,
-      "reasoningTokens": 275
-    },
-    {
-      "request": "619a31c04fc55cde4de8e327b5df8eaf",
-      "hint": "Question: Which named characters appear in the story? Graph: Nodes (label: prope…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (c:Character) WHERE c.IsPlaceholder IS NULL OR c.IsPlaceholder = false RETURN c.Name AS name ORDER BY name LIMIT 50\"}",
-      "finish": "stop",
-      "inputTokens": 641,
-      "outputTokens": 234,
-      "reasoningTokens": 198
-    },
-    {
-      "request": "69f7ccf2b142dc5b7c20de4cbbd0921c",
-      "hint": "Question: What words were marked in currants on the little cake? Evidence: [1] S…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The words \\\"EAT ME\\\" were marked in currants on the little cake.\", \"citations\": [{\"evidence\": 2, \"quote\": \"she opened it, and found in it a very small cake, on which the words \\\"EAT ME\\\" were beautifully marked in currants.\"}]}",
-      "finish": "stop",
-      "inputTokens": 11671,
-      "outputTokens": 158,
-      "reasoningTokens": 90
+      "inputTokens": 118,
+      "outputTokens": 87,
+      "reasoningTokens": 72
     },
     {
       "request": "6b8a29a2e29d97c8079001af38f0ef74",
@@ -397,6 +361,18 @@
       "reasoningTokens": 15536
     },
     {
+      "request": "72b7ff679685fc3b17f6ecf4baa55c4a",
+      "hint": "Question: What did Alice find even more curious than a cat without a grin? Evide…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"Alice found a grin without a cat even more curious than a cat without a grin. After the Cheshire Cat vanished slowly, leaving its grin behind in the air, she thought it was the most curious thing she had ever seen in her life.\", \"citations\": [{\"evidence\": 1, \"quote\": \"\\\"Well! I've often seen a cat without a grin,\\\" thought Alice; \\\"but a grin without a cat! It's the most curious thing I ever saw in my life!\\\"\"}]}",
+      "finish": "stop",
+      "inputTokens": 8026,
+      "outputTokens": 200,
+      "reasoningTokens": 92
+    },
+    {
       "request": "7428c0aa08f346c09bf1a3c356bb0002",
       "hint": "Document: alice Passage: The Mouse only growled in reply. “Please come back and …",
       "provider": "bitdeer",
@@ -407,18 +383,6 @@
       "inputTokens": 1422,
       "outputTokens": 28732,
       "reasoningTokens": 25481
-    },
-    {
-      "request": "74c7e627c8b0f33feeb510a56189f8e8",
-      "hint": "Conversation: Q: Who was sitting on top of the large mushroom? A: A large blue C…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"question\": \"What was the large blue Caterpillar doing on top of the large mushroom?\"}",
-      "finish": "stop",
-      "inputTokens": 116,
-      "outputTokens": 121,
-      "reasoningTokens": 100
     },
     {
       "request": "792bc6fc7031b120e0c3c291ac6b2eda",
@@ -445,16 +409,28 @@
       "reasoningTokens": 5396
     },
     {
-      "request": "80513de0a3774f7aaec5b48d0dc63842",
-      "hint": "Question: What did Alice find even more curious than a cat without a grin? Evide…",
+      "request": "8139833a3a0152d42c39e2db72d6352b",
+      "hint": "Question: How many named characters are there? Graph: Nodes (label: properties):…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"Alice found a grin without a cat even more curious than a cat without a grin. After the Cheshire Cat vanished slowly, leaving its grin behind in the air, she thought it was the most curious thing she had ever seen in her life.\", \"citations\": [{\"evidence\": 1, \"quote\": \"\\\"Well! I've often seen a cat without a grin,\\\" thought Alice; \\\"but a grin without a cat! It's the most curious thing I ever saw in my life!\\\"\"}]}",
+      "recorded": "2026-10-26",
+      "reply": "{\"cypher\": \"MATCH (c:Character) WHERE c.Name IS NOT NULL AND trim(c.Name) <> '' AND coalesce(c.IsPlaceholder, false) = false RETURN count(c) AS namedCharacters\"}",
       "finish": "stop",
-      "inputTokens": 8026,
-      "outputTokens": 200,
-      "reasoningTokens": 92
+      "inputTokens": 640,
+      "outputTokens": 180,
+      "reasoningTokens": 136
+    },
+    {
+      "request": "816a5320cebef5527949abeabf7fbe9f",
+      "hint": "Question: Which places are mentioned? Graph: Nodes (label: properties): - Book: …",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"cypher\": \"MATCH (p:Place)-[:MENTIONED_IN_PLACE]->(:Passage) RETURN DISTINCT p.Name AS place ORDER BY place LIMIT 50\"}",
+      "finish": "stop",
+      "inputTokens": 638,
+      "outputTokens": 178,
+      "reasoningTokens": 142
     },
     {
       "request": "81f67b25c547ea8bf92dfabc298c0dcd",
@@ -493,6 +469,18 @@
       "reasoningTokens": 33566
     },
     {
+      "request": "8c910fbebf96e681a4ebfb430ce5df8a",
+      "hint": "Question: Who stole the tarts, according to the verses read at the trial? Eviden…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"According to the accusation verse read aloud at the trial, the Knave of Hearts stole the tarts: 'The Knave of Hearts, he stole those tarts, / And took them quite away!'\", \"citations\": [{\"evidence\": 2, \"quote\": \"The Queen of Hearts, she made some tarts,\\n    All on a summer day:\\nThe Knave of Hearts, he stole those tarts,\\n    And took them quite away!\"}]}",
+      "finish": "stop",
+      "inputTokens": 6777,
+      "outputTokens": 352,
+      "reasoningTokens": 249
+    },
+    {
       "request": "8cce55d5bb4cb6c1c34042bfe446c321",
       "hint": "Document: alice Passage: Alice was rather doubtful whether she ought not to lie …",
       "provider": "bitdeer",
@@ -503,6 +491,18 @@
       "inputTokens": 1483,
       "outputTokens": 22737,
       "reasoningTokens": 20080
+    },
+    {
+      "request": "8d5c28eb696f82b6a8868151915b7025",
+      "hint": "Question: What did the Queen's croquet game use as balls and mallets? Evidence: …",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"In the Queen's croquet game, the balls were live hedgehogs and the mallets were live flamingoes (with doubled-up soldiers serving as the arches).\", \"citations\": [{\"evidence\": 1, \"quote\": \"the balls were live hedgehogs, the mallets live flamingoes, and the soldiers had to double themselves up and to stand on their hands and feet, to make the arches.\"}]}",
+      "finish": "stop",
+      "inputTokens": 6994,
+      "outputTokens": 273,
+      "reasoningTokens": 176
     },
     {
       "request": "8da93a6f25d27bdd6a321dc50cf6ac6b",
@@ -565,16 +565,16 @@
       "reasoningTokens": 7765
     },
     {
-      "request": "95e95afaed0d1634b8696751c9c10f8f",
-      "hint": "Question: How many named characters are there? Graph: Nodes (label: properties):…",
+      "request": "9746c144392a06320841e76217df1571",
+      "hint": "Question: What is the name of Alice's cat? Evidence: [1] “Here! you may nurse it…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (c:Character) WHERE c.Name IS NOT NULL AND trim(c.Name) <> '' AND coalesce(c.IsPlaceholder, false) = false RETURN count(c) AS namedCharacters\"}",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"Alice's cat is named Dinah.\", \"citations\": [{\"evidence\": 3, \"quote\": \"Dinah’s our cat. And she’s such a capital one for catching mice you can’t think!\"}, {\"evidence\": 4, \"quote\": \"And yet I wish I could show you our cat Dinah\"}]}",
       "finish": "stop",
-      "inputTokens": 640,
-      "outputTokens": 180,
-      "reasoningTokens": 136
+      "inputTokens": 12051,
+      "outputTokens": 471,
+      "reasoningTokens": 395
     },
     {
       "request": "97ff2734e931756d429d3347894ce774",
@@ -589,6 +589,18 @@
       "reasoningTokens": 21498
     },
     {
+      "request": "9f9508cbdf3076264176629930091bb4",
+      "hint": "Question: How did Alice describe shrinking and then growing again? Evidence: [1]…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"After the Caterpillar told her that one side of the mushroom makes you taller and the other shorter, Alice shrank by nibbling the right-hand bit: the next moment she felt a violent blow underneath her chin (it had struck her foot) and realized she was shrinking rapidly. She then grew again by swallowing a morsel of the left-hand bit, which stretched her into an immense, serpent-like neck rising like a stalk above the treetops. Alice herself later described the whole back-and-forth process as nibbling first at one piece and then the other, and 'growing sometimes taller and sometimes shorter, until she had succeeded in bringing herself down to her usual height.'\", \"citations\": [{\"evidence\": 3, \"quote\": \"nibbled a little of the right-hand bit to try the effect: the next moment she felt a violent blow underneath her chin: it had struck her foot!\"}, {\"evidence\": 3, \"quote\": \"she set to work at once to eat some of the other bit... managed to swallow a morsel of the lefthand bit.\"}, {\"evidence\": 3, \"quote\": \"all she could see, when she looked down, was an immense length of neck, which seemed to rise like a stalk out of a sea of green leaves that lay far below her.\"}, {\"evidence\": 4, \"quote\": \"nibbling first at one and then at the other, and growing sometimes taller and sometimes shorter, until she had succeeded in bringing herself down to her usual height.\"}]}",
+      "finish": "stop",
+      "inputTokens": 11003,
+      "outputTokens": 2086,
+      "reasoningTokens": 1757
+    },
+    {
       "request": "a27fce8cf7b8e8c3a002632ba78dc360",
       "hint": "Document: alice Passage: “There’s certainly too much pepper in that soup!” Alice…",
       "provider": "bitdeer",
@@ -599,18 +611,6 @@
       "inputTokens": 1455,
       "outputTokens": 14884,
       "reasoningTokens": 12938
-    },
-    {
-      "request": "a32cdf6c23cd4f4aa3de37bfcb5b01f3",
-      "hint": "Question: What was the Caterpillar smoking on top of the mushroom? Evidence: [1]…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"The Caterpillar was smoking a long hookah.\", \"citations\": [{\"evidence\": 1, \"quote\": \"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah\"}]}",
-      "finish": "stop",
-      "inputTokens": 9904,
-      "outputTokens": 181,
-      "reasoningTokens": 120
     },
     {
       "request": "a33ea0e665b60b5b0cfca53934cf0edd",
@@ -637,15 +637,28 @@
       "reasoningTokens": 17837
     },
     {
-      "request": "aa64bb70e6b47f48063935e9f83d7d81",
-      "hint": "Question: What did the Rabbit take out of its waistcoat-pocket? Evidence: [1] CH…",
+      "request": "a6a605f72b6f457a27ef8902a26ec612",
+      "hint": "Question: What words were marked in currants on the little cake? Evidence: [1] S…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The Rabbit took a watch out of its waistcoat-pocket, looked at it, and then hurried on.\", \"citations\": [{\"evidence\": 1, \"quote\": \"the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on\"}]}",
+      "reply": "{\"answer\": \"The words \\\"EAT ME\\\" were marked in currants on the little cake.\", \"citations\": [{\"evidence\": 2, \"quote\": \"she opened it, and found in it a very small cake, on which the words \\\"EAT ME\\\" were beautifully marked in currants.\"}]}",
       "finish": "stop",
-      "inputTokens": 440,
-      "outputTokens": 228
+      "inputTokens": 11671,
+      "outputTokens": 158,
+      "reasoningTokens": 90
+    },
+    {
+      "request": "ab5c6dba064c74e040216c86fd5aa612",
+      "hint": "Question: What is the capital of Mongolia? Evidence: [1] “You ought to be ashame…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"insufficient\": \"The evidence consists entirely of passages from Alice's Adventures in Wonderland and contains no information about Mongolia or its capital. The only geography mentioned is Alice's confused recollection that \\\"London is the capital of Paris, and Paris is the capital of Rome\\\" (evidence 1), which is itself incorrect and makes no reference to Mongolia. No evidence identifies Mongolia's capital.\"}",
+      "finish": "stop",
+      "inputTokens": 11975,
+      "outputTokens": 199,
+      "reasoningTokens": 119
     },
     {
       "request": "ad3c98c9d12e5af65cb3d2981b3658b5",
@@ -660,16 +673,16 @@
       "reasoningTokens": 13090
     },
     {
-      "request": "af9ce0f889b4f315e541a2209276e7a3",
-      "hint": "Question: What is the capital of Mongolia? Evidence: [1] “You ought to be ashame…",
+      "request": "b13740a8165cb75698dced2e4a5fdf3e",
+      "hint": "Question: Which named characters appear in the story? Graph: Nodes (label: prope…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"insufficient\": \"The evidence consists entirely of passages from Alice's Adventures in Wonderland and contains no information about Mongolia or its capital. The only geography mentioned is Alice's confused recollection that \\\"London is the capital of Paris, and Paris is the capital of Rome\\\" (evidence 1), which is itself incorrect and makes no reference to Mongolia. No evidence identifies Mongolia's capital.\"}",
+      "recorded": "2026-10-26",
+      "reply": "{\"cypher\": \"MATCH (c:Character) WHERE c.IsPlaceholder IS NULL OR c.IsPlaceholder = false RETURN c.Name AS name ORDER BY name LIMIT 50\"}",
       "finish": "stop",
-      "inputTokens": 11975,
-      "outputTokens": 199,
-      "reasoningTokens": 119
+      "inputTokens": 641,
+      "outputTokens": 234,
+      "reasoningTokens": 198
     },
     {
       "request": "b33df66aa2de1183310448b0b0dc96b1",
@@ -682,6 +695,18 @@
       "inputTokens": 1485,
       "outputTokens": 15652,
       "reasoningTokens": 14146
+    },
+    {
+      "request": "b5c15b0d9ba0229d0787b2c51698eeef",
+      "hint": "Question: Where did the Mock Turtle go to school? Evidence: [1] “Everybody says …",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"The Mock Turtle went to school in the sea, where the master was an old Turtle whom they called Tortoise.\", \"citations\": [{\"evidence\": 1, \"quote\": \"\\\"When we were little,\\\" the Mock Turtle went on at last, more calmly, though still sobbing a little now and then, \\\"we went to school in the sea. The master was an old Turtle—we used to call him Tortoise—\\\"\"}]}",
+      "finish": "stop",
+      "inputTokens": 6080,
+      "outputTokens": 368,
+      "reasoningTokens": 273
     },
     {
       "request": "ba1ded7d1e36fee1fc39ab1e697e930f",
@@ -720,6 +745,42 @@
       "reasoningTokens": 20852
     },
     {
+      "request": "c0f2dd72899db752477e01090bde55aa",
+      "hint": "Conversation: Q: Who was sitting on top of the large mushroom? A: A large blue C…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"question\": \"What was the large blue Caterpillar doing on top of the large mushroom?\"}",
+      "finish": "stop",
+      "inputTokens": 116,
+      "outputTokens": 121,
+      "reasoningTokens": 100
+    },
+    {
+      "request": "c1744a52d3d14619287781a1be4d73db",
+      "hint": "Question: What did the Duchess's baby turn into? Evidence: [1] “Here! you may nu…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"The Duchess's baby turned into a pig. After Alice took the baby outside, she noticed it grunting, its nose turning into a snout, and its eyes getting extremely small; then \\\"it was neither more nor less than a pig,\\\" and she set it down and let it trot away into the wood.\", \"citations\": [{\"evidence\": 1, \"quote\": \"This time there could be _no_ mistake about it: it was neither more nor less than a pig, and she felt that it would be quite absurd for her to carry it further.\"}]}",
+      "finish": "stop",
+      "inputTokens": 8986,
+      "outputTokens": 240,
+      "reasoningTokens": 117
+    },
+    {
+      "request": "c29ea90863216659e4aee59aa5234774",
+      "hint": "Question: Which characters speak? Graph: Nodes (label: properties): - Book: a so…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "{\"cypher\": \"MATCH (c:Character)-[:SAYS]->(:Passage) RETURN DISTINCT c.Name AS character ORDER BY character LIMIT 50\"}",
+      "finish": "stop",
+      "inputTokens": 637,
+      "outputTokens": 308,
+      "reasoningTokens": 275
+    },
+    {
       "request": "c414fb58ccbbc7336153cb9bb49951b5",
       "hint": "Document: alice Passage: “They couldn’t have done that, you know,” Alice gently …",
       "provider": "bitdeer",
@@ -732,28 +793,28 @@
       "reasoningTokens": 7274
     },
     {
-      "request": "c4a9ac04438477332971c37c16cf27e5",
-      "hint": "Question: How many brothers does the Hatter have? Evidence: [1] Alice looked all…",
+      "request": "c8c9200235547e6c725401d5a547a95c",
+      "hint": "Question: How deep was the pool of tears Alice shed? Evidence: [1] After a while…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"insufficient\": \"The evidence never mentions the Hatter having any brothers, so there is no way to determine how many brothers he has. The Hatter appears at the tea-party quarrelling with the March Hare and Dormouse (evidence 1) and as a nervous witness at the trial (evidence 2 and 4), but no siblings of his are ever named or counted. The only family mentioned at all is in the Dormouse's story of 'three little sisters' (evidence 3), which are sisters in a tale, not the Hatter's brothers.\"}",
+      "reply": "{\"answer\": \"The pool of tears Alice shed was about four inches deep.\", \"citations\": [{\"evidence\": 2, \"quote\": \"she went on all the same, shedding gallons of tears, until there was a large pool all round her, about four inches deep and reaching half down the hall.\"}]}",
       "finish": "stop",
-      "inputTokens": 8111,
-      "outputTokens": 345,
-      "reasoningTokens": 222
+      "inputTokens": 9096,
+      "outputTokens": 226,
+      "reasoningTokens": 159
     },
     {
-      "request": "ca64beb85dcccb41fa459047f29e223d",
-      "hint": "Question: Which places are mentioned? Graph: Nodes (label: properties): - Book: …",
+      "request": "ca1dba63f74cec623573bc995233308f",
+      "hint": "Question: What was the large blue Caterpillar doing on top of the large mushroom…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-26",
-      "reply": "{\"cypher\": \"MATCH (p:Place)-[:MENTIONED_IN_PLACE]->(:Passage) RETURN DISTINCT p.Name AS place ORDER BY place LIMIT 50\"}",
+      "reply": "{\"answer\": \"The large blue Caterpillar was sitting on top of the mushroom with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of Alice or of anything else.\", \"citations\": [{\"evidence\": 1, \"quote\": \"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.\"}]}",
       "finish": "stop",
-      "inputTokens": 638,
-      "outputTokens": 178,
-      "reasoningTokens": 142
+      "inputTokens": 8939,
+      "outputTokens": 283,
+      "reasoningTokens": 181
     },
     {
       "request": "ca7f97abdbb797d9464a3e921ea7b0b9",
@@ -792,16 +853,15 @@
       "reasoningTokens": 18703
     },
     {
-      "request": "cee60f78e0d3290a102b96f034a3cb0c",
-      "hint": "Question: How deep was the pool of tears Alice shed? Evidence: [1] After a while…",
+      "request": "d12ae9d17423a43282c6dab528362a32",
+      "hint": "Question: What is the capital of Mongolia? Evidence: [1] CHAPTER I. Down the Rab…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The pool of tears Alice shed was about four inches deep.\", \"citations\": [{\"evidence\": 2, \"quote\": \"she went on all the same, shedding gallons of tears, until there was a large pool all round her, about four inches deep and reaching half down the hall.\"}]}",
+      "reply": "{\"insufficient\": \"The evidence contains only an excerpt from the opening chapter of Alice in Wonderland, describing Alice following the White Rabbit down a rabbit-hole. It contains no information about Mongolia, its capital, or any geography, so the question cannot be answered from this evidence.\"}",
       "finish": "stop",
-      "inputTokens": 9096,
-      "outputTokens": 226,
-      "reasoningTokens": 159
+      "inputTokens": 435,
+      "outputTokens": 125
     },
     {
       "request": "d3a95a0afe262198d12e6ac0144aeb6b",
@@ -814,54 +874,6 @@
       "inputTokens": 1488,
       "outputTokens": 6601,
       "reasoningTokens": 5444
-    },
-    {
-      "request": "d74a23d923d5009da39085571b564823",
-      "hint": "Question: What does the Queen of Hearts shout when someone displeases her? Evide…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"When someone displeases the Queen of Hearts, she shouts \\\"Off with his head!\\\" or \\\"Off with her head!\\\"—ordering that person's beheading. During the croquet game she was in a furious passion, stamping about and shouting this about once a minute, and when Alice displeased her she screamed \\\"Off with her head! Off—\\\", just as she ordered \\\"Off with their heads!\\\" for the gardeners who had displeased her.\", \"citations\": [{\"evidence\": 1, \"quote\": \"the Queen was in a furious passion, and went stamping about, and shouting “Off with his head!” or “Off with her head!” about once in a minute.\"}, {\"evidence\": 3, \"quote\": \"The Queen turned crimson with fury, and, after glaring at her for a moment like a wild beast, screamed “Off with her head! Off—”\"}, {\"evidence\": 3, \"quote\": \"“_I_ see!” said the Queen, who had meanwhile been examining the roses. “Off with their heads!”\"}]}",
-      "finish": "stop",
-      "inputTokens": 9999,
-      "outputTokens": 507,
-      "reasoningTokens": 276
-    },
-    {
-      "request": "d7c0b520ea27450c795391b5d9355c61",
-      "hint": "Question: What is the name of Alice's cat? Evidence: [1] “Here! you may nurse it…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"Alice's cat is named Dinah.\", \"citations\": [{\"evidence\": 3, \"quote\": \"Dinah’s our cat. And she’s such a capital one for catching mice you can’t think!\"}, {\"evidence\": 4, \"quote\": \"And yet I wish I could show you our cat Dinah\"}]}",
-      "finish": "stop",
-      "inputTokens": 12051,
-      "outputTokens": 471,
-      "reasoningTokens": 395
-    },
-    {
-      "request": "d7e2289ae9c868b5a920f782fe483574",
-      "hint": "Question: What did the Queen's croquet game use as balls and mallets? Evidence: …",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"In the Queen's croquet game, the balls were live hedgehogs and the mallets were live flamingoes (with doubled-up soldiers serving as the arches).\", \"citations\": [{\"evidence\": 1, \"quote\": \"the balls were live hedgehogs, the mallets live flamingoes, and the soldiers had to double themselves up and to stand on their hands and feet, to make the arches.\"}]}",
-      "finish": "stop",
-      "inputTokens": 6994,
-      "outputTokens": 273,
-      "reasoningTokens": 176
-    },
-    {
-      "request": "dc634f260344a08d68e5fdd5d59a0e80",
-      "hint": "Question: Who stole the tarts, according to the verses read at the trial? Eviden…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"According to the accusation verse read aloud at the trial, the Knave of Hearts stole the tarts: 'The Knave of Hearts, he stole those tarts, / And took them quite away!'\", \"citations\": [{\"evidence\": 2, \"quote\": \"The Queen of Hearts, she made some tarts,\\n    All on a summer day:\\nThe Knave of Hearts, he stole those tarts,\\n    And took them quite away!\"}]}",
-      "finish": "stop",
-      "inputTokens": 6777,
-      "outputTokens": 352,
-      "reasoningTokens": 249
     },
     {
       "request": "dcd24ba194d9cbc2c184795f185e507e",
@@ -888,16 +900,16 @@
       "reasoningTokens": 7720
     },
     {
-      "request": "ee034445bfb894427559c10fbc496878",
-      "hint": "Question: What was the large blue Caterpillar doing on top of the large mushroom…",
+      "request": "eb431dabef0b0ed561fcbf66aeb206ad",
+      "hint": "Conversation: Q: At the mad tea-party, who told Alice that her hair wanted cutti…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"The large blue Caterpillar was sitting on top of the mushroom with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of Alice or of anything else.\", \"citations\": [{\"evidence\": 1, \"quote\": \"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.\"}]}",
+      "recorded": "2026-10-29",
+      "reply": "{\"question\": \"What did the Hatter ask Alice next?\"}",
       "finish": "stop",
-      "inputTokens": 8939,
-      "outputTokens": 283,
-      "reasoningTokens": 181
+      "inputTokens": 119,
+      "outputTokens": 113,
+      "reasoningTokens": 98
     },
     {
       "request": "ee9f8a8fe31aaac4552ff74bbaad3455",
@@ -912,28 +924,40 @@
       "reasoningTokens": 7745
     },
     {
-      "request": "ef4990845849dfb6fd2664da59521e47",
-      "hint": "Question: Where did the Mock Turtle go to school? Evidence: [1] “Everybody says …",
+      "request": "f1e11c1d5cc28d7a4d5dd7d3a237099e",
+      "hint": "Conversation: Q: What is the name of Alice's cat? A: Dinah. Last question: What …",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"The Mock Turtle went to school in the sea, where the master was an old Turtle whom they called Tortoise.\", \"citations\": [{\"evidence\": 1, \"quote\": \"\\\"When we were little,\\\" the Mock Turtle went on at last, more calmly, though still sobbing a little now and then, \\\"we went to school in the sea. The master was an old Turtle—we used to call him Tortoise—\\\"\"}]}",
+      "recorded": "2026-10-26",
+      "reply": "{\"question\": \"What is Dinah good at catching?\"}",
       "finish": "stop",
-      "inputTokens": 6080,
-      "outputTokens": 368,
-      "reasoningTokens": 273
+      "inputTokens": 112,
+      "outputTokens": 459,
+      "reasoningTokens": 445
     },
     {
-      "request": "f5c89598c9bfa83fcb33a1917fc8ed97",
-      "hint": "Question: What song did the Hatter sing at the Queen of Hearts' concert? Evidenc…",
+      "request": "f24eabccedca60b3c0785329fe58adcd",
+      "hint": "Question: What does the Queen of Hearts shout when someone displeases her? Evide…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
       "recorded": "2026-10-25",
-      "reply": "{\"answer\": \"At the great concert given by the Queen of Hearts, the Hatter sang \\\"Twinkle, twinkle, little bat! How I wonder what you're at!\\\" — a song that, as the Hatter continued, goes on with \\\"Up above the world you fly, Like a tea-tray in the sky.\\\"\", \"citations\": [{\"evidence\": 1, \"quote\": \"it was at the great concert given by the Queen of Hearts, and I had to sing\\n\\n'Twinkle, twinkle, little bat!\\nHow I wonder what you're at!'\"}, {\"evidence\": 1, \"quote\": \"'Up above the world you fly,\\nLike a tea-tray in the sky.\"}]}",
+      "reply": "{\"answer\": \"When someone displeases the Queen of Hearts, she shouts \\\"Off with his head!\\\" or \\\"Off with her head!\\\"—ordering that person's beheading. During the croquet game she was in a furious passion, stamping about and shouting this about once a minute, and when Alice displeased her she screamed \\\"Off with her head! Off—\\\", just as she ordered \\\"Off with their heads!\\\" for the gardeners who had displeased her.\", \"citations\": [{\"evidence\": 1, \"quote\": \"the Queen was in a furious passion, and went stamping about, and shouting “Off with his head!” or “Off with her head!” about once in a minute.\"}, {\"evidence\": 3, \"quote\": \"The Queen turned crimson with fury, and, after glaring at her for a moment like a wild beast, screamed “Off with her head! Off—”\"}, {\"evidence\": 3, \"quote\": \"“_I_ see!” said the Queen, who had meanwhile been examining the roses. “Off with their heads!”\"}]}",
       "finish": "stop",
-      "inputTokens": 9963,
-      "outputTokens": 589,
-      "reasoningTokens": 433
+      "inputTokens": 9999,
+      "outputTokens": 507,
+      "reasoningTokens": 276
+    },
+    {
+      "request": "f3fb527cf1f85deff004820c861c1e0f",
+      "hint": "Question: Who did the White Rabbit mistake Alice for? Evidence: [1] The Mouse on…",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-25",
+      "reply": "{\"answer\": \"The White Rabbit mistook Alice for Mary Ann, his housemaid.\", \"citations\": [{\"evidence\": 1, \"quote\": \"Why, Mary Ann, what _are_ you doing out here? Run home this moment, and fetch me a pair of gloves and a fan! Quick, now!\"}, {\"evidence\": 1, \"quote\": \"\\\"He took me for his housemaid,\\\" she said to herself as she ran.\"}]}",
+      "finish": "stop",
+      "inputTokens": 11098,
+      "outputTokens": 469,
+      "reasoningTokens": 371
     },
     {
       "request": "f742562542de3f8eec811289fb8592a2",
@@ -948,18 +972,6 @@
       "reasoningTokens": 31250
     },
     {
-      "request": "fbc62e710908ed5c55c501c2d113a1e3",
-      "hint": "Question: What riddle did the Hatter ask Alice at the tea-party? Evidence: [1] A…",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"At the tea-party, the Hatter asked Alice the riddle: \\\"Why is a raven like a writing-desk?\\\"\", \"citations\": [{\"evidence\": 1, \"quote\": \"The Hatter opened his eyes very wide on hearing this; but all he _said_ was, \\\"Why is a raven like a writing-desk?\\\"\"}]}",
-      "finish": "stop",
-      "inputTokens": 8122,
-      "outputTokens": 487,
-      "reasoningTokens": 405
-    },
-    {
       "request": "fcad90ef40c54a61510b6e7b17763c41",
       "hint": "Document: alice Passage: “I’m sure those are not the right words,” said poor Ali…",
       "provider": "bitdeer",
@@ -970,18 +982,6 @@
       "inputTokens": 1452,
       "outputTokens": 14853,
       "reasoningTokens": 13678
-    },
-    {
-      "request": "fe599acb27803328b8f64d597f67714b",
-      "hint": "Question: What did the White Rabbit take out of its waistcoat-pocket? Evidence: …",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "{\"answer\": \"The White Rabbit took a watch out of its waistcoat-pocket.\", \"citations\": [{\"evidence\": 1, \"quote\": \"but when the Rabbit actually _took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on\"}]}",
-      "finish": "stop",
-      "inputTokens": 10123,
-      "outputTokens": 194,
-      "reasoningTokens": 134
     }
   ],
   "embeddings": [

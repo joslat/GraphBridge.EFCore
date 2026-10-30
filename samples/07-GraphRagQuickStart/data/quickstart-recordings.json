@@ -2,7 +2,7 @@
   "about": "Model calls recorded by GraphBridge's real-model tests (GR-46): keyed by a hash of each request, replayed offline at zero calls.",
   "chat": [
     {
-      "request": "04f99a685aaa3f00212249987a02736d",
+      "request": "11982b14743b8ee7ee35e6a172b37c8c",
       "hint": "Question: How does a migration create vector and full-text indexes? Evidence: [1…",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
@@ -14,7 +14,7 @@
       "reasoningTokens": 9631
     },
     {
-      "request": "8f70a73005f91c71ffe2cf9461b00b4a",
+      "request": "73e231bf2e2bfce8b72a235ce72b5e58",
       "hint": "Question: What is the capital of Mongolia? Evidence: [1] ## What is supported | …",
       "provider": "bitdeer",
       "model": "zai-org/GLM-5.3-Flash",
