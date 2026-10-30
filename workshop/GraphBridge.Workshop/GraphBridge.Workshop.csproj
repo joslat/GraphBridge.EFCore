@@ -13,6 +13,7 @@
     <!-- Lesson 31 uses the experimental GraphRAG toolkit (ADR 0052) and the samples' offline model stand-ins. -->
     <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
     <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
+    <Compile Include="../../samples/GraphRagShared/ModelRecordings.cs" Link="Shared/ModelRecordings.cs" />
     <ProjectReference Include="Mapping/GraphBridge.Workshop.Mapping.csproj" />
     <!-- The mapping project builds itself with the source generator; its files are not part of this project. -->
     <Compile Remove="Mapping/**" />

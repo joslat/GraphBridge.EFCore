@@ -13,7 +13,7 @@
       "type": "parameter",
       "datatype": "text",
       "isRequired": true,
-      "description": "Exact GraphBridge.EntityFrameworkCore version available in your local/private feed.",
+      "description": "Exact GraphBridge.EntityFrameworkCore version, for example 0.2.0-preview.1.",
       "replaces": "0.0.0-provider-version-required"
     }
   }

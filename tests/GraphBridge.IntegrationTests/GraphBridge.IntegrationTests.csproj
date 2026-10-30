@@ -14,6 +14,7 @@
     <Compile Include="../../samples/08-GraphRagNovel/Novel.cs" Link="Samples/Novel.cs" />
     <Compile Include="../../samples/09-GraphRagArticles/Articles.cs" Link="Samples/Articles.cs" />
     <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Samples/SampleModels.cs" />
+    <Compile Include="../../samples/GraphRagShared/ModelRecordings.cs" Link="Samples/ModelRecordings.cs" />
     <None Include="../../samples/08-GraphRagNovel/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../samples/09-GraphRagArticles/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -24,6 +25,7 @@
     <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag.DataIngestion/GraphBridge.GraphRag.DataIngestion.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.Pdf/GraphBridge.GraphRag.Pdf.csproj" />
     <ProjectReference Include="../GraphBridge.GraphRag.Evaluation/GraphBridge.GraphRag.Evaluation.csproj" />
     <PackageReference Include="Microsoft.Agents.AI" />
     <PackageReference Include="Microsoft.Extensions.AI" />

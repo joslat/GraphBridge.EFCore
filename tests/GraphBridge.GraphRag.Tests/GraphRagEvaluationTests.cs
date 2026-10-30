@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using GraphBridge.GraphRag.Evaluation;
 using Microsoft.Extensions.AI;
@@ -39,12 +40,14 @@ public sealed class GraphRagEvaluationTests
     [Fact]
     public async Task An_answer_carries_a_receipt_and_an_activity_with_counts_but_no_text()
     {
-        var activities = new List<Activity>();
+        // The listener is process-wide and other tests answer in parallel, so only this test's trace counts.
+        using var test = new Activity("answer-receipt-test").Start();
+        var activities = new ConcurrentQueue<Activity>();
         using var listener = new ActivityListener
         {
             ShouldListenTo = source => source.Name == GraphRagTracing.ActivitySourceName,
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = activities.Add
+            ActivityStopped = activity => { if (activity.TraceId == test.TraceId) activities.Enqueue(activity); }
         };
         ActivitySource.AddActivityListener(listener);
         var chat = new GraphRagScriptedChatClient(_ => """{"answer": "Alice was tired.", "citations": [{"evidence": 1, "quote": "Alice was beginning to get very tired."}]}""");
@@ -67,6 +70,9 @@ public sealed class GraphRagEvaluationTests
     {
         public Task<GraphRagAnswer> AnswerAsync(string question, GraphRagRetrievalOptions? options = null, CancellationToken cancellationToken = default)
             => Task.FromResult(answer);
+
+        public IAsyncEnumerable<GraphRagAnswerUpdate> AnswerStreamingAsync(string question, GraphRagRetrievalOptions? options = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
 
     // Reports token usage, as a real client would.

@@ -96,7 +96,7 @@
       "graphbridge.graphrag": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.11.0, )"
         }
       },

@@ -108,6 +108,13 @@ public sealed class GraphBridgeChunkWriterOptions
     /// <see cref="GraphRagSpanChunker"/>'s metadata. It joins the settings fingerprint, so changing it re-ingests.
     /// </summary>
     public string ChunkerName { get; set; } = "dataingestion";
+
+    /// <summary>
+    /// Where the reader's text came from when it converts the source, such as <c>markitdown 0.1.9</c> for an Office document
+    /// (ADR 0052, section 21). Every document the writer stores then carries it, and so does every citation from it. Null: the
+    /// reader's text is the source's own.
+    /// </summary>
+    public string? TextOrigin { get; set; }
 }
 
 /// <summary>
@@ -140,8 +147,9 @@ public sealed class GraphBridgeChunkWriter(IGraphRagIngestion ingestion, GraphBr
             var spans = SpanRecovery.Place(text, list, document.Identifier);
             var fingerprint = list.Select(c => c.HasMetadata && c.Metadata.TryGetValue(GraphRagIngestionText.ChunkerKey, out var value) ? value as string : null)
                 .FirstOrDefault(f => f is not null) ?? Version + ";" + _options.ChunkerName;
-            var chunked = GraphRagChunkedDocument.Create(GraphRagSources.Text(document.Identifier, text, "text/markdown"), text, spans, fingerprint,
-                GraphRagIngestionText.TitleOf(document));
+            var source = GraphRagSources.Text(document.Identifier, text, "text/markdown");
+            if (_options.TextOrigin is { } origin) source = source with { Metadata = new GraphRagSourceMetadata(TextOrigin: origin) };
+            var chunked = GraphRagChunkedDocument.Create(source, text, spans, fingerprint, GraphRagIngestionText.TitleOf(document));
             var receipt = await ingestion.IngestChunkedAsync([chunked], cancellationToken).ConfigureAwait(false);
             lock (_receipts) _receipts.Add(receipt);
             if (receipt.Documents.SingleOrDefault() is { Status: GraphRagDocumentStatus.Failed } failed)
@@ -160,7 +168,7 @@ internal static class SpanRecovery
     public static IReadOnlyList<(int Start, int End)> Place(string text, IReadOnlyList<IngestionChunk<string>> chunks, string identifier)
     {
         var spans = new List<(int Start, int End)>();
-        Normalized? normalized = null;
+        var locator = new GraphRagTextLocator(text);
         var from = 0;
         for (var i = 0; i < chunks.Count; i++)
         {
@@ -174,15 +182,7 @@ internal static class SpanRecovery
             }
             var content = Content(chunk);
             if (content.Length == 0) continue;
-            var found = text.IndexOf(content, from, StringComparison.Ordinal);
-            if (found >= 0)
-            {
-                spans.Add((found, found + content.Length));
-                from = found;
-                continue;
-            }
-            normalized ??= new Normalized(text);
-            var span = normalized.Find(content, from) ?? throw new GraphRagChunkPlacementException(identifier, i);
+            var span = locator.Find(content, from) ?? throw new GraphRagChunkPlacementException(identifier, i);
             spans.Add(span);
             from = span.Start;
         }
@@ -196,43 +196,5 @@ internal static class SpanRecovery
         if (!string.IsNullOrEmpty(chunk.Context) && content.StartsWith(chunk.Context + "\n", StringComparison.Ordinal))
             content = content[(chunk.Context.Length + 1)..];
         return content.Trim();
-    }
-
-    // The text with every whitespace run as one space, and for each character the original index it came from.
-    private sealed class Normalized
-    {
-        private readonly string _text;
-        private readonly int[] _map;
-
-        public Normalized(string text) => (_text, _map) = Normalize(text);
-
-        public (int Start, int End)? Find(string content, int from)
-        {
-            var (needle, _) = Normalize(content);
-            needle = needle.Trim(' ');
-            if (needle.Length == 0) return null;
-            var start = Array.FindIndex(_map, m => m >= from);
-            if (start < 0) return null;
-            var found = _text.IndexOf(needle, start, StringComparison.Ordinal);
-            if (found < 0) return null;
-            return (_map[found], _map[found + needle.Length - 1] + 1);
-        }
-
-        private static (string Text, int[] Map) Normalize(string value)
-        {
-            var text = new StringBuilder(value.Length);
-            var map = new List<int>(value.Length);
-            for (var i = 0; i < value.Length; i++)
-            {
-                if (char.IsWhiteSpace(value[i]))
-                {
-                    if (text.Length > 0 && text[^1] == ' ') continue;
-                    text.Append(' ');
-                }
-                else text.Append(value[i]);
-                map.Add(i);
-            }
-            return (text.ToString(), map.ToArray());
-        }
     }
 }

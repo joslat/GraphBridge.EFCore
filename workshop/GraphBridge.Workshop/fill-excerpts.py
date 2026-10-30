@@ -29,7 +29,16 @@ def region(file: Path, name: str) -> str:
 
 
 def main() -> int:
-    check = "--check" in sys.argv
+    arguments = sys.argv[1:]
+    if any(a in ("-h", "--help") for a in arguments):
+        print(__doc__.strip())
+        return 0
+    unknown = [a for a in arguments if a != "--check"]
+    if unknown:
+        print(f"Unknown argument: {unknown[0]}", file=sys.stderr)
+        print("Usage (from the repository root):  python workshop/GraphBridge.Workshop/fill-excerpts.py [--check]", file=sys.stderr)
+        return 2
+    check = "--check" in arguments
     stale = 0
     for readme in sorted((ROOT / "Lessons").glob("*/README.md")):
         text = readme.read_text(encoding="utf-8").replace("\r", "")

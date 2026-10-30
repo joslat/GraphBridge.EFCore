@@ -14,7 +14,8 @@ public interface IGraphRagMaintenance
     Task<GraphRagRemovalReport> RemoveSourceAsync(string documentId, CancellationToken cancellationToken = default);
     /// <summary>Removes the documents the scope selects: by writing run, by ID, or every toolkit document when both are null.</summary>
     Task<GraphRagRemovalReport> ResetAsync(GraphRagResetScope scope, CancellationToken cancellationToken = default);
-    /// <summary>Removes sections and chunks whose document is gone, expired leases and, with an ontology, things no mention points to.</summary>
+    /// <summary>Removes sections and chunks whose document is gone, expired leases and, with an ontology, things no mention points to.
+    /// One call handles the orphans of at most 10,000 documents: call it again until it removes nothing.</summary>
     Task<GraphRagRemovalReport> RemoveOrphansAsync(CancellationToken cancellationToken = default);
     /// <summary>Reports coverage, orphans, index state, embedding sets and readback, without changing anything.</summary>
     Task<GraphRagHealthReport> CheckAsync(CancellationToken cancellationToken = default);
@@ -40,15 +41,74 @@ public sealed record GraphRagHealthReport(int Documents, int Sections, int Chunk
 internal static class GraphRagRemoval
 {
     internal const int PageSize = 1_000;
+    /// <summary>Documents removed in one transaction: at most this many.</summary>
+    internal const int BatchDocuments = 100;
+    /// <summary>And at most this many bytes of source text, unless one document alone is larger.</summary>
+    internal const long BatchBytes = 8 << 20;
 
-    internal static async Task<(int Sections, int Chunks, int Edges)> RemoveContentAsync(DbContext db, string documentId, CancellationToken cancellationToken)
+    /// <summary>Documents in order, cut into batches of at most <see cref="BatchDocuments"/> and <see cref="BatchBytes"/>.</summary>
+    internal static IEnumerable<string[]> Batches(IEnumerable<(string Id, long Bytes)> documents)
     {
-        var chunkIds = await db.Set<GraphRagChunk>().Where(c => c.DocumentId == documentId).Select(c => c.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
-        var sectionIds = await db.Set<GraphRagSection>().Where(s => s.DocumentId == documentId).Select(s => s.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var (batch, bytes) = (new List<string>(), 0L);
+        foreach (var (id, length) in documents)
+        {
+            if (batch.Count > 0 && (batch.Count == BatchDocuments || bytes + length > BatchBytes))
+            {
+                yield return [.. batch];
+                (batch, bytes) = ([], 0L);
+            }
+            batch.Add(id);
+            bytes += length;
+        }
+        if (batch.Count > 0) yield return [.. batch];
+    }
+
+    /// <summary>More facts list a batch's documents than one removal reads (<see cref="GraphRagOntologyRuntime.MaxListedFacts"/>).</summary>
+    internal sealed class FactListingLimitException(string message) : InvalidOperationException(message);
+
+    /// <summary>
+    /// Removes each batch in its own transaction, the documents themselves too when <paramref name="documents"/> is set. A batch
+    /// whose documents list more facts than one removal reads is halved and tried again; a single document that does is refused,
+    /// and the batches before it stay removed.
+    /// </summary>
+    internal static async Task<(int Documents, int Sections, int Chunks, int Edges)> RemoveInBatchesAsync(DbContext db, IEnumerable<string[]> batches,
+        bool documents, CancellationToken cancellationToken)
+    {
+        var pending = new Stack<string[]>(batches.Reverse());
+        var (removedDocuments, sections, chunks, edges) = (0, 0, 0, 0);
+        while (pending.TryPop(out var batch))
+        {
+            try
+            {
+                // One transaction per batch (ADR 0052, section 19): each document in it is removed whole, or the batch not at all.
+                await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+                var removed = await RemoveContentAsync(db, batch, cancellationToken).ConfigureAwait(false);
+                var deleted = documents ? await db.Set<GraphRagDocument>().Where(d => batch.Contains(d.Id)).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false) : 0;
+                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                (removedDocuments, sections, chunks, edges) = (removedDocuments + deleted, sections + removed.Sections, chunks + removed.Chunks, edges + removed.Edges);
+            }
+            catch (FactListingLimitException) when (batch.Length > 1)
+            {
+                pending.Push(batch[(batch.Length / 2)..]);
+                pending.Push(batch[..(batch.Length / 2)]);
+            }
+            catch (FactListingLimitException error)
+            {
+                throw new InvalidOperationException($"More than {GraphRagOntologyRuntime.MaxListedFacts:N0} facts list document '{batch[0]}', more than one removal "
+                    + $"reads; nothing of it was removed. The {removedDocuments} documents removed before it in this call stay removed.", error);
+            }
+        }
+        return (removedDocuments, sections, chunks, edges);
+    }
+
+    internal static async Task<(int Sections, int Chunks, int Edges)> RemoveContentAsync(DbContext db, string[] documentIds, CancellationToken cancellationToken)
+    {
+        var chunkIds = await db.Set<GraphRagChunk>().Where(c => documentIds.Contains(c.DocumentId)).Select(c => c.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var sectionIds = await db.Set<GraphRagSection>().Where(s => documentIds.Contains(s.DocumentId)).Select(s => s.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
         var edges = 0;
-        // Extraction first: mentions and quotes point at the chunks, and facts list the document.
+        // Extraction first: mentions and quotes point at the chunks, and facts list the documents.
         if (db.Model.FindAnnotation(GraphRagModelBuilderExtensions.OntologyAnnotation)?.Value is GraphRagOntology ontology)
-            edges += await ontology.Runtime.RemoveAsync(db, LayoutOf(db), documentId, chunkIds, cancellationToken).ConfigureAwait(false);
+            edges += await ontology.Runtime.RemoveAsync(db, LayoutOf(db), documentIds, chunkIds, cancellationToken).ConfigureAwait(false);
         foreach (var page in chunkIds.Chunk(PageSize))
         {
             edges += await db.Set<GraphRagNextChunk>().Where(e => page.Contains(e.ChunkId) || page.Contains(e.NextChunkId)).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
@@ -56,10 +116,10 @@ internal static class GraphRagRemoval
         }
         foreach (var page in sectionIds.Chunk(PageSize))
             edges += await db.Set<GraphRagSubsection>().Where(e => page.Contains(e.SectionId) || page.Contains(e.ParentSectionId)).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
-        edges += await DeleteInPagesAsync(db.Set<GraphRagChunkDocument>().Where(e => e.DocumentId == documentId).OrderBy(e => e.ChunkId), cancellationToken).ConfigureAwait(false);
-        edges += await DeleteInPagesAsync(db.Set<GraphRagSectionDocument>().Where(e => e.DocumentId == documentId).OrderBy(e => e.SectionId), cancellationToken).ConfigureAwait(false);
-        var chunks = await DeleteInPagesAsync(db.Set<GraphRagChunk>().Where(c => c.DocumentId == documentId).OrderBy(c => c.Id), cancellationToken).ConfigureAwait(false);
-        var sections = await DeleteInPagesAsync(db.Set<GraphRagSection>().Where(s => s.DocumentId == documentId).OrderBy(s => s.Id), cancellationToken).ConfigureAwait(false);
+        edges += await DeleteInPagesAsync(db.Set<GraphRagChunkDocument>().Where(e => documentIds.Contains(e.DocumentId)).OrderBy(e => e.ChunkId), cancellationToken).ConfigureAwait(false);
+        edges += await DeleteInPagesAsync(db.Set<GraphRagSectionDocument>().Where(e => documentIds.Contains(e.DocumentId)).OrderBy(e => e.SectionId), cancellationToken).ConfigureAwait(false);
+        var chunks = await DeleteInPagesAsync(db.Set<GraphRagChunk>().Where(c => documentIds.Contains(c.DocumentId)).OrderBy(c => c.Id), cancellationToken).ConfigureAwait(false);
+        var sections = await DeleteInPagesAsync(db.Set<GraphRagSection>().Where(s => documentIds.Contains(s.DocumentId)).OrderBy(s => s.Id), cancellationToken).ConfigureAwait(false);
         return (sections, chunks, edges);
     }
 
@@ -107,18 +167,10 @@ internal sealed class GraphRagMaintenance<TContext>(IServiceScopeFactory scopes,
         var query = db.Set<GraphRagDocument>().AsNoTracking();
         if (runIds is not null) query = query.Where(d => runIds.Contains(d.RunId));
         if (documentIds is not null) query = query.Where(d => documentIds.Contains(d.Id));
-        var selected = await query.Select(d => d.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var selected = await query.OrderBy(d => d.Id).Select(d => new { d.Id, d.LengthBytes }).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        var (documents, sections, chunks, edges) = (0, 0, 0, 0);
-        foreach (var documentId in selected)
-        {
-            // One document per transaction, as ingestion writes them: a document is removed whole or not at all.
-            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-            var removed = await GraphRagRemoval.RemoveContentAsync(db, documentId, cancellationToken).ConfigureAwait(false);
-            documents += await db.Set<GraphRagDocument>().Where(d => d.Id == documentId).ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            (sections, chunks, edges) = (sections + removed.Sections, chunks + removed.Chunks, edges + removed.Edges);
-        }
+        var (documents, sections, chunks, edges) = await GraphRagRemoval.RemoveInBatchesAsync(db, GraphRagRemoval.Batches(selected.Select(d => (d.Id, d.LengthBytes))),
+            documents: true, cancellationToken).ConfigureAwait(false);
         return new(documents, sections, chunks, edges, 0);
     }
 
@@ -133,14 +185,8 @@ internal sealed class GraphRagMaintenance<TContext>(IServiceScopeFactory scopes,
             + "RETURN DISTINCT n.DocumentId AS documentId LIMIT $limit",
             new Dictionary<string, object?> { ["limit"] = 10_000L }, record => record["documentId"].As<string>(), maxRows: 10_000, cancellationToken)
             .ConfigureAwait(false);
-        var (sections, chunks, edges) = (0, 0, 0);
-        foreach (var documentId in orphaned)
-        {
-            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-            var removed = await GraphRagRemoval.RemoveContentAsync(db, documentId, cancellationToken).ConfigureAwait(false);
-            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-            (sections, chunks, edges) = (sections + removed.Sections, chunks + removed.Chunks, edges + removed.Edges);
-        }
+        var (_, sections, chunks, edges) = await GraphRagRemoval.RemoveInBatchesAsync(db, GraphRagRemoval.Batches(orphaned.Select(id => (id, 0L))),
+            documents: false, cancellationToken).ConfigureAwait(false);
         var now = _clock.GetUtcNow();
         var leases = await GraphRagRemoval.DeleteInPagesAsync(db.Set<GraphRagLease>().Where(l => l.ExpiresUtc < now).OrderBy(l => l.Key), cancellationToken).ConfigureAwait(false);
         var entities = 0;
@@ -164,7 +210,7 @@ internal sealed class GraphRagMaintenance<TContext>(IServiceScopeFactory scopes,
         var names = definitions.Select(d => d.Name).ToArray();
         var observed = await db.Database.QueryCypherAsync("SHOW INDEXES YIELD name, state WHERE name IN $names RETURN name, state",
             new Dictionary<string, object?> { ["names"] = names }, record => (record["name"].As<string>(), record["state"].As<string>()),
-            maxRows: 64, cancellationToken).ConfigureAwait(false);
+            maxRows: names.Length, cancellationToken).ConfigureAwait(false);
         foreach (var (name, state) in observed) states[name] = state;
         // A uniqueness constraint shows as its backing index, under the constraint's name.
         if (definitions.Any(d => !states.ContainsKey(d.Name))) findings.Add("schema-missing");

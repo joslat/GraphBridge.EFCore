@@ -38,15 +38,15 @@ internal sealed class GraphNodeReferenceMutationPlanner(GraphBindingCompiler com
         var dependent = DependentKeys(entry, binding);
         var command = entry.EntityState switch
         {
-            EntityState.Added => CypherNodeReferenceMutationRenderer.Create(binding.RelationshipType, binding.Principal.Label, principal, binding.Dependent.Label, dependent),
-            EntityState.Modified => CypherNodeReferenceMutationRenderer.Assert(binding.RelationshipType, binding.Principal.Label, principal, binding.Dependent.Label, dependent),
-            EntityState.Deleted => CypherNodeReferenceMutationRenderer.Delete(binding.RelationshipType, binding.Principal.Label, principal, binding.Dependent.Label, dependent),
+            EntityState.Added => CypherNodeReferenceMutationRenderer.Create(binding.RelationshipType, binding.Principal.Labels, principal, binding.Dependent.Labels, dependent),
+            EntityState.Modified => CypherNodeReferenceMutationRenderer.Assert(binding.RelationshipType, binding.Principal.Labels, principal, binding.Dependent.Labels, dependent),
+            EntityState.Deleted => CypherNodeReferenceMutationRenderer.Delete(binding.RelationshipType, binding.Principal.Labels, principal, binding.Dependent.Labels, dependent),
             _ => throw new InvalidOperationException("Unsupported native reference mutation state.")
         };
         return new(entry, binding, command, Array.AsReadOnly(new[]
         {
-            CypherMutationRenderer.Lock(binding.Dependent.Label, dependent),
-            CypherMutationRenderer.Lock(binding.Principal.Label, principal)
+            CypherMutationRenderer.Lock(binding.Dependent.Labels, dependent),
+            CypherMutationRenderer.Lock(binding.Principal.Labels, principal)
         }));
     }
 
@@ -57,11 +57,11 @@ internal sealed class GraphNodeReferenceMutationPlanner(GraphBindingCompiler com
         var current = entry.EntityState == EntityState.Deleted ? null : PrincipalKeys(originalValues: false);
         var unchanged = original is not null && current is not null && original.SequenceEqual(current);
         var command = unchanged
-            ? CypherNodeReferenceMutationRenderer.Assert(binding.RelationshipType, binding.Principal.Label, original!, binding.Dependent.Label, dependent)
-            : CypherNodeReferenceMutationRenderer.TransitionOptional(binding.RelationshipType, binding.Principal.Label, original, current, binding.Dependent.Label, dependent);
-        var locks = new List<CypherMutationCommand> { CypherMutationRenderer.Lock(binding.Dependent.Label, dependent) };
-        if (original is not null) locks.Add(CypherMutationRenderer.Lock(binding.Principal.Label, original));
-        if (current is not null && !unchanged) locks.Add(CypherMutationRenderer.Lock(binding.Principal.Label, current));
+            ? CypherNodeReferenceMutationRenderer.Assert(binding.RelationshipType, binding.Principal.Labels, original!, binding.Dependent.Labels, dependent)
+            : CypherNodeReferenceMutationRenderer.TransitionOptional(binding.RelationshipType, binding.Principal.Labels, original, current, binding.Dependent.Labels, dependent);
+        var locks = new List<CypherMutationCommand> { CypherMutationRenderer.Lock(binding.Dependent.Labels, dependent) };
+        if (original is not null) locks.Add(CypherMutationRenderer.Lock(binding.Principal.Labels, original));
+        if (current is not null && !unchanged) locks.Add(CypherMutationRenderer.Lock(binding.Principal.Labels, current));
         return new(entry, binding, command, locks.AsReadOnly());
 
         IReadOnlyDictionary<string, object?>? PrincipalKeys(bool originalValues)

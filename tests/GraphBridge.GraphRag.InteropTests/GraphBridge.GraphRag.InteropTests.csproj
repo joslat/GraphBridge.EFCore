@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- The GraphRAG toolkit is experimental (ADR 0052); its interop tests acknowledge that here. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- GraphBridge and Neo4j's Python neo4j-graphrag on one disposable database (GraphRAG v2, GR-52). -->
+    <Compile Include="../GraphBridge.IntegrationTests/DisposableNeo4jFixture.cs" Link="Testing/DisposableNeo4jFixture.cs" />
+    <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Samples/SampleModels.cs" />
+    <Compile Include="../../samples/GraphRagShared/ModelRecordings.cs" Link="Samples/ModelRecordings.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <!-- The Office-document recipe (GR-26): DataIngestion's MarkItDown reader, which runs Microsoft's markitdown tool. -->
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.DataIngestion/GraphBridge.GraphRag.DataIngestion.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DataIngestion.MarkItDown" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

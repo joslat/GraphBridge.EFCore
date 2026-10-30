@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- The GraphRAG toolkit is experimental (ADR 0052); its real-model tests acknowledge that here. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Samples 07 to 09 as written, in a process of their own: here they resolve to the recorded models (ADR 0052, section 11). -->
+    <Compile Include="../GraphBridge.IntegrationTests/DisposableNeo4jFixture.cs" Link="Testing/DisposableNeo4jFixture.cs" />
+    <Compile Include="../GraphBridge.IntegrationTests/Neo4jIntegrationFactAttribute.cs" Link="Testing/Neo4jIntegrationFactAttribute.cs" />
+    <Compile Include="../../samples/07-GraphRagQuickStart/QuickStart.cs" Link="Samples/QuickStart.cs" />
+    <!-- Sample 07 reads PDFs too. -->
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.Pdf/GraphBridge.GraphRag.Pdf.csproj" />
+    <Compile Include="../../samples/08-GraphRagNovel/Novel.cs" Link="Samples/Novel.cs" />
+    <Compile Include="../../samples/09-GraphRagArticles/Articles.cs" Link="Samples/Articles.cs" />
+    <Compile Include="../../samples/09-GraphRagArticles/Explorer.cs" Link="Samples/Explorer.cs" />
+    <None Include="../../samples/09-GraphRagArticles/explorer.html" Link="explorer.html" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Samples/SampleModels.cs" />
+    <Compile Include="../../samples/GraphRagShared/ModelRecordings.cs" Link="Samples/ModelRecordings.cs" />
+    <None Include="../../samples/07-GraphRagQuickStart/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../samples/08-GraphRagNovel/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../samples/09-GraphRagArticles/data/**" LinkBase="data" CopyToOutputDirectory="PreserveNewest" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.AspNetCore/GraphBridge.GraphRag.AspNetCore.csproj" />
+    <!-- The endpoint test hosts the endpoints in process, on a loopback port. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Agents.AI" />
+    <ProjectReference Include="../GraphBridge.GraphRag.Evaluation/GraphBridge.GraphRag.Evaluation.csproj" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

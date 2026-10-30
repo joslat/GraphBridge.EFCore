@@ -37,7 +37,7 @@ var movies = db.Movies
     .Select(m => new MovieCard(m.Title, m.Released, m.Tagline));
 ```
 
-   The Cypher grows a `CALL { OPTIONAL MATCH (parent)-[:DIRECTED]->(n) ... }` block. It reads at most two candidate directors and rejects the row if the link is duplicated or points at the wrong label. GraphBridge validates graph integrity on read instead of trusting it.
+   The Cypher grows a `CALL (n) { OPTIONAL MATCH (parent)-[:DIRECTED]->(n) ... }` block. It reads at most two candidate directors, and the query fails with an error if a link is duplicated or points at the wrong label. GraphBridge validates graph integrity on read instead of trusting it.
 
 3. **Integer aggregates.**
 

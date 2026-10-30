@@ -1,0 +1,60 @@
+{
+  "corpus": "The whole of Alice's Adventures in Wonderland, Project Gutenberg eBook #11, fetched by sample 08 and never committed.",
+  "labels": "Follow-up questions for GR-57, written by the implementing agent on 26 October 2026 from the Project Gutenberg text, every evidence phrase checked against it; reviewed against the book the same day at the owner's request, which sharpened follow-riddle (its pronoun \"her\" named no one, and three of the Hatter's questions answered it). Each question needs its history: on its own, its pronoun names no one.",
+  "cases": [
+    {
+      "id": "follow-riddle",
+      "history": [
+        {
+          "question": "At the mad tea-party, who told Alice that her hair wanted cutting?",
+          "answer": "The Hatter."
+        }
+      ],
+      "question": "What did he ask her next?",
+      "answerable": true,
+      "requiredEvidence": [
+        "Why is a raven like a writing-desk"
+      ]
+    },
+    {
+      "id": "follow-hookah",
+      "history": [
+        {
+          "question": "Who was sitting on top of the large mushroom?",
+          "answer": "A large blue Caterpillar."
+        }
+      ],
+      "question": "What was it doing up there?",
+      "answerable": true,
+      "requiredEvidence": [
+        "quietly smoking a long hookah"
+      ]
+    },
+    {
+      "id": "follow-mice",
+      "history": [
+        {
+          "question": "What is the name of Alice's cat?",
+          "answer": "Dinah."
+        }
+      ],
+      "question": "What is she good at catching?",
+      "answerable": true,
+      "requiredEvidence": [
+        "a capital one for catching mice"
+      ]
+    },
+    {
+      "id": "follow-brothers",
+      "history": [
+        {
+          "question": "Who asked Alice why a raven is like a writing-desk?",
+          "answer": "The Hatter."
+        }
+      ],
+      "question": "How many brothers does he have?",
+      "answerable": false,
+      "requiredEvidence": []
+    }
+  ]
+}

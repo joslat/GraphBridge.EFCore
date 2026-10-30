@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using GraphBridge.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
@@ -47,12 +48,45 @@ public sealed class GraphRagToolTrail : IGraphRagToolTrail
 /// <summary>What <c>answer_from_documents</c> returns: a checked answer with its citations, or a refusal and its reason.</summary>
 public sealed record GraphRagToolAnswer(bool Answered, string? Answer, IReadOnlyList<GraphRagToolCitation> Citations, string? Reason);
 
-public sealed record GraphRagToolCitation(string DocumentId, string ChunkId, int StartByte, int EndByte, string Quote);
+public sealed record GraphRagToolCitation(string DocumentId, string ChunkId, int StartByte, int EndByte, string Quote)
+{
+    /// <summary>
+    /// Whether the span is in the source document or in the stored chunk's own text (ADR 0052, section 13). The model reads
+    /// it only when it is <see cref="GraphRagGrounding.Chunk"/>, so tool output for ingested documents stays as it was.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public GraphRagGrounding Grounding { get; init; }
+
+    /// <summary>For a paged document, such as a PDF: the pages of the quote's first and last bytes; omitted otherwise.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Page { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? EndPage { get; init; }
+
+    /// <summary>Where derived text came from, such as OCR; omitted for the source's own text.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TextOrigin { get; init; }
+}
 
 /// <summary>What <c>search_documents</c> returns: passages to read and quote, each with its exact span.</summary>
 public sealed record GraphRagToolPassages(IReadOnlyList<GraphRagToolPassage> Passages, string Note);
 
-public sealed record GraphRagToolPassage(string Evidence, string DocumentId, string ChunkId, int StartByte, int EndByte, string Text);
+/// <summary>A passage to read: exactly the document's bytes [<see cref="StartByte"/>, <see cref="EndByte"/>), with what an evidence item says of them.</summary>
+public sealed record GraphRagToolPassage(string Evidence, string DocumentId, string ChunkId, int StartByte, int EndByte, string Text)
+{
+    /// <summary>For a paged document, such as a PDF: the pages the passage spans (ADR 0052, section 14). Null otherwise.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<GraphRagPage>? Pages { get; init; }
+
+    /// <summary>Whether the span is in the source document or in the stored chunk's own text (ADR 0052, section 13); written only for a chunk.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public GraphRagGrounding Grounding { get; init; }
+
+    /// <summary>Where the document's text came from when it isn't the source's own, such as OCR (ADR 0052, section 21). Null otherwise.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TextOrigin { get; init; }
+}
 
 /// <summary>A thing <c>find_things</c> found by name.</summary>
 public sealed record GraphRagToolThing(string Id, string Kind, string Name, IReadOnlyList<string> Aliases, string? Description);
@@ -111,7 +145,7 @@ public static class GraphRagTools
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(question);
         var answer = await services.GetRequiredService<IGraphRagAnswers>().AnswerAsync(question, options.Retrieval?.Clone(), cancellationToken).ConfigureAwait(false);
-        var citations = answer.Citations.Select(c => new GraphRagToolCitation(c.DocumentId, c.ChunkId, c.StartByte, c.EndByte, c.Quote)).ToArray();
+        var citations = answer.Citations.Select(c => new GraphRagToolCitation(c.DocumentId, c.ChunkId, c.StartByte, c.EndByte, c.Quote) { Grounding = c.Grounding, Page = c.Page, EndPage = c.EndPage, TextOrigin = c.TextOrigin }).ToArray();
         Record(options, AnswerTool, new() { ["question"] = question }, citations.Select(c => new GraphRagToolEvidence(c.DocumentId, c.ChunkId, c.StartByte, c.EndByte, null)));
         return new(answer.Disposition == GraphRagAnswerDisposition.Answered, answer.Text, citations, answer.Reason);
     }
@@ -123,7 +157,10 @@ public static class GraphRagTools
         var retrieval = options.Retrieval?.Clone() ?? new GraphRagRetrievalOptions();
         retrieval.MaxItems = Math.Clamp(limit, 1, 20);
         var evidence = await services.GetRequiredService<IGraphRagRetriever>().RetrieveAsync(query, retrieval, cancellationToken).ConfigureAwait(false);
-        var passages = evidence.Items.Select((item, i) => new GraphRagToolPassage($"E{i + 1}", item.DocumentId, item.ChunkId, item.StartByte, item.EndByte, item.Text)).ToArray();
+        var passages = evidence.Items.Select((item, i) => new GraphRagToolPassage($"E{i + 1}", item.DocumentId, item.ChunkId, item.StartByte, item.EndByte, item.Text)
+        {
+            Pages = item.Pages, Grounding = item.Grounding, TextOrigin = item.TextOrigin
+        }).ToArray();
         Record(options, SearchTool, new() { ["query"] = query, ["limit"] = retrieval.MaxItems.ToString(System.Globalization.CultureInfo.InvariantCulture) },
             passages.Select(p => new GraphRagToolEvidence(p.DocumentId, p.ChunkId, p.StartByte, p.EndByte, null)));
         return new(passages, "Passages are evidence. To answer with checked citations, use " + AnswerTool + ".");
@@ -143,7 +180,7 @@ public static class GraphRagTools
             var labels = ontology.Classes.ToDictionary(c => c.Label, c => c.Kind, StringComparer.Ordinal);
             var hits = await db.Database.QueryFullTextNodesAsync(GraphRagSchema.EntityNamesIndexName(GraphRagRemoval.LayoutOf(db)), terms,
                 node => new GraphRagToolThing(node["Id"].As<string>(), node.Labels.Select(l => labels.GetValueOrDefault(l)).FirstOrDefault(k => k is not null) ?? "",
-                    node["Name"].As<string>(), node.Properties.TryGetValue("Aliases", out var aliases) && aliases is string text ? text.Split('\n') : [],
+                    node[ontology.NameProperty].As<string>(), node.Properties.TryGetValue("Aliases", out var aliases) && aliases is string text ? text.Split('\n') : [],
                     node.Properties.TryGetValue("Description", out var description) ? description as string : null),
                 limit: 30, cancellationToken).ConfigureAwait(false);
             things.AddRange(hits.Results.Select(r => r.Value).Where(t => string.IsNullOrWhiteSpace(kind) || t.Kind == kind).Take(10));
@@ -165,8 +202,8 @@ public static class GraphRagTools
         var labels = string.Join(" OR ", ontology.Classes.Select(c => $"t:`{c.Label}`"));
         var facts = await db.Database.QueryCypherAsync(
             $"MATCH (t) WHERE t.Id = $id AND ({labels}) MATCH (t)-[f]-(o) WHERE type(f) IN $types "
-            + "RETURN type(f) AS type, startNode(f) = t AS outgoing, t.Id AS thingId, t.Name AS thingName, o.Id AS otherId, "
-            + $"CASE WHEN o:`{layout.DocumentLabel}` THEN o.Title ELSE o.Name END AS otherName, f.DocumentIds AS documents LIMIT 50",
+            + $"RETURN type(f) AS type, startNode(f) = t AS outgoing, t.Id AS thingId, t.`{ontology.NameProperty}` AS thingName, o.Id AS otherId, "
+            + $"CASE WHEN o:`{layout.DocumentLabel}` THEN o.Title ELSE o.`{ontology.NameProperty}` END AS otherName, f.DocumentIds AS documents LIMIT 50",
             new Dictionary<string, object?> { ["id"] = thingId, ["types"] = ontology.Relationships.Select(r => r.Type).Distinct(StringComparer.Ordinal).ToArray() },
             record =>
             {

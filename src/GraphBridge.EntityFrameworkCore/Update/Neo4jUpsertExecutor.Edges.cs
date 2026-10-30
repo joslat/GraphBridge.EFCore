@@ -87,19 +87,21 @@ internal static partial class Neo4jUpsertExecutor
         var relationship = "[r:" + CypherQueryRenderer.Identifier(type)
             + (identified is null ? "" : " {" + Slot(identified.KeyProperty.Name, "key") + "}") + "]";
         var text = new StringBuilder(match.ToString())
-            .Append("\nMATCH (s:").Append(CypherQueryRenderer.Identifier(source.Node.Label)).Append(" {").Append(Slots(source, "source")).Append("})")
-            .Append("\nMATCH (t:").Append(CypherQueryRenderer.Identifier(target.Node.Label)).Append(" {").Append(Slots(target, "target")).Append("})")
+            .Append("\nMATCH (s:").Append(CypherQueryRenderer.Labels(source.Node.Labels)).Append(" {").Append(Slots(source, "source")).Append("})")
+            .Append("\nMATCH (t:").Append(CypherQueryRenderer.Labels(target.Node.Labels)).Append(" {").Append(Slots(target, "target")).Append("})")
             .Append("\nMERGE (s)-").Append(relationship).Append("->(t)")
             .Append("\nON CREATE SET r += row.create");
         if (update.Count != 0) text.Append("\nON MATCH SET r += row.update");
         text.Append("\nRETURN count(r) AS affected");
 
-        // Endpoint write locks: a no-op SET of a key property, as SaveChanges takes them, so concurrent upserts serialize.
+        // Endpoint write locks, taken as SaveChanges takes them, so concurrent upserts serialize: a transient property, never a key
+        // written to itself, which on Neo4j 2026.09 would keep the key taken if the node is deleted and added again later in the
+        // same transaction.
         var preflight = new StringBuilder(match.ToString())
-            .Append("\nOPTIONAL MATCH (s:").Append(CypherQueryRenderer.Identifier(source.Node.Label)).Append(" {").Append(Slots(source, "source")).Append("})")
-            .Append("\nOPTIONAL MATCH (t:").Append(CypherQueryRenderer.Identifier(target.Node.Label)).Append(" {").Append(Slots(target, "target")).Append("})")
-            .Append("\nFOREACH (x IN CASE WHEN s IS NULL THEN [] ELSE [s] END | SET x.").Append(LockSlot(source)).Append(" = x.").Append(LockSlot(source)).Append(')')
-            .Append("\nFOREACH (x IN CASE WHEN t IS NULL THEN [] ELSE [t] END | SET x.").Append(LockSlot(target)).Append(" = x.").Append(LockSlot(target)).Append(')')
+            .Append("\nOPTIONAL MATCH (s:").Append(CypherQueryRenderer.Labels(source.Node.Labels)).Append(" {").Append(Slots(source, "source")).Append("})")
+            .Append("\nOPTIONAL MATCH (t:").Append(CypherQueryRenderer.Labels(target.Node.Labels)).Append(" {").Append(Slots(target, "target")).Append("})")
+            .Append("\nFOREACH (x IN CASE WHEN s IS NULL THEN [] ELSE [s] END | ").Append(CypherMutationRenderer.LockWrite("x")).Append(')')
+            .Append("\nFOREACH (x IN CASE WHEN t IS NULL THEN [] ELSE [t] END | ").Append(CypherMutationRenderer.LockWrite("x")).Append(')')
             .Append("\nWITH row, s, t");
         if (identified is not null)
             // The key on a relationship between other endpoints: a MERGE would try to create it again, and the constraint refuses.
@@ -133,8 +135,6 @@ internal static partial class Neo4jUpsertExecutor
     private static string Slot(string name, string map)
         => CypherQueryRenderer.Identifier(name) + ": row." + map + "." + CypherQueryRenderer.Identifier(name);
 
-    private static string LockSlot(AssociationEndpointBinding endpoint) => CypherQueryRenderer.Identifier(endpoint.PrincipalKeyProperties[0].Name);
-
     // Refuses the whole call when the preflight found a missing endpoint or a conflicting relationship; positions only.
     private static void CheckPreflight(GraphUpsertCommand command, IReadOnlyList<IRecord> records)
     {
@@ -146,7 +146,7 @@ internal static partial class Neo4jUpsertExecutor
             return string.Join(", ", positions.Take(10)) + (positions.Length > 10 ? $" and {positions.Length - 10} more" : "");
         }
         if (records.Any(r => !r["source"].As<bool>() || !r["target"].As<bool>()))
-            throw new InvalidOperationException($"Entities {Positions(r => !r["source"].As<bool>() || !r["target"].As<bool>())} (zero-based) in one upsert name an endpoint node that doesn't exist; nothing was written. An upsert links existing nodes only.");
+            throw new InvalidOperationException($"Entities {Positions(r => !r["source"].As<bool>() || !r["target"].As<bool>())} (zero-based) in one upsert name an endpoint node that doesn't exist, or lacks its type's labels; nothing was written. An upsert links existing nodes only.");
         if (command.IdentifiedEdge is not null && records.Any(r => r["edges"].As<long>() > 0))
             throw new InvalidOperationException($"Entities {Positions(r => r["edges"].As<long>() > 0)} (zero-based) in one upsert have a key that already belongs to a relationship between other endpoints; nothing was written. An upsert never moves a relationship.");
         if (command.IdentifiedEdge is null && records.Any(r => r["edges"].As<long>() > 1))

@@ -40,9 +40,9 @@ If something did land directly in public main (a merged pull request, a Dependab
 
 A version is released when the build, the offline tests and the live tests pass on the exact commit being published. The three workflows below are manual, run in the public repository on fresh GitHub-hosted machines, and need no local database or memory.
 
-1. Set `<Version>` in the published projects (five; the experimental GraphRAG projects ship with a later preview), add the version's section to `CHANGELOG.md`, then merge to private `main` and push.
+1. Set `<Version>` in the ten published projects (from the GraphRAG release on, the five experimental GraphRAG projects ship too), add the version's section to `CHANGELOG.md`, then merge to private `main` and push.
 2. Publish a snapshot (above). Every later step runs on that public commit.
-3. Run **Release packages** (`release.yml`) with `version` set and `publish` off. It builds with locked dependencies, runs the unit, tooling and generator tests, checks the compiled query gallery, packs the five packages and checks each one's metadata, icon and source commit.
+3. Run **Release packages** (`release.yml`) with `version` set and `publish` off. It builds with locked dependencies, runs the unit, tooling and generator tests, checks the compiled query gallery, packs the ten packages and checks each one's metadata, icon and source commit.
 4. Run **Live Neo4j acceptance** (`live.yml`) with `ref` set to the public commit and `version` set to the newest version already on nuget.org. It runs every live suite against a disposable Neo4j: provider, selected EF Core specification tests, tooling and workshop. Its `nuget-org` job installs that published version from nuget.org. The published-template live check is skipped with a notice, because it compares packages with the files of the commit they were built from; it runs in step 7.
 5. Run **Source and dependency security checks** (`security.yml`). It scans the history and tree for secrets, checks the dependency inventory and audits every package for known advisories.
 6. When all three pass, run **Release packages** again with `publish` on and approve the `nuget` environment. That run builds and tests again, then pushes the packages it built.

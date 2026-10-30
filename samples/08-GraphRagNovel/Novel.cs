@@ -20,14 +20,14 @@ public static class Novel
     /// <summary>Project Gutenberg's plain-text UTF-8 edition of Alice's Adventures in Wonderland (eBook #11), public domain in the USA.</summary>
     public const string BookUrl = "https://www.gutenberg.org/cache/epub/11/pg11.txt";
 
-    /// <summary>The models from <c>GRAPHBRIDGE_AI_*</c>; null runs offline.</summary>
-    public static SampleModelSettings? Models { get; } = SampleModelSettings.FromEnvironment();
+    /// <summary>The models named by <c>AI_INFERENCE_PROVIDER</c>, or the recorded ones when replaying; null runs offline.</summary>
+    public static SampleModelSettings? Models { get; } = SampleModelSettings.FromEnvironment(Recordings);
 
     public static GraphRagEmbeddingSet EmbeddingSet { get; } = Models is { } models
         ? new(models.EmbeddingModel, models.EmbeddingDimensions)
         : new("graphbridge-sample-hashing", 256);
 
-    /// <summary>Labels of the sample's own, so it can share a database with samples 07 and 09.</summary>
+    /// <summary>Labels of the sample's own, so its nodes never mix with those of samples 07 and 09.</summary>
     public static GraphRagLayout Layout { get; } = GraphRagLayout.Default with
     {
         DocumentLabel = "Book", SectionLabel = "Chapter", ChunkLabel = "Passage", RunLabel = "NovelRun", LeaseLabel = "NovelLease", SchemaPrefix = "novel"
@@ -38,32 +38,43 @@ public static class Novel
         GraphRagSchema.CreateSteps(Layout, EmbeddingSet, GraphRagOntologies.Novel),
         GraphMigrationRollbackPolicy.NoRollback("Dropping the constraints and indexes is a separate, reviewed migration."));
 
-    /// <summary>The opening of chapter I, shipped with the sample, with its recorded extraction replies.</summary>
+    /// <summary>The opening of chapter I, shipped with the sample.</summary>
     public static string Excerpt => Path.Combine(AppContext.BaseDirectory, "data", "chapter-1-opening.txt");
 
-    public static string RecordedReplies => Path.Combine(AppContext.BaseDirectory, "data", "novel-replies.json");
+    /// <summary>
+    /// A book to ingest: the fetched book is named by the address it came from, <see cref="BookUrl"/>, and the excerpt by its
+    /// address in the repository (<see cref="SampleData"/>), so their documents keep their IDs wherever they are.
+    /// </summary>
+    public static GraphRagSource Source(string path)
+        => Path.GetFullPath(path) == Path.GetFullPath(BookPath) ? GraphRagSources.File(path, new Uri(BookUrl)) : SampleData.File(path, "08-GraphRagNovel");
+
+    /// <summary>Real model calls recorded by the real-model tests, keyed by request: replayed with <c>GRAPHBRIDGE_AI_MODE=replay</c>.</summary>
+    public static string Recordings => Path.Combine(AppContext.BaseDirectory, "data", "novel-recordings.json");
 
     /// <summary>Where <c>fetch</c> saves the whole book: next to the build output, never in the repository.</summary>
     public static string BookPath => Path.Combine(AppContext.BaseDirectory, "data", "alice.txt");
 
     /// <summary>
-    /// The toolkit with the models from the environment, or offline: a hashing embedder, an extractive chat client for answers,
-    /// and recorded replies for extraction, which cover the shipped excerpt only.
+    /// The toolkit with the models from the environment or their recordings. Offline, a hashing embedder and an extractive chat
+    /// client stand in for the models, and extraction replays the real model's recorded replies for the passages they cover,
+    /// finding nothing in any other passage.
     /// </summary>
     public static IServiceCollection AddNovel(this IServiceCollection services)
     {
         if (Models is { } models)
         {
-            var client = new OpenAiCompatibleClient(models);
-            services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(client).AddSingleton<IChatClient>(client);
+            var (chat, embeddings) = models.CreateClients();
+            services.AddSingleton(embeddings).AddSingleton(chat);
         }
         else
         {
             services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(new HashingEmbedder(EmbeddingSet.Dimensions))
                 .AddSingleton<IChatClient>(new ExtractiveChatClient())
-                .AddKeyedSingleton<IChatClient>(GraphRagServiceKeys.ExtractionChatClient, new RecordedExtractionClient(RecordedReplies));
+                .AddKeyedSingleton<IChatClient>(GraphRagServiceKeys.ExtractionChatClient,
+                    new RecordedChatClient(ModelRecordings.Load(Recordings), missing: _ => """{"entities": [], "relationships": [], "quotes": []}"""));
         }
-        return services.AddGraphRag<NovelContext>(EmbeddingSet, options => options.Chunking.MaxUtf8Bytes = 4_096);
+        // Four extraction calls at a time: a reasoning model takes about a minute and a half per passage.
+        return services.AddGraphRag<NovelContext>(EmbeddingSet, options => (options.Chunking.MaxUtf8Bytes, options.Extraction.Lanes) = (4_096, 4));
     }
 
     /// <summary>Downloads the book once and keeps only the text between Project Gutenberg's start and end markers.</summary>

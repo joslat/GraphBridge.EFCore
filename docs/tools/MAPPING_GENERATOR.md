@@ -53,7 +53,7 @@ Reference the provider as usual and the generator as an analyzer, so no generato
                   OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
 <!-- From nuget.org -->
-<PackageReference Include="GraphBridge.Generators" Version="0.1.0-preview.5" PrivateAssets="all" />
+<PackageReference Include="GraphBridge.Generators" Version="0.2.0-preview.1" PrivateAssets="all" />
 ```
 
 The generator adds the attribute types to your compilation as internal types in the `GraphBridge.Generated` namespace (`GraphBridge.Attributes.g.cs`), so you need no attribute package. It targets `netstandard2.0` and is verified with Roslyn 5.9.0 from the pinned .NET SDK 10.0.401; older compiler hosts are not verified. It never loads your assembly, constructs a context, runs `OnModelCreating` or opens a database.

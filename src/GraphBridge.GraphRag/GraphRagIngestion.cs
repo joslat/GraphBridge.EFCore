@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,8 @@ namespace GraphBridge.GraphRag;
 /// </summary>
 internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, GraphRagEmbeddingSet embeddingSet, GraphRagOptions options,
     IEnumerable<IGraphRagDocumentLoader> loaders, IGraphRagChunker chunker, IEmbeddingGenerator<string, Embedding<float>> generator,
-    TimeProvider? clock = null, Func<IChatClient?>? extractionChat = null, IGraphRagExtractionVerifier? verifier = null)
+    TimeProvider? clock = null, Func<IChatClient?>? extractionChat = null, IGraphRagExtractionVerifier? verifier = null,
+    IGraphRagTokenCounter? tokenCounter = null)
     : IGraphRagIngestion where TContext : DbContext
 {
     private readonly TimeProvider _clock = clock ?? TimeProvider.System;
@@ -38,6 +38,77 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         return RunAsync(list.Select(document => new Pending(document.Source, document)), fingerprints.FirstOrDefault() ?? ChunkerFingerprint, cancellationToken);
     }
 
+    public async Task<GraphRagIngestionPreview> PreviewAsync(IEnumerable<GraphRagSource> sources, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(sources);
+        options.Ingestion.Validate();
+        options.Chunking.Validate();
+        var all = sources.Take(options.Ingestion.MaxDocuments + 1).ToList();
+        var limits = new List<GraphRagLimit>();
+        if (all.Count > options.Ingestion.MaxDocuments)
+        {
+            all.RemoveAt(all.Count - 1);
+            limits.Add(new(nameof(GraphRagIngestionOptions.MaxDocuments), options.Ingestion.MaxDocuments));
+        }
+        RequireModel();
+        GraphRagModelSchema? schema;
+        using (var scope = scopes.CreateScope())
+        {
+            var model = scope.ServiceProvider.GetRequiredService<TContext>().Model;
+            schema = model.FindAnnotation(GraphRagModelBuilderExtensions.OntologyAnnotation)?.Value is GraphRagOntology ? GraphRagModelSchema.From(model) : null;
+        }
+        var fingerprint = Hash(string.Join('\u001f',
+            new[] { ChunkerFingerprint, embeddingSet.Id }.Concat(schema is null ? [] : [GraphRagExtractor.FingerprintFor(schema)])));
+        var instructions = schema is null ? 0 : Tokens(GraphRagExtractor.InstructionsFor(schema));
+
+        var documents = new List<GraphRagDocumentPreview>();
+        var (chunks, embeddingCalls, extractionCalls, embeddingTokens, extractionTokens) = (0, 0, 0, 0L, 0L);
+        foreach (var source in all)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var documentId = Hash(source.SourceUri);
+            GraphRagLoadedDocument loaded;
+            try
+            {
+                var loader = loaders.FirstOrDefault(l => l.CanLoad(source));
+                if (loader is null)
+                {
+                    documents.Add(new(documentId, source.SourceUri, GraphRagPreviewStatus.WouldFail, "unsupported-media-type", 0, 0));
+                    continue;
+                }
+                loaded = await loader.LoadAsync(source, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception error) when (error is GraphRagLoadException or IOException or UnauthorizedAccessException)
+            {
+                documents.Add(new(documentId, source.SourceUri, GraphRagPreviewStatus.WouldFail, (error as GraphRagLoadException)?.ErrorCode ?? "read-failed", 0, 0));
+                continue;
+            }
+            var contentHash = Convert.ToHexString(SHA256.HashData(loaded.Utf8.Span)).ToLowerInvariant();
+            if (await UnchangedAsync(documentId, contentHash, fingerprint, cancellationToken).ConfigureAwait(false))
+            {
+                documents.Add(new(documentId, source.SourceUri, GraphRagPreviewStatus.Unchanged, null, loaded.Utf8.Length, 0));
+                continue;
+            }
+            var plan = chunker.Chunk(loaded);
+            var title = source.Metadata?.Title ?? loaded.Title;
+            foreach (var chunk in plan.Chunks)
+            {
+                var text = Encoding.UTF8.GetString(loaded.Utf8.Span[chunk.StartByte..chunk.EndByte]);
+                embeddingTokens += Tokens(text);
+                // Two messages, each with a few tokens of chat format, and the request's own.
+                if (schema is not null) extractionTokens += instructions + Tokens(GraphRagExtractor.PromptFor(title, text)) + 2 * 4 + 3;
+            }
+            chunks += plan.Chunks.Count;
+            embeddingCalls += (plan.Chunks.Count + options.Ingestion.EmbeddingBatchSize - 1) / options.Ingestion.EmbeddingBatchSize;
+            if (schema is not null) extractionCalls += plan.Chunks.Count;
+            documents.Add(new(documentId, source.SourceUri, GraphRagPreviewStatus.WouldIngest, null, loaded.Utf8.Length, plan.Chunks.Count));
+        }
+        return new(documents, chunks, embeddingCalls, extractionCalls, embeddingTokens, extractionTokens, tokenCounter is not null, limits);
+    }
+
+    // The registered counter's count, or four bytes of UTF-8 per token, rounded up.
+    private long Tokens(string text) => tokenCounter?.Count(text) ?? (Encoding.UTF8.GetByteCount(text) + 3) / 4;
+
     // A source to load and chunk, or a document whose chunks were decided elsewhere.
     private sealed record Pending(GraphRagSource Source, GraphRagChunkedDocument? Chunked);
 
@@ -47,6 +118,7 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
     {
         options.Ingestion.Validate();
         options.Chunking.Validate();
+        options.Retry.Validate();
         var timer = Stopwatch.StartNew();
         using var activity = GraphRagDiagnostics.Start(GraphRagTracing.IngestActivity);
         var all = pending.Take(options.Ingestion.MaxDocuments + 1).ToList();
@@ -68,12 +140,13 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         await UpsertRunAsync(run, cancellationToken).ConfigureAwait(false);
         var outcomes = new List<GraphRagDocumentOutcome>();
         var tally = new Tally();
+        var retries = new GraphRagRetryTally();
         try
         {
             foreach (var item in all)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                outcomes.Add(await IngestDocumentAsync(item, run, tally, extractor, extraction, cancellationToken).ConfigureAwait(false));
+                outcomes.Add(await IngestDocumentAsync(item, run, tally, retries, extractor, extraction, cancellationToken).ConfigureAwait(false));
             }
         }
         finally
@@ -86,7 +159,10 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
             await UpsertRunAsync(run, CancellationToken.None).ConfigureAwait(false);
             if (activity is not null)
             {
+                var retried = retries.Summary();
                 activity.SetTag("graphrag.run_id", run.Id);
+                activity.SetTag("graphrag.retries", retried.Retries);
+                activity.SetTag("graphrag.rate_limited", retried.RateLimited);
                 activity.SetTag("graphrag.documents_ingested", run.DocumentsIngested);
                 activity.SetTag("graphrag.documents_unchanged", run.DocumentsUnchanged);
                 activity.SetTag("graphrag.documents_failed", run.DocumentsFailed);
@@ -104,14 +180,14 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
                 if (run.Status == "Failed") GraphRagDiagnostics.Fail(activity, cancellationToken.IsCancellationRequested ? "cancelled" : "incomplete");
             }
         }
-        return new(run.Id, outcomes, tally.Chunks, tally.Calls, tally.Tokens, timer.Elapsed, limits, extraction?.Summary());
+        return new(run.Id, outcomes, tally.Chunks, tally.Calls, tally.Tokens, timer.Elapsed, limits, extraction?.Summary(), retries.Summary());
     }
 
-    private async Task<GraphRagDocumentOutcome> IngestDocumentAsync(Pending item, GraphRagIngestionRun run, Tally tally,
+    private async Task<GraphRagDocumentOutcome> IngestDocumentAsync(Pending item, GraphRagIngestionRun run, Tally tally, GraphRagRetryTally retries,
         GraphRagExtractor? extractor, GraphRagExtractionTally? extraction, CancellationToken cancellationToken)
     {
         using var activity = GraphRagDiagnostics.Start(GraphRagTracing.DocumentActivity);
-        var outcome = await IngestDocumentCoreAsync(item, run, tally, extractor, extraction, cancellationToken).ConfigureAwait(false);
+        var outcome = await IngestDocumentCoreAsync(item, run, tally, retries, extractor, extraction, cancellationToken).ConfigureAwait(false);
         if (activity is not null)
         {
             activity.SetTag("graphrag.run_id", run.Id);
@@ -122,7 +198,7 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         return outcome;
     }
 
-    private async Task<GraphRagDocumentOutcome> IngestDocumentCoreAsync(Pending item, GraphRagIngestionRun run, Tally tally,
+    private async Task<GraphRagDocumentOutcome> IngestDocumentCoreAsync(Pending item, GraphRagIngestionRun run, Tally tally, GraphRagRetryTally retries,
         GraphRagExtractor? extractor, GraphRagExtractionTally? extraction, CancellationToken cancellationToken)
     {
         var source = item.Source;
@@ -150,10 +226,13 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
 
         if (!await TryLeaseAsync(documentId, run.Id, cancellationToken).ConfigureAwait(false)) return Failed("lease-held");
         var released = false;
+        // The lease is renewed while the document is embedded and extracted, which can take longer than the lease itself.
+        var lease = new LeaseKeeper(this, documentId, run.Id, options.Ingestion.LeaseDuration, cancellationToken);
         try
         {
+            var work = lease.Token;
             var contentHash = Convert.ToHexString(SHA256.HashData(loaded.Utf8.Span)).ToLowerInvariant();
-            if (await UnchangedAsync(documentId, contentHash, run.SettingsFingerprint, cancellationToken).ConfigureAwait(false))
+            if (await UnchangedAsync(documentId, contentHash, run.SettingsFingerprint, work).ConfigureAwait(false))
                 return new(documentId, source.SourceUri, GraphRagDocumentStatus.Unchanged, null);
 
             var plan = item.Chunked?.Plan ?? chunker.Chunk(loaded);
@@ -162,7 +241,7 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
             using (var embed = GraphRagDiagnostics.Start(GraphRagTracing.EmbedActivity))
             {
                 embed?.SetTag("graphrag.texts", texts.Length);
-                try { vectors = await EmbedAsync(texts, tally, cancellationToken).ConfigureAwait(false); }
+                try { vectors = await EmbedAsync(texts, tally, retries, work).ConfigureAwait(false); }
                 catch (GraphRagEmbeddingException error)
                 {
                     GraphRagDiagnostics.Fail(embed, error.ErrorCode);
@@ -177,7 +256,7 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
                 var items = plan.Chunks.Select(c => new GraphRagEvidenceItem(chunkIds[c.Order], documentId, texts[c.Order], c.StartByte, c.EndByte, 0, [])).ToArray();
                 using var extract = GraphRagDiagnostics.Start(GraphRagTracing.ExtractActivity);
                 var (calls, pruned, quarantined) = (extraction!.Calls, extraction.Pruned.Count, extraction.Quarantined.Count);
-                try { graph = await extractor.ExtractAsync(documentId, source.Metadata?.Title ?? loaded.Title, run.Id, items, extraction, cancellationToken).ConfigureAwait(false); }
+                try { graph = await extractor.ExtractAsync(documentId, source.Metadata?.Title ?? loaded.Title, run.Id, items, extraction, retries, work).ConfigureAwait(false); }
                 catch (GraphRagExtractionException error)
                 {
                     GraphRagDiagnostics.Fail(extract, error.ErrorCode);
@@ -190,6 +269,9 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
                 extract?.SetTag("graphrag.quarantined", extraction.Quarantined.Count - quarantined);
             }
 
+            // The write renews the lease itself, first thing in its transaction.
+            await lease.StopAsync().ConfigureAwait(false);
+            if (lease.Lost) return Failed("lease-lost");
             string? write;
             using var writing = GraphRagDiagnostics.Start(GraphRagTracing.WriteActivity);
             writing?.SetTag("graphrag.chunks", plan.Chunks.Count);
@@ -214,12 +296,19 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
                 return Failed(write);
             }
             released = true;
-            await ReleaseAsync(documentId, run.Id, CancellationToken.None).ConfigureAwait(false);
+            // The document is committed: a release that fails now mustn't lose the batch's receipt. The lease expires on its own.
+            try { await ReleaseAsync(documentId, run.Id, CancellationToken.None).ConfigureAwait(false); }
+            catch (Exception) when (!cancellationToken.IsCancellationRequested) { }
             tally.Chunks += plan.Chunks.Count;
             return new(documentId, source.SourceUri, GraphRagDocumentStatus.Ingested, null);
         }
+        catch (OperationCanceledException) when (lease.Lost && !cancellationToken.IsCancellationRequested)
+        {
+            return Failed("lease-lost");
+        }
         finally
         {
+            await lease.DisposeAsync().ConfigureAwait(false);
             if (!released)
             {
                 try { await ReleaseAsync(documentId, run.Id, CancellationToken.None).ConfigureAwait(false); }
@@ -257,6 +346,77 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         }
     }
 
+    // Extends this run's lease if it still holds it; false when another run has taken it over.
+    private async Task<bool> RenewAsync(string documentId, string runId, CancellationToken cancellationToken)
+    {
+        await using var scope = scopes.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TContext>();
+        var now = _clock.GetUtcNow();
+        var expires = now + options.Ingestion.LeaseDuration;
+        try
+        {
+            return await db.Set<GraphRagLease>().Where(l => l.Key == documentId && l.RunId == runId && l.ExpiresUtc > now)
+                .ExecuteUpdateAsync(s => s.SetProperty(l => l.ExpiresUtc, expires), cancellationToken).ConfigureAwait(false) == 1;
+        }
+        catch (DbUpdateConcurrencyException) { return false; }
+    }
+
+    /// <summary>
+    /// Renews a document's lease every third of its duration until stopped. If a renewal finds the lease gone to another run,
+    /// it cancels <see cref="Token"/> and sets <see cref="Lost"/>. A renewal that fails for any other reason is tried again at
+    /// the next beat; the write's own renewal still fences the commit.
+    /// </summary>
+    private sealed class LeaseKeeper : IAsyncDisposable
+    {
+        private readonly CancellationTokenSource _work;
+        private readonly CancellationTokenSource _stop = new();
+        private readonly Task _beats;
+        private int _lost;
+
+        public LeaseKeeper(GraphRagIngestion<TContext> owner, string documentId, string runId, TimeSpan duration, CancellationToken cancellationToken)
+        {
+            _work = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _beats = BeatAsync(owner, documentId, runId, duration / 3);
+        }
+
+        public CancellationToken Token => _work.Token;
+        public bool Lost => Volatile.Read(ref _lost) == 1;
+
+        private async Task BeatAsync(GraphRagIngestion<TContext> owner, string documentId, string runId, TimeSpan every)
+        {
+            while (!_stop.IsCancellationRequested)
+            {
+                bool renewed;
+                try
+                {
+                    await Task.Delay(every, owner._clock, _stop.Token).ConfigureAwait(false);
+                    renewed = await owner.RenewAsync(documentId, runId, _stop.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (_stop.IsCancellationRequested) { return; }
+                catch (Exception) when (!_stop.IsCancellationRequested) { continue; }
+                if (!renewed)
+                {
+                    Volatile.Write(ref _lost, 1);
+                    _work.Cancel();
+                    return;
+                }
+            }
+        }
+
+        public async Task StopAsync()
+        {
+            if (!_stop.IsCancellationRequested) _stop.Cancel();
+            await _beats.ConfigureAwait(false);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await StopAsync().ConfigureAwait(false);
+            _work.Dispose();
+            _stop.Dispose();
+        }
+    }
+
     private async Task ReleaseAsync(string documentId, string runId, CancellationToken cancellationToken)
     {
         await using var scope = scopes.CreateAsyncScope();
@@ -276,37 +436,26 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         return writer == fingerprint;
     }
 
-    internal async Task<float[][]> EmbedAsync(string[] texts, Tally tally, CancellationToken cancellationToken)
+    internal async Task<float[][]> EmbedAsync(string[] texts, Tally tally, GraphRagRetryTally retries, CancellationToken cancellationToken)
     {
         var batches = texts.Chunk(options.Ingestion.EmbeddingBatchSize).ToArray();
         var results = new float[batches.Length][][];
         await Parallel.ForEachAsync(Enumerable.Range(0, batches.Length),
             new ParallelOptions { MaxDegreeOfParallelism = options.Ingestion.Lanes, CancellationToken = cancellationToken },
-            async (index, token) => results[index] = await EmbedBatchAsync(batches[index], tally, token).ConfigureAwait(false)).ConfigureAwait(false);
+            async (index, token) => results[index] = await EmbedBatchAsync(batches[index], tally, retries, token).ConfigureAwait(false)).ConfigureAwait(false);
         return results.SelectMany(batch => batch).ToArray();
     }
 
-    private async Task<float[][]> EmbedBatchAsync(string[] batch, Tally tally, CancellationToken cancellationToken)
+    private async Task<float[][]> EmbedBatchAsync(string[] batch, Tally tally, GraphRagRetryTally retries, CancellationToken cancellationToken)
     {
-        for (var attempt = 0; ; attempt++)
+        var generated = await GraphRagRetry.RunAsync(token =>
         {
-            GeneratedEmbeddings<Embedding<float>> generated;
-            try
-            {
-                Interlocked.Increment(ref tally.Calls);
-                generated = await generator.GenerateAsync(batch, cancellationToken: cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception error) when (error is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
-            {
-                if (attempt >= 2 || !(options.Ingestion.IsTransient ?? IsTransient)(error))
-                    throw new GraphRagEmbeddingException("embedding-failed");
-                await Task.Delay(TimeSpan.FromMilliseconds(200 * (1 << (2 * attempt))), _clock, cancellationToken).ConfigureAwait(false);
-                continue;
-            }
-            if (generated.Count != batch.Length) throw new GraphRagEmbeddingException("embedding-count");
-            if (generated.Usage?.InputTokenCount is { } tokens) tally.AddTokens(tokens);
-            return generated.Select(embedding => Vector(embedding.Vector)).ToArray();
-        }
+            Interlocked.Increment(ref tally.Calls);
+            return generator.GenerateAsync(batch, cancellationToken: token);
+        }, options.Retry, retries, _clock, "embedding-failed", (code, error) => new GraphRagEmbeddingException(code, error), cancellationToken).ConfigureAwait(false);
+        if (generated.Count != batch.Length) throw new GraphRagEmbeddingException("embedding-count");
+        if (generated.Usage?.InputTokenCount is { } tokens) tally.AddTokens(tokens);
+        return generated.Select(embedding => Vector(embedding.Vector)).ToArray();
     }
 
     // Vectors are checked before the write; EF checks them again when it converts them for storage (ADR 0054).
@@ -329,13 +478,6 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         return vector;
     }
 
-    private static bool IsTransient(Exception error) => error switch
-    {
-        HttpRequestException { StatusCode: { } status } => status is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests || (int)status >= 500,
-        TimeoutException or TaskCanceledException => true,
-        _ => false
-    };
-
     private async Task<string?> WriteAsync(GraphRagLoadedDocument loaded, GraphRagSourceMetadata? metadata, string documentId, string contentHash,
         GraphRagChunkPlan plan, string[] chunkIds, string[] texts, float[][] vectors, string runId,
         (GraphRagOntologyRuntime Runtime, GraphRagExtractedGraph Graph, GraphRagExtractionTally Tally)? extraction, CancellationToken cancellationToken)
@@ -350,15 +492,16 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
             .ExecuteUpdateAsync(s => s.SetProperty(l => l.ExpiresUtc, expires), cancellationToken).ConfigureAwait(false);
         if (renewed != 1) return "lease-lost";
 
-        await GraphRagRemoval.RemoveContentAsync(db, documentId, cancellationToken).ConfigureAwait(false);
+        await GraphRagRemoval.RemoveContentAsync(db, [documentId], cancellationToken).ConfigureAwait(false);
         var document = await db.Set<GraphRagDocument>().SingleOrDefaultAsync(d => d.Id == documentId, cancellationToken).ConfigureAwait(false);
         if (document is null) db.Add(document = new GraphRagDocument { Id = documentId });
         document.SourceUri = loaded.SourceUri;
         document.Title = metadata?.Title ?? loaded.Title;
-        (document.Published, document.Publisher, document.Url) = (metadata?.Published, metadata?.Publisher, metadata?.Url);
+        (document.Published, document.Publisher, document.Url, document.TextOrigin) = (metadata?.Published, metadata?.Publisher, metadata?.Url, metadata?.TextOrigin);
         document.MediaType = loaded.MediaType;
         document.ContentHash = contentHash;
         document.LengthBytes = loaded.Utf8.Length;
+        document.PageStarts = loaded.PageStarts is { Count: > 0 } pages ? string.Join(',', pages.Select(p => p.ToString(CultureInfo.InvariantCulture))) : null;
         document.RunId = runId;
 
         var sectionIds = plan.Sections.Select(s => ElementId(documentId, contentHash, plan.Fingerprint, "section", s.StartByte, s.EndByte)).ToArray();
@@ -417,7 +560,7 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
         options.Extraction.Validate();
         var chat = extractionChat?.Invoke() ?? throw new InvalidOperationException(
             $"{typeof(TContext).Name} maps a GraphRAG ontology, so ingestion extracts: register an IChatClient, or one keyed '{GraphRagServiceKeys.ExtractionChatClient}'.");
-        return new GraphRagExtractor(GraphRagModelSchema.From(model), chat, options.Extraction, verifier, _clock);
+        return new GraphRagExtractor(GraphRagModelSchema.From(model), chat, options.Extraction, options.Retry, verifier, _clock);
     }
 
     private void RequireModel()
@@ -460,7 +603,7 @@ internal sealed class GraphRagIngestion<TContext>(IServiceScopeFactory scopes, G
     }
 }
 
-internal sealed class GraphRagEmbeddingException(string errorCode) : Exception(errorCode)
+internal sealed class GraphRagEmbeddingException(string errorCode, Exception? inner = null) : Exception(errorCode, inner)
 {
     public string ErrorCode { get; } = errorCode;
 }

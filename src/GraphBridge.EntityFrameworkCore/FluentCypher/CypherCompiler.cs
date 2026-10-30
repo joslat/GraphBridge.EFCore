@@ -29,11 +29,30 @@ internal sealed partial class CypherCompiler
         var comments = CypherComments.Lines(query.Tags);
         foreach (var comment in comments) text.AppendLine(comment);
         if (comments.Count != 0) { text.AppendLine(); _snapshotLine = comments.Count + 2; }
+        var searches = new List<CypherSearchCheck>();
         foreach (var clause in query.Query.Clauses)
         {
             BeginSnapshot(text);
             switch (clause)
             {
+                case CypherSearchClause search:
+                    // ADR 0057: SEARCH is a Cypher 25 subclause of a MATCH on the node's labels; the version leads the statement.
+                    var request = search.Request;
+                    var node = RenderPattern(new CypherPattern(search.Node));
+                    var symbol = (NodeSymbol)_symbols[search.Node];
+                    text.Append("CYPHER 25 MATCH ").Append(node).Append(" SEARCH ").Append(symbol.Name).Append(" IN (")
+                        .Append(request.Kind == Search.GraphSearchKind.Vector ? "VECTOR" : "FULLTEXT").Append(" INDEX ").Append(Identifier(request.Index))
+                        .Append(" FOR ").Append(Parameter(request.Query)).Append(" LIMIT ").Append(Parameter((long)request.Limit)).Append(')');
+                    if (search.Score is { } score)
+                    {
+                        if (_symbols.ContainsKey(score)) throw Unsupported("GBFC306", "A search's score is a fresh Cypher.Score() value.");
+                        var scoreName = Register(score, new ValueSymbol(NextName(score))).Name;
+                        _scope.Add(score);
+                        text.Append(" SCORE AS ").Append(scoreName);
+                    }
+                    searches.Add(new(request, symbol.Binding.Label));
+                    EndSnapshot(text, CypherClauseKind.Match);
+                    break;
                 case CypherMatchClause match:
                     var bound = match.Optional ? _symbols.Keys.ToHashSet() : null;
                     text.Append(match.Optional ? "OPTIONAL MATCH " : "MATCH ");
@@ -108,7 +127,7 @@ internal sealed partial class CypherCompiler
             text.Append("LIMIT ").Append(Parameter((long)limit));
             EndSnapshot(text, CypherClauseKind.Limit);
         }
-        return new(new CypherCommand(text.ToString(), _parameters, FinishSnapshot()), projection.Read);
+        return new(new CypherCommand(text.ToString(), _parameters, FinishSnapshot()), projection.Read, searches);
     }
 
     private string NextName(CypherAlias alias)
@@ -139,8 +158,26 @@ internal sealed partial class CypherCompiler
         _parameters.Add(name, value);
         return "$" + name;
     }
+    // A node type's labels, separated by colons (ADR 0055), each validated and quoted.
+    private static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
+
     private static string Identifier(string value) => CypherQueryRenderer.Identifier(value);
     private static NotSupportedException Unsupported(string code, string message) => CypherDiagnostics.Create(code, message);
 }
 
-internal sealed record CompiledCypher<T>(CypherCommand Command, Func<IReadOnlyDictionary<string, object>, T> Read);
+internal sealed record CompiledCypher<T>(CypherCommand Command, Func<IReadOnlyDictionary<string, object>, T> Read, IReadOnlyList<CypherSearchCheck>? Searches = null)
+{
+    /// <summary>Before the command, in its transaction: each searched index must suit its node type (ADR 0057).</summary>
+    internal Func<Neo4j.Driver.IAsyncTransaction, CancellationToken, Task>? Preflight => Searches is not { Count: > 0 } searches ? null : async (runner, token) =>
+    {
+        foreach (var search in searches)
+        {
+            var provenance = await Search.GraphSearchPreflight.InspectAsync(runner, search.Request, token).ConfigureAwait(false);
+            if (provenance.LabelsOrTypes.Count != 1 || provenance.LabelsOrTypes[0] != search.Label)
+                throw new InvalidOperationException($"Index '{search.Request.Index}' covers {string.Join(", ", provenance.LabelsOrTypes)}; a Fluent search needs an index on the node type's own label, {search.Label}.");
+        }
+    };
+}
+
+/// <summary>A search clause's index and the label its node type is stored under.</summary>
+internal sealed record CypherSearchCheck(Search.GraphSearchRequest Request, string Label);

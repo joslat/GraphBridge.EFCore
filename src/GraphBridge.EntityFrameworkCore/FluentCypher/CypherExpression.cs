@@ -75,6 +75,8 @@ internal sealed record CypherNotTerm(CypherTerm Operand, bool ClrSemantics = fal
 internal sealed record CypherInTerm(CypherTerm Operand, IReadOnlyList<object?> Values, bool ClrSemantics = false) : CypherTerm;
 internal sealed record CypherStringTerm(CypherTerm Operand, string Operator, CypherTerm Argument) : CypherTerm;
 internal sealed record CypherCountTerm(CypherTerm? Operand, bool Distinct) : CypherTerm;
+/// <summary>A search clause's SCORE AS value (ADR 0057); it has no expression of its own.</summary>
+internal sealed record CypherScoreTerm : CypherTerm;
 /// <summary>min, max, sum, avg or collect over a property; collect carries a server-side slice bound.</summary>
 internal sealed record CypherAggregateTerm(string Function, CypherTerm Operand, bool Distinct, int? Max) : CypherTerm;
 internal sealed record CypherExistsTerm(CypherPattern Pattern, CypherTerm? Predicate) : CypherTerm;

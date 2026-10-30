@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <Version>0.1.0-preview.5</Version>
-    <Description>GraphBridge preview starter: package-only EF Core console application and query contract tests.</Description>
+    <Version>0.2.0-preview.1</Version>
+    <Description>GraphBridge preview starters: graphbridge, a package-only EF Core console application with query contract tests; graphbridge-graphrag, an experimental GraphRAG console application with offline model stand-ins.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -18,6 +18,8 @@
     <Content Include="../eng/consumers/ProviderLiveConsumer.cs" Pack="true" PackagePath="content/graphbridge/App/Program.cs" />
     <Content Include="../global.json" Pack="true" PackagePath="content/graphbridge/global.json" />
     <Content Include="../LICENSE" Pack="true" PackagePath="content/graphbridge/" />
+    <Content Include="../global.json" Pack="true" PackagePath="content/graphbridge-graphrag/global.json" />
+    <Content Include="../LICENSE" Pack="true" PackagePath="content/graphbridge-graphrag/" />
     <None Update="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <Import Project="../eng/GraphBridge.Package.props" />

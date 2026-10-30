@@ -63,8 +63,8 @@ internal sealed class GraphAssociationMutationPlanner(GraphBindingCompiler compi
             }
         }
 
-        var sourceLabel = binding.Source.Node.Label;
-        var targetLabel = binding.Target.Node.Label;
+        var sourceLabel = binding.Source.Node.Labels;
+        var targetLabel = binding.Target.Node.Labels;
         var values = new ReadOnlyDictionary<string, object?>(changes);
         var originalValues = new ReadOnlyDictionary<string, object?>(originals);
         var command = entry.EntityState switch

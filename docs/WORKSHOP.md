@@ -1,6 +1,6 @@
 # Workshop
 
-The workshop teaches GraphBridge by running it. It is one menu-driven console application in [`workshop/`](../workshop/README.md) with 31 short lessons. Each lesson has a script to read and code that prints what it does, the Cypher it generates and what it observed. The core track (14 lessons) takes about three hours, longer with the exercises.
+The workshop teaches GraphBridge by running it. It is one menu-driven console application in [`workshop/`](../workshop/README.md) with 36 short lessons, 00 to 35. Each lesson has a script to read and code that prints what it does, the Cypher it generates and what it observed. The core track (14 lessons) takes about three hours, longer with the exercises.
 
 ```powershell
 # The interactive menu
@@ -22,6 +22,7 @@ Offline lessons need nothing else. The others need a disposable Neo4j on your ma
 | D · Graph-native querying | 15–22 | Native Cypher, Fluent Cypher, bounded paths, search, bulk mutations, and one question answered three ways | [Native Cypher](features/NATIVE_CYPHER.md), [Fluent Cypher](features/FLUENT_CYPHER.md) |
 | E · Operating the graph | 23–24 | Migration plans, deployment preflight and command tracing | [Schema and migrations](features/SCHEMA_AND_MIGRATIONS.md), [command tracing](features/COMMAND_TRACING.md) |
 | F · Developer extensions | 25–30 | The mapping generator, Doctor, Verify, Query Lab, design-time commands, database-first authoring | [Tools](README.md#tools) |
+| G · GraphRAG (experimental) | 31–35 | Answers with checked citations; things, facts and quotes; retrieval, scopes and streaming; merges and maintenance; follow-ups, export and graph questions | [GraphRAG](graphrag/README.md) |
 
 The core track is lessons 00–06, 08, 10, 16, 17, 22, 26 and 28.
 

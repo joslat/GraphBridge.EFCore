@@ -40,6 +40,7 @@ The article's published date, publisher and URL come from the source's own metad
 - **Things** are nodes keyed by a hash of their kind and normalised name. The same name of the same kind is one thing across chunks and documents.
 - **Placeholders** such as "the man" or "someone" never merge: each gets an ID from its own span, and `IsPlaceholder` is true.
 - **Mentions** are identified relationships `MENTIONED_IN_<CLASS>` from the thing to the chunk, with `StartByte`, `EndByte` and the `Quote`.
+- **In neo4j-graphrag's shape,** `ontology.WithNeo4jGraphRagEntities()` stores things with its `__Entity__` and `__KGBuilder__` labels, every mention as `FROM_CHUNK` and the name as `name`, so its retrievers read them ([entities](INTEROP.md#one-graph-two-stacks-entities)).
 - **Facts** are association edges with the ontology's type names, one per pair of things. Each lists the documents that state it (`DocumentIds`).
 - **Quotes** (`SAYS`, `QUOTED`) are identified relationships from the speaker to the chunk, with the words' exact bytes.
 
@@ -67,3 +68,8 @@ The schema steps for an ontology add:
 - one full-text index over every class's name and aliases.
 
 Get them with `GraphRagSchema.CreateSteps(layout, set, ontology)`.
+
+## Try it
+
+- [Sample 08](../../samples/08-GraphRagNovel/README.md) extracts a novel with the novel ontology, then reads characters, kin and who says what through typed LINQ.
+- [Sample 09](../../samples/09-GraphRagArticles/README.md) uses the article ontology: authors, topics, jobs and quotations, with facts that list every article stating them.

@@ -26,7 +26,8 @@ internal static class GraphSchemaManifestCompiler
                         node.StoredProperties.Select(p => Property(p, "node:" + node.Label, caveats)),
                         Indexes(entity, node.StoredProperties, "node:" + node.Label, caveats, derivedNodeSlots: true),
                         entity.GetKeys().Where(key => key != entity.FindPrimaryKey()).Select(key =>
-                            new GraphSchemaIndex(key.Properties.Select(p => node.Properties.Single(b => b.Property == p).Name), true))));
+                            new GraphSchemaIndex(key.Properties.Select(p => node.Properties.Single(b => b.Property == p).Name), true)),
+                        node.AdditionalLabels));
                     foreach (var reference in compiler.GetNodeReferences(entity))
                     {
                         var deletion = reference.ForeignKey.DeleteBehavior.ToString();

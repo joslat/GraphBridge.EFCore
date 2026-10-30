@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GraphBridge.GraphRag.Tests;
 
-/// <summary>Wave 1 (GR-03, GR-24): batched embedding in parallel lanes, transient-only retries and vector checks, with a fake generator.</summary>
+/// <summary>Wave 1 (GR-03, GR-24): batched embedding in parallel lanes, transient-only retries and vector checks, with a fake generator.
+/// Retry hints, backoff and the receipt's retry counts are in <see cref="GraphRagResilienceTests"/>.</summary>
 public sealed class GraphRagEmbeddingTests
 {
     [Fact]
@@ -16,7 +17,7 @@ public sealed class GraphRagEmbeddingTests
         var ingestion = Ingestion(generator, o => { o.Ingestion.EmbeddingBatchSize = 3; o.Ingestion.Lanes = 2; });
         var texts = Enumerable.Range(0, 10).Select(i => "text " + i).ToArray();
         var tally = new GraphRagIngestion<DbContext>.Tally();
-        var vectors = await ingestion.EmbedAsync(texts, tally, default);
+        var vectors = await ingestion.EmbedAsync(texts, tally, new(), default);
         Assert.Equal(texts.Select(FakeGenerator.Vector), vectors);
         Assert.Equal([3, 3, 3, 1], generator.BatchSizes.Order().Reverse());
         Assert.True(generator.MaxConcurrent <= 2);
@@ -25,24 +26,26 @@ public sealed class GraphRagEmbeddingTests
     }
 
     [Fact]
-    public async Task Only_transient_failures_are_retried_at_most_twice()
+    public async Task Only_transient_failures_are_retried_up_to_the_limit()
     {
         var flaky = new FakeGenerator(4) { Failures = new Queue<Exception>([new HttpRequestException("busy", null, HttpStatusCode.ServiceUnavailable), new TimeoutException()]) };
         var tally = new GraphRagIngestion<DbContext>.Tally();
-        Assert.Single(await Ingestion(flaky).EmbedAsync(["a"], tally, default));
-        Assert.Equal(3, tally.Calls);
+        var retries = new GraphRagRetryTally();
+        Assert.Single(await Ingestion(flaky).EmbedAsync(["a"], tally, retries, default));
+        Assert.Equal((3, 2, 0), (tally.Calls, retries.Summary().Retries, retries.Summary().RateLimited));
 
-        var persistent = new FakeGenerator(4) { Failures = new Queue<Exception>(Enumerable.Range(0, 3).Select(_ => (Exception)new HttpRequestException("busy", null, HttpStatusCode.TooManyRequests))) };
-        Assert.Equal("embedding-failed", (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(persistent).EmbedAsync(["a"], new(), default))).ErrorCode);
-        Assert.Equal(3, persistent.Calls);
+        // Five attempts by default; a rate limit that never lifts fails with its own code.
+        var persistent = new FakeGenerator(4) { Failures = new Queue<Exception>(Enumerable.Range(0, 5).Select(_ => (Exception)new HttpRequestException("busy", null, HttpStatusCode.TooManyRequests))) };
+        Assert.Equal("rate-limited", (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(persistent).EmbedAsync(["a"], new(), new(), default))).ErrorCode);
+        Assert.Equal(5, persistent.Calls);
 
         var refused = new FakeGenerator(4) { Failures = new Queue<Exception>([new HttpRequestException("bad key", null, HttpStatusCode.Unauthorized)]) };
-        await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(refused).EmbedAsync(["a"], new(), default));
+        Assert.Equal("embedding-failed", (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(refused).EmbedAsync(["a"], new(), new(), default))).ErrorCode);
         Assert.Equal(1, refused.Calls);
 
-        // An application test can turn retries off, for a client that already retries.
+        // An application can turn retries off, for a client that already retries.
         var own = new FakeGenerator(4) { Failures = new Queue<Exception>([new TimeoutException()]) };
-        await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(own, o => o.Ingestion.IsTransient = _ => false).EmbedAsync(["a"], new(), default));
+        await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(own, o => o.Retry.MaxRetries = 0).EmbedAsync(["a"], new(), new(), default));
         Assert.Equal(1, own.Calls);
     }
 
@@ -52,16 +55,16 @@ public sealed class GraphRagEmbeddingTests
     public async Task Vectors_of_the_wrong_size_or_without_a_direction_are_refused(int mode, string code)
     {
         var generator = new FakeGenerator(4) { Override = mode == 3 ? [1f, 2f, 3f] : [0f, 0f, 0f, 0f] };
-        Assert.Equal(code, (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(generator).EmbedAsync(["a"], new(), default))).ErrorCode);
+        Assert.Equal(code, (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(generator).EmbedAsync(["a"], new(), new(), default))).ErrorCode);
         var nan = new FakeGenerator(4) { Override = [1f, float.NaN, 0f, 0f] };
-        Assert.Equal("invalid-embedding", (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(nan).EmbedAsync(["a"], new(), default))).ErrorCode);
+        Assert.Equal("invalid-embedding", (await Assert.ThrowsAsync<GraphRagEmbeddingException>(() => Ingestion(nan).EmbedAsync(["a"], new(), new(), default))).ErrorCode);
     }
 
     [Fact]
     public async Task A_normalising_set_stores_unit_vectors()
     {
         var generator = new FakeGenerator(4) { Override = [3f, 4f, 0f, 0f] };
-        var vector = Assert.Single(await Ingestion(generator, set: new GraphRagEmbeddingSet("fake", 4, Normalize: true)).EmbedAsync(["a"], new(), default));
+        var vector = Assert.Single(await Ingestion(generator, set: new GraphRagEmbeddingSet("fake", 4, Normalize: true)).EmbedAsync(["a"], new(), new(), default));
         Assert.Equal([0.6f, 0.8f, 0f, 0f], vector);
     }
 
@@ -80,11 +83,12 @@ public sealed class GraphRagEmbeddingTests
         Assert.IsType<GraphRagTextLoader>(Assert.Single(provider.GetServices<IGraphRagDocumentLoader>()));
     }
 
-    private static GraphRagIngestion<DbContext> Ingestion(FakeGenerator generator, Action<GraphRagOptions>? configure = null, GraphRagEmbeddingSet? set = null)
+    internal static GraphRagIngestion<DbContext> Ingestion(FakeGenerator generator, Action<GraphRagOptions>? configure = null, GraphRagEmbeddingSet? set = null)
     {
         var options = new GraphRagOptions();
+        options.Retry.BaseDelay = TimeSpan.FromMilliseconds(1);
         configure?.Invoke(options);
-        // EmbedAsync touches neither the database nor the scope factory. Retries wait 200 ms, then 800 ms.
+        // EmbedAsync touches neither the database nor the scope factory. Retries wait 1 ms, doubling.
         return new(null!, set ?? new GraphRagEmbeddingSet("fake", generator.Dimensions), options, [], new GraphRagChunker(options.Chunking), generator);
     }
 }

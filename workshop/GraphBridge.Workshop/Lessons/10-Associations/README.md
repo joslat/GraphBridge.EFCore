@@ -81,7 +81,7 @@ Four strong likes; the new `LIKES` relationship appears, gets five stars and is 
 ## Try it yourself
 
 1. Add a second `Like` for the same person and movie in one context. What does EF say before anything reaches Neo4j?
-2. Query `db.Follows`, then load the people with those keys (the pattern in lesson 22) and print who follows whom by name.
+2. Query `db.Follows`, then load the people with those keys (the pattern from lesson 08, step 4) and print who follows whom by name.
 
 ## Limits
 

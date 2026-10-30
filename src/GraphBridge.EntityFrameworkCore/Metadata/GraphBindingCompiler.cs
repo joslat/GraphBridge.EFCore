@@ -130,12 +130,19 @@ internal sealed class NodeBinding
         IReadOnlyList<GraphPropertyBinding> properties)
     {
         (EntityType, Label, KeyProperties, Properties) = (entityType, label, keyProperties, properties);
+        AdditionalLabels = GraphModelValidation.AdditionalLabels(entityType);
+        Labels = string.Join(':', AdditionalLabels.Prepend(label));
         var derived = entityType.GetForeignKeys().Where(GraphModelValidation.IsNodeReference).SelectMany(fk => fk.Properties).ToHashSet();
         StoredProperties = Array.AsReadOnly(properties.Where(p => !derived.Contains(p.Property)).ToArray());
     }
 
     public IEntityType EntityType { get; }
+    /// <summary>The type's own label: its key constraints and indexes, and its upserts' MERGE, are on this label.</summary>
     public string Label { get; }
+    /// <summary>Further labels each node carries (ADR 0055), in ordinal order.</summary>
+    public IReadOnlyList<string> AdditionalLabels { get; }
+    /// <summary>Every label, the type's own first, separated by colons: what a pattern that matches or creates the type's nodes renders.</summary>
+    public string Labels { get; }
     public IReadOnlyList<IProperty> KeyProperties { get; }
     public IReadOnlyList<GraphPropertyBinding> Properties { get; }
     /// <summary>Physical node properties only; native-reference FK slots remain in Properties at their EF ordinals.</summary>

@@ -2,19 +2,49 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GraphBridge.UnitTests;
 
-// GraphRAG wave 0 spike (GR-31), question (a), recorded in ADR 0052. Kept as a guard: if a provider
-// change lets mention classes share a relationship type, this fails and ADR 0052's mention mapping is revisited.
+// GraphRAG wave 0 spike (GR-31), question (a), recorded in ADR 0052. It found that mention classes couldn't share a
+// relationship type; ADR 0056 (GR-62) allows it when their endpoint types differ, so this now pins that rule.
 public sealed class GraphRagSpikeTests
 {
     [Fact]
-    public void Two_identified_mention_classes_cannot_share_one_relationship_type_but_one_type_each_works()
+    public void Identified_mention_classes_share_one_relationship_type_when_their_endpoints_differ()
     {
         using var shared = Context("MENTIONED_IN", "MENTIONED_IN");
-        Assert.Contains("exactly one EF entity owner", Assert.Throws<InvalidOperationException>(() => shared.Model).Message);
+        Assert.NotNull(shared.Model.FindEntityType(typeof(SpikeMention<SpikePerson>)));
+        Assert.NotNull(shared.Model.FindEntityType(typeof(SpikeMention<SpikePlace>)));
 
         using var separate = Context("MENTIONED_IN_PERSON", "MENTIONED_IN_PLACE");
         Assert.NotNull(separate.Model.FindEntityType(typeof(SpikeMention<SpikePerson>)));
-        Assert.NotNull(separate.Model.FindEntityType(typeof(SpikeMention<SpikePlace>)));
+    }
+
+    [Fact]
+    public void Owners_with_the_same_endpoints_or_another_key_name_are_refused()
+    {
+        // Two owners from a person to a chunk: a read of either couldn't tell their relationships apart.
+        using var same = new ProviderModelContext(ProviderTestDriver.Create(), b =>
+        {
+            b.Entity<SpikeChunk>().ToGraphNode("SpikeChunk").Property(c => c.Id).ValueGeneratedNever();
+            b.Entity<SpikePerson>().ToGraphNode("SpikePerson").Property(p => p.Id).ValueGeneratedNever();
+            Mention<SpikePerson>(b, "MENTIONED_IN");
+            var quote = b.Entity<SpikeQuote>();
+            quote.Property(q => q.Id).ValueGeneratedNever();
+            quote.HasOne<SpikePerson>().WithMany().HasForeignKey(q => q.EntityId);
+            quote.HasOne<SpikeChunk>().WithMany().HasForeignKey(q => q.ChunkId);
+            quote.ToGraphIdentifiedRelationship("MENTIONED_IN", nameof(SpikeQuote.Id), [nameof(SpikeQuote.EntityId)], [nameof(SpikeQuote.ChunkId)]);
+        });
+        Assert.Contains("already has an owner from", Assert.Throws<InvalidOperationException>(() => same.Model).Message);
+
+        // Another key property name: the type's one uniqueness constraint couldn't cover both.
+        using var keys = new ProviderModelContext(ProviderTestDriver.Create(), b =>
+        {
+            b.Entity<SpikeChunk>().ToGraphNode("SpikeChunk").Property(c => c.Id).ValueGeneratedNever();
+            b.Entity<SpikePerson>().ToGraphNode("SpikePerson").Property(p => p.Id).ValueGeneratedNever();
+            b.Entity<SpikePlace>().ToGraphNode("SpikePlace").Property(p => p.Id).ValueGeneratedNever();
+            Mention<SpikePerson>(b, "MENTIONED_IN");
+            Mention<SpikePlace>(b, "MENTIONED_IN");
+            b.Entity<SpikeMention<SpikePlace>>().Property(m => m.Id).HasGraphPropertyName("mention_id");
+        });
+        Assert.Contains("must store their key under one property name", Assert.Throws<InvalidOperationException>(() => keys.Model).Message);
     }
 
     [Fact]
@@ -84,6 +114,7 @@ public sealed class GraphRagSpikeTests
     public sealed class SpikeNextChunk { public string ChunkId { get; set; } = ""; public string NextChunkId { get; set; } = ""; }
     public sealed class SpikePerson { public Guid Id { get; set; } public string Name { get; set; } = ""; }
     public sealed class SpikePlace { public Guid Id { get; set; } public string Name { get; set; } = ""; }
+    public sealed class SpikeQuote { public Guid Id { get; set; } public Guid EntityId { get; set; } public Guid ChunkId { get; set; } }
 
     public sealed class SpikeMention<T> where T : class
     {

@@ -1,14 +1,35 @@
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace GraphBridge.GraphRag;
 
-/// <summary>A verified citation: <see cref="Quote"/> is the stored text at the document's bytes [<see cref="StartByte"/>, <see cref="EndByte"/>).</summary>
-public sealed record GraphRagCitation(string DocumentId, string ChunkId, int StartByte, int EndByte, string Quote);
+/// <summary>
+/// A verified citation: <see cref="Quote"/> is the stored text at bytes [<see cref="StartByte"/>, <see cref="EndByte"/>) of the
+/// source document, or of the stored chunk when <see cref="Grounding"/> is <see cref="GraphRagGrounding.Chunk"/>.
+/// </summary>
+public sealed record GraphRagCitation(string DocumentId, string ChunkId, int StartByte, int EndByte, string Quote)
+{
+    public GraphRagGrounding Grounding { get; init; }
+
+    /// <summary>For a paged document, such as a PDF: the page of the quote's first byte (ADR 0052, section 14). Null otherwise.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Page { get; init; }
+
+    /// <summary>The page of the quote's last byte, when it differs from <see cref="Page"/> or not; null without pages.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? EndPage { get; init; }
+
+    /// <summary>Where the document's text came from when it isn't the source's own, such as OCR (ADR 0052, section 21): the quote
+    /// is exactly the derived text, which can differ from the original. Null otherwise.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TextOrigin { get; init; }
+}
 
 /// <summary>
-/// Locates a model's quote in the chunk it cites (ADR 0052, section 4). Only whitespace runs, quotation marks, typographic
-/// apostrophes and dashes are normalised, and at most two <c>...</c> elisions are allowed, in order. Nothing else is
-/// forgiven: no fuzzy matching, no case folding, no match across chunks. The citation records the stored text.
+/// Locates a model's quote in the chunk it cites (ADR 0052, sections 4 and 11). Only whitespace runs, quotation marks,
+/// typographic apostrophes and dashes are normalised, the emphasis marks <c>_</c> and <c>*</c> are ignored, and at most two
+/// <c>...</c> elisions are allowed, in order. Nothing else is forgiven: no fuzzy matching, no case folding, no match across
+/// chunks. The citation records the stored text, emphasis marks included.
 /// </summary>
 public static class GraphRagCitationVerifier
 {
@@ -40,7 +61,11 @@ public static class GraphRagCitationVerifier
         if (char.IsHighSurrogate(item.Text[originalEnd - 1]) && originalEnd < item.Text.Length) originalEnd++;
         var startByte = item.StartByte + Encoding.UTF8.GetByteCount(item.Text.AsSpan(0, originalStart));
         var endByte = item.StartByte + Encoding.UTF8.GetByteCount(item.Text.AsSpan(0, originalEnd));
-        return new(item.DocumentId, item.ChunkId, startByte, endByte, item.Text[originalStart..originalEnd]);
+        return new(item.DocumentId, item.ChunkId, startByte, endByte, item.Text[originalStart..originalEnd])
+        {
+            Grounding = item.Grounding, Page = GraphRagPages.At(item.Pages, startByte), EndPage = GraphRagPages.At(item.Pages, endByte - 1),
+            TextOrigin = item.TextOrigin
+        };
     }
 
     // The normalised text and, for each of its characters, the index of the original character it came from.
@@ -52,6 +77,8 @@ public static class GraphRagCitationVerifier
         for (var i = 0; i < value.Length; i++)
         {
             var c = value[i];
+            // Emphasis marks, as in Markdown and Project Gutenberg's _italics_: a model copying the words drops them.
+            if (c is '_' or '*') continue;
             if (char.IsWhiteSpace(c))
             {
                 if (text.Length > 0 && text[^1] == ' ' && map.Count > 0 && char.IsWhiteSpace(value[map[^1]])) continue;

@@ -17,18 +17,18 @@ All three use the same provider and end in an ordinary EF Core model; they diffe
 | Sample | It shows |
 |---|---|
 | [04 Design-time commands](../samples/04-DesignTime/README.md) | Context discovery and graph migration commands (`list`, `preview`, `status`) around the authoring workflows; see [design-time commands](tools/DESIGN_TIME.md) |
-| [05 Fluent Cypher gallery](../samples/05-FluentCypher/README.md) | Eight reusable graph queries: co-actors, shared-movie scores, optional matches, nested EXISTS, lists and text, aggregates and bounded paths. The same source feeds the integration tests, [Doctor](tools/DOCTOR.md), [Verify](tools/VERIFY.md) and [Query Lab](tools/QUERY_LAB.md) |
+| [05 Fluent Cypher gallery](../samples/05-FluentCypher/README.md) | Nine reusable graph queries: co-actors, shared-movie scores, optional matches, nested EXISTS, lists and text, aggregates and bounded paths. The same source feeds the integration tests, [Doctor](tools/DOCTOR.md), [Verify](tools/VERIFY.md) and [Query Lab](tools/QUERY_LAB.md) |
 | [06 Vector search through VectorData](../samples/06-VectorSearch/README.md) | A search class that knows only `IVectorSearchable<T>`, bound to a Neo4j vector index by the optional VectorData adapter |
 
 ## GraphRAG samples (experimental)
 
-They use the experimental GraphRAG toolkit from source; its packages ship with a later preview. They run offline: stand-ins replace the models, and replies written by hand replace extraction. The real-model path, through an OpenAI-compatible endpoint, hasn't been run yet.
+They use the experimental GraphRAG toolkit through project references, so they run the repository's current source. They run without a model, with stand-ins for it, but always against a Neo4j 2026.09 or later database: here "offline" means no model, not no database. Give each one an empty database of its own: its schema is the database's first migration. Samples 07 to 09 have also run with a real model, GLM-5.3-Flash, and replay its recorded calls offline with `GRAPHBRIDGE_AI_MODE=replay`. Sample 09's offline extraction replies for its fictional articles are written by hand.
 
 | Sample | It shows |
 |---|---|
 | [07 GraphRAG quick start](../samples/07-GraphRagQuickStart/README.md) | GraphBridge's own docs ingested with exact chunk positions, and answers whose quotes are checked against the stored bytes, or a refusal |
 | [08 GraphRAG novel](../samples/08-GraphRagNovel/README.md) | *Alice's Adventures in Wonderland* with the novel ontology: characters, kin, places and who says what, read through typed LINQ |
-| [09 GraphRAG articles](../samples/09-GraphRagArticles/README.md) | Fictional articles with the article ontology: authors, topics, jobs and quotations, the source's own metadata, and a small ASP.NET Core endpoint |
+| [09 GraphRAG articles](../samples/09-GraphRagArticles/README.md) | The article ontology on fictional articles and on NASA's Artemis II news releases: authors, topics, jobs and quotations, the source's own metadata, an Agent Framework agent, and the toolkit's streaming endpoints |
 
 ## Running them
 

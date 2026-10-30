@@ -4,7 +4,7 @@ This is GraphBridge's support contract: the exact stack it is built and tested o
 
 ## Developer preview
 
-GraphBridge is a **developer preview** (`0.1.0-preview.5`; see the [changelog](../../CHANGELOG.md)). That means:
+GraphBridge is a **developer preview** (`0.2.0-preview.1`; see the [changelog](../../CHANGELOG.md)). That means:
 
 - It is not production-supported. Use it to evaluate, learn and give feedback.
 - Public APIs, generated source, supported model shapes and persisted mapping contracts may change between previews. Pin the exact preview.
@@ -22,6 +22,7 @@ Report problems through the repository's issue templates with exact versions, a 
 | Entity Framework Core | **10.0.13** | Exact central pin; signatures checked against EF source tags `v10.0.12` and `v10.0.13` |
 | Neo4j.Driver | **6.4.0** | The package reports assembly version 6.4.12.0; the informational version identifies 6.4.0. Its minimum is 6.4.0 for two security fixes in that release |
 | Optional tooling libraries | dotNetRdf 3.5.2, YamlDotNet 18.1.0, Roslyn 5.9.0, AngleSharp 1.5.0 | Used by `GraphBridge.Tooling` and the generator only; never by the provider at run time |
+| [GraphRAG toolkit](../graphrag/README.md) (experimental, `GBRAG001`) | Microsoft.Extensions.AI.Abstractions 10.11.0; its adapters: Microsoft.Extensions.DataIngestion 10.11.0-preview.1.26513.7, Microsoft.Agents.AI.Abstractions 1.26.0, PdfPig 0.1.16 | Needs Neo4j 2026.09 or later; tested on 2026.09.0 and 2026.10.1. Each adapter package brings only its own dependency; the provider takes none of them |
 
 The provider package declares `Microsoft.EntityFrameworkCore` as `[10.0.13, 11.0.0)` and `Neo4j.Driver` as `[6.4.0, 7.0.0)`. GraphBridge uses EF Core's internal provider APIs, which change between major versions, so the ranges make NuGet flag EF Core 11 or driver 7 at restore instead of resolving them silently. EF Core 10 is a long-term support release; EF Core 11 is unverified. `0.1.0-preview.4` and earlier declared minimum versions only, with no upper bound.
 
@@ -32,7 +33,7 @@ Within the ranges, NuGet may resolve newer patches than the ones tested; that is
 | Server | Status | Scope |
 |---|---|---|
 | Neo4j **2026.09.0 Community**, single server, database `neo4j` | Verified | All provider, tooling, sample and workshop live suites. Statements use the server's default Cypher dialect; actual plans report Cypher 25 |
-| Neo4j **2026.10.1 Community** | Live probe | The provider, specification and tooling live suites pass on it (24 October 2026). The test fixture stays on 2026.09.0, so later changes aren't rechecked on 2026.10.1 |
+| Neo4j **2026.10.1 Community** | Live probe | Every live suite passes on it (30 October 2026, the release candidate): the provider's integration suite with the GraphRAG toolkit's live tests 381/381, specification 81/81, tooling 25/25, the workshop 9/9, the GraphRAG samples' replayed real-model runs 23/23 and the interop suite 6/6. The test fixture stays on 2026.09.0, so later changes aren't rechecked on 2026.10.1 until it runs again |
 | Neo4j **2026.09.0 Enterprise**, dedicated database | Verified for one runtime profile | Seven restricted-user facts with [reviewed grants](../../eng/enterprise/README.md): reader and writer CRUD, the schema-visibility requirement and refused administration. No Enterprise schema deployment, Graph Type deployment or tenant isolation claim |
 | Neo4j **5.26.18 Community** | Read-only probe | Doctor and schema inspection, three Verify plans, one bounded LINQ projection and one Fluent/native comparison; plans report Cypher 5. No CRUD claim. Vector and full-text search are refused without fallback |
 | Other 5.x, 2025.x and 2026.x releases | Untested | Capability detection recognizes them; nothing else is claimed |

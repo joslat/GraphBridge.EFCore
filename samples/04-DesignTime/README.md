@@ -24,6 +24,6 @@ dotnet run --project samples/04-DesignTime/DesignTime.App --no-build -- status i
 $statusExit = $LASTEXITCODE
 ```
 
-An untouched database reports missing migration initialization and exits 3. This is a successful observation of an unready migration store, not a connection failure. The host never initializes, applies, repairs or drops anything. Use only an authorized database; repository acceptance uses the [owned fixture](../../eng/README.md), serial execution and the shared-memory reserve.
+An untouched database reports missing migration initialization and exits 3. This is a successful observation of an unready migration store, not a connection failure. The host never initializes, applies, repairs or drops anything. Use only a database you're allowed to inspect; the repository's acceptance runs use the [disposable fixture](../../eng/README.md).
 
 The source CLI `GraphBridge.Tool` continues to provide ontology/scaffolding commands. This sample is an application-owned migration catalog host, not a new `dotnet ef` plugin command or a generic assembly loader. `list` reports declared plans, not database history. Future richer commands remain separate proposals.

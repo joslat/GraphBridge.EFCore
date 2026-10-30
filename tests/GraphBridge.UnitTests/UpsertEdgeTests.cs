@@ -23,7 +23,8 @@ public sealed class UpsertEdgeTests
         Assert.StartsWith("SHOW CONSTRAINTS", script.Commands[0]);
         var preflight = script.Commands[1];
         Assert.Contains("OPTIONAL MATCH (s:`UpsertPerson` {`person_key`: row.source.`person_key`})", preflight);
-        Assert.Contains("FOREACH (x IN CASE WHEN s IS NULL THEN [] ELSE [s] END | SET x.`person_key` = x.`person_key`)", preflight);
+        Assert.Contains("FOREACH (x IN CASE WHEN s IS NULL THEN [] ELSE [s] END | SET x.`__graphbridge_lock` = true REMOVE x.`__graphbridge_lock`)", preflight);
+        Assert.DoesNotContain("SET x.`person_key`", preflight);
         Assert.Contains("OPTIONAL MATCH (a)-[e:`UPSERT_VISITED` {`visit_key`: row.key.`visit_key`}]->(b) WHERE s IS NULL OR t IS NULL OR a <> s OR b <> t", preflight);
         Assert.EndsWith("RETURN row.position AS position, s IS NOT NULL AS source, t IS NOT NULL AS target, count(e) AS edges", preflight);
         Assert.Equal("UNWIND $__gb_upsert_rows AS row\nMATCH (s:`UpsertPerson` {`person_key`: row.source.`person_key`})\n"

@@ -64,9 +64,10 @@ internal static class IdentifiedEdgeMutationRenderer
             .Append("\nWITH s, t, collect({edge: r, source: a, target: b}) AS candidates")
             .Append("\nWITH CASE WHEN size(candidates) = 1 AND candidates[0].source = s AND candidates[0].target = t")
             .Append(" THEN [candidates[0].edge] ELSE [] END AS edges")
-            // Acquire the relationship lock before reading original tokens, even with no caller token.
-            .Append("\nFOREACH (r IN edges | SET r.").Append(Identifier(keyProperty))
-            .Append(" = r.").Append(Identifier(keyProperty)).Append(')');
+            // Acquire the relationship lock before reading original tokens, even with no caller token. A transient property takes
+            // it: on Neo4j 2026.09 a key written to itself stays taken until the transaction ends, so the same key couldn't be added
+            // again after the delete.
+            .Append("\nFOREACH (r IN edges | ").Append(CypherMutationRenderer.LockWrite("r")).Append(')');
         return (text, parameters);
     }
 
@@ -104,7 +105,7 @@ internal static class IdentifiedEdgeMutationRenderer
             parameters[name] = pair.Value!;
             return Identifier(pair.Key) + ": $" + name;
         });
-        return $"MATCH ({alias}:{Identifier(label)} {{{string.Join(", ", properties)}}})";
+        return $"MATCH ({alias}:{Labels(label)} {{{string.Join(", ", properties)}}})";
     }
 
     private static void ValidateChanges(IReadOnlyDictionary<string, object?> properties, string keyProperty)
@@ -120,6 +121,9 @@ internal static class IdentifiedEdgeMutationRenderer
         if (key is null || key is string text && string.IsNullOrWhiteSpace(text))
             throw new InvalidOperationException("An identified edge requires a non-null, nonempty application key.");
     }
+
+    // A node type's labels, separated by colons (ADR 0055), each validated and quoted.
+    private static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
 
     private static string Identifier(string name)
     {

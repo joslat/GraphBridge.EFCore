@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Package version; must equal <Version> in the five published projects (for example 0.1.0-preview.5)
+        description: Package version; must equal <Version> in the ten packable projects (for example 0.2.0-preview.1)
         required: true
         type: string
       publish:
@@ -36,7 +36,11 @@ jobs:
           $projects = 'src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj',
             'src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj',
             'src/GraphBridge.Tooling/GraphBridge.Tooling.csproj', 'src/GraphBridge.Generators/GraphBridge.Generators.csproj',
-            'templates/GraphBridge.Templates.csproj'
+            'templates/GraphBridge.Templates.csproj', 'src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj',
+            'src/GraphBridge.GraphRag.DataIngestion/GraphBridge.GraphRag.DataIngestion.csproj',
+            'src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj',
+            'src/GraphBridge.GraphRag.AspNetCore/GraphBridge.GraphRag.AspNetCore.csproj',
+            'src/GraphBridge.GraphRag.Pdf/GraphBridge.GraphRag.Pdf.csproj'
           foreach ($project in $projects) {
             $version = (Select-Xml -Path $project -XPath '/Project/PropertyGroup/Version').Node.InnerText | Select-Object -First 1
             if ($version -cne $env:RELEASE_VERSION) { throw "$project declares $version, not $env:RELEASE_VERSION." }
@@ -53,21 +57,20 @@ jobs:
           dotnet test tests/GraphBridge.GraphRag.Tests --no-build -c Release
       - name: Check the compiled query gallery
         run: dotnet run --project samples/05-FluentCypher/FluentCypher.Sample.csproj --no-build --no-restore -c Release -- --check
-      # The experimental GraphRAG projects are built and tested above, but not packed or published yet: they ship with a later preview.
-      - name: Pack the five packages
+      - name: Pack the ten packages
         run: |
-          for project in src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj src/GraphBridge.Tooling/GraphBridge.Tooling.csproj src/GraphBridge.Generators/GraphBridge.Generators.csproj; do
+          for project in src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj src/GraphBridge.EntityFrameworkCore.VectorData/GraphBridge.EntityFrameworkCore.VectorData.csproj src/GraphBridge.Tooling/GraphBridge.Tooling.csproj src/GraphBridge.Generators/GraphBridge.Generators.csproj src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj src/GraphBridge.GraphRag.DataIngestion/GraphBridge.GraphRag.DataIngestion.csproj src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj src/GraphBridge.GraphRag.AspNetCore/GraphBridge.GraphRag.AspNetCore.csproj src/GraphBridge.GraphRag.Pdf/GraphBridge.GraphRag.Pdf.csproj; do
             dotnet pack "$project" --no-build --no-restore -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
           done
           dotnet pack templates/GraphBridge.Templates.csproj -c Release -p:ContinuousIntegrationBuild=true -o artifacts/packages
-      - name: Verify the five packages
+      - name: Verify the ten packages
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           . ./eng/scripts/Assert-PackageMetadata.ps1
-          $ids = 'GraphBridge.EntityFrameworkCore', 'GraphBridge.EntityFrameworkCore.VectorData', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates'
+          $ids = 'GraphBridge.EntityFrameworkCore', 'GraphBridge.EntityFrameworkCore.VectorData', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates', 'GraphBridge.GraphRag', 'GraphBridge.GraphRag.DataIngestion', 'GraphBridge.GraphRag.AgentFramework', 'GraphBridge.GraphRag.AspNetCore', 'GraphBridge.GraphRag.Pdf'
           $found = @(Get-ChildItem artifacts/packages -Filter *.nupkg | ForEach-Object Name | Sort-Object)
           $expected = @($ids | ForEach-Object { "$_.$env:RELEASE_VERSION.nupkg" } | Sort-Object)
           if (Compare-Object $found $expected) { throw "Expected exactly $($expected -join ', '); found $($found -join ', ')." }
@@ -121,7 +124,7 @@ jobs:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
-          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.EntityFrameworkCore.VectorData', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates') {
+          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.EntityFrameworkCore.VectorData', 'GraphBridge.Tooling', 'GraphBridge.Generators', 'GraphBridge.Templates', 'GraphBridge.GraphRag', 'GraphBridge.GraphRag.DataIngestion', 'GraphBridge.GraphRag.AgentFramework', 'GraphBridge.GraphRag.AspNetCore', 'GraphBridge.GraphRag.Pdf') {
             dotnet nuget push "packages/$id.$env:RELEASE_VERSION.nupkg" --api-key $env:NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
             if ($LASTEXITCODE) { throw "Pushing $id failed." }
           }

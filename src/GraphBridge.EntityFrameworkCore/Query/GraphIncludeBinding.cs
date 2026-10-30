@@ -32,7 +32,7 @@ internal sealed class GraphIncludeBinding
     public IReadOnlyList<NodeBinding> RequiredUniqueEndpoints { get; }
     public CypherIncludePlan CreatePlan(CypherQueryPlan root)
         => new(root, Included.CreatePlan(), Navigation.IsCollection, Reference.RelationshipType,
-            Navigation.IsCollection ? Reference.Dependent.Label : Reference.Principal.Label);
+            Navigation.IsCollection ? Reference.Dependent.Labels : Reference.Principal.Labels);
 
     public static GraphIncludeBinding Create(GraphReadBinding root, INavigation navigation, GraphBindingCompiler compiler)
     {

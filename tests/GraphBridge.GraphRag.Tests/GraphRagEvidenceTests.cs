@@ -64,6 +64,19 @@ public sealed class GraphRagEvidenceTests
     }
 
     [Fact]
+    public void Emphasis_marks_are_ignored_and_the_citation_keeps_them_as_stored()
+    {
+        // GraphRAG v2, wave 7: Project Gutenberg marks italics with underscores, and a model copying the words drops them.
+        var item = Item("when the Rabbit actually _took a watch out of its waistcoat-pocket_, and looked at it, and **then** hurried on");
+        Assert.Equal("took a watch out of its waistcoat-pocket", GraphRagCitationVerifier.Locate(item, "took a watch out of its waistcoat-pocket")?.Quote);
+        Assert.Equal("actually _took a watch", GraphRagCitationVerifier.Locate(item, "actually took a watch")?.Quote);
+        Assert.Equal("looked at it, and **then** hurried on", GraphRagCitationVerifier.Locate(item, "looked at it, and then hurried on")?.Quote);
+        Assert.Equal("took a watch", GraphRagCitationVerifier.Locate(item, "_took a watch")?.Quote);   // a leading mark isn't part of the span
+        Assert.Null(GraphRagCitationVerifier.Locate(item, "__"));
+        Assert.Null(GraphRagCitationVerifier.Locate(item, "took the watch"));
+    }
+
+    [Fact]
     public void Elisions_keep_order_and_anything_else_altered_is_rejected()
     {
         var item = Item("Alpha beta gamma. Delta epsilon zeta. Eta theta.");

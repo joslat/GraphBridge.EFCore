@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text;
 using System.Text.Json;
 using GraphBridge.GraphRag.Ontologies;
@@ -19,9 +18,11 @@ public sealed class GraphRagExtractionOptions
     public int MaxQuotesPerChunk { get; set; } = 50;
     /// <summary>0 to 100,000: how much of an unreadable reply its quarantine entry keeps.</summary>
     public int MaxQuarantinedCharacters { get; set; } = 2_000;
-    /// <summary>Which chat failures are retried, at most twice. Null: an <see cref="HttpRequestException"/> with status 408,
-    /// 429 or 5xx, or a timeout.</summary>
-    public Func<Exception, bool>? IsTransient { get; set; }
+    /// <summary>Asks for strict schema adherence, through the <c>strict</c> entry of <see cref="ChatOptions.AdditionalProperties"/>
+    /// that Microsoft.Extensions.AI's OpenAI client reads. Clients that don't know it ignore it. On by default.</summary>
+    public bool StrictSchema { get; set; } = true;
+    /// <summary>Asks once more, with what was wrong, when a reply isn't JSON for the schema; then it's quarantined. On by default.</summary>
+    public bool RetryUnreadableReplies { get; set; } = true;
 
     internal void Validate()
     {
@@ -48,11 +49,17 @@ public sealed record GraphRagExtractionCandidate(string DocumentId, string Chunk
     string? From, string? To, string? Text);
 
 /// <summary>
-/// What extraction did in one ingestion call. Counts are of what was written. <see cref="Pruned"/> and <see cref="Quarantined"/>
-/// hold names and reply excerpts from the documents, so treat the receipt like the documents themselves.
+/// What extraction did in one ingestion call. Counts are of what was written. <see cref="Chunks"/> is how many passages were
+/// sent, <see cref="Repaired"/> how many replies were unreadable at first and usable when asked again, and the token counts
+/// are null when the client reports no usage; a reasoning model's output tokens include its <see cref="ReasoningTokens"/>.
+/// To change how much a reasoning model thinks, register the extraction client with its own
+/// <see cref="ChatOptions.Reasoning"/>, for example through <c>ConfigureOptions</c>.
+/// <see cref="Pruned"/> and <see cref="Quarantined"/> hold names and reply excerpts from the documents, so treat the receipt
+/// like the documents themselves.
 /// </summary>
 public sealed record GraphRagExtractionSummary(int ChatCalls, long? InputTokens, int Entities, int Mentions, int Facts, int Quotes,
-    IReadOnlyList<GraphRagPrunedItem> Pruned, IReadOnlyList<GraphRagQuarantinedReply> Quarantined);
+    IReadOnlyList<GraphRagPrunedItem> Pruned, IReadOnlyList<GraphRagQuarantinedReply> Quarantined, int Chunks = 0, int Repaired = 0,
+    long? OutputTokens = null, long? ReasoningTokens = null);
 
 /// <summary>
 /// An item the checks dropped. <see cref="Reason"/> is a stable code: <c>unknown-kind</c>, <c>unknown-type</c>, <c>missing-name</c>,
@@ -61,11 +68,12 @@ public sealed record GraphRagExtractionSummary(int ChatCalls, long? InputTokens,
 /// </summary>
 public sealed record GraphRagPrunedItem(string DocumentId, string ChunkId, GraphRagExtractionItem Item, string? Label, string? Name, string Reason);
 
-/// <summary>A reply that wasn't JSON for the schema: <see cref="Error"/> is <c>empty-reply</c>, <c>invalid-json</c> or
-/// <c>schema-mismatch</c>, and <see cref="Reply"/> keeps its first characters. Nothing of it is written.</summary>
+/// <summary>A reply that wasn't JSON for the schema, asked again when <see cref="GraphRagExtractionOptions.RetryUnreadableReplies"/>
+/// is on: <see cref="Error"/> is <c>empty-reply</c>, <c>invalid-json</c>, <c>truncated</c> (cut off at the output limit) or
+/// <c>schema-mismatch</c>, and <see cref="Reply"/> keeps the last reply's first characters. Nothing of it is written.</summary>
 public sealed record GraphRagQuarantinedReply(string DocumentId, string ChunkId, string Error, string Reply);
 
-internal sealed class GraphRagExtractionException(string errorCode) : Exception(errorCode)
+internal sealed class GraphRagExtractionException(string errorCode, Exception? inner = null) : Exception(errorCode, inner)
 {
     public string ErrorCode { get; } = errorCode;
 }
@@ -73,21 +81,37 @@ internal sealed class GraphRagExtractionException(string errorCode) : Exception(
 /// <summary>Counts and lists across one ingestion call; documents are extracted one after another.</summary>
 internal sealed class GraphRagExtractionTally
 {
-    private long _tokens;
-    private bool _reported;
-    public int Calls;
+    private long _tokens, _outputTokens, _reasoningTokens;
+    private bool _reported, _outputReported, _reasoningReported;
+    public int Calls, Chunks, Repaired;
     public int Entities, Mentions, Facts, Quotes;
     public List<GraphRagPrunedItem> Pruned { get; } = [];
     public List<GraphRagQuarantinedReply> Quarantined { get; } = [];
     public long? Tokens => _reported ? Interlocked.Read(ref _tokens) : null;
+    public long? OutputTokens => _outputReported ? Interlocked.Read(ref _outputTokens) : null;
+    public long? ReasoningTokens => _reasoningReported ? Interlocked.Read(ref _reasoningTokens) : null;
 
-    public void AddTokens(long tokens)
+    public void AddUsage(UsageDetails? usage)
     {
-        Interlocked.Add(ref _tokens, tokens);
-        _reported = true;
+        if (usage?.InputTokenCount is { } input)
+        {
+            Interlocked.Add(ref _tokens, input);
+            _reported = true;
+        }
+        if (usage?.OutputTokenCount is { } output)
+        {
+            Interlocked.Add(ref _outputTokens, output);
+            _outputReported = true;
+        }
+        if (usage?.ReasoningTokenCount is { } reasoning)
+        {
+            Interlocked.Add(ref _reasoningTokens, reasoning);
+            _reasoningReported = true;
+        }
     }
 
-    public GraphRagExtractionSummary Summary() => new(Calls, Tokens, Entities, Mentions, Facts, Quotes, Pruned.ToArray(), Quarantined.ToArray());
+    public GraphRagExtractionSummary Summary() => new(Calls, Tokens, Entities, Mentions, Facts, Quotes, Pruned.ToArray(), Quarantined.ToArray(),
+        Chunks, Repaired, OutputTokens, ReasoningTokens);
 }
 
 /// <summary>One document's resolved graph, keyed so that each thing, mention, fact and quote appears once.</summary>
@@ -109,23 +133,33 @@ internal sealed class GraphRagExtractor
     private readonly GraphRagOntology _ontology;
     private readonly IChatClient _chat;
     private readonly GraphRagExtractionOptions _options;
+    private readonly GraphRagRetryOptions _retry;
     private readonly IGraphRagExtractionVerifier? _verifier;
     private readonly TimeProvider _clock;
     private readonly ChatOptions _chatOptions;
     private readonly string _instructions;
 
-    public GraphRagExtractor(GraphRagModelSchema schema, IChatClient chat, GraphRagExtractionOptions options, IGraphRagExtractionVerifier? verifier,
-        TimeProvider? clock = null)
+    public GraphRagExtractor(GraphRagModelSchema schema, IChatClient chat, GraphRagExtractionOptions options, GraphRagRetryOptions? retry = null,
+        IGraphRagExtractionVerifier? verifier = null, TimeProvider? clock = null)
     {
-        (_ontology, _chat, _options, _verifier, _clock) = (schema.Ontology, chat, options, verifier, clock ?? TimeProvider.System);
+        (_ontology, _chat, _options, _retry, _verifier, _clock) = (schema.Ontology, chat, options, retry ?? new(), verifier, clock ?? TimeProvider.System);
         using var json = JsonDocument.Parse(schema.ToJsonSchema());
         _chatOptions = new ChatOptions
         {
             ResponseFormat = ChatResponseFormat.ForJsonSchema(json.RootElement.Clone(), "graphrag_extraction", "The things, relationships and quotes in one passage")
         };
-        _instructions = _ontology.Instructions + "\n\n" + schema.ToPromptText();
-        Fingerprint = GraphRagEmbeddingSet.Hash(schema.Fingerprint + "\u001f" + Version);
+        if (options.StrictSchema) _chatOptions.AdditionalProperties = new() { ["strict"] = true };
+        _instructions = InstructionsFor(schema);
+        Fingerprint = FingerprintFor(schema);
     }
+
+    /// <summary>The system message: the ontology's instructions and the schema as text.</summary>
+    internal static string InstructionsFor(GraphRagModelSchema schema) => schema.Ontology.Instructions + "\n\n" + schema.ToPromptText();
+
+    internal static string FingerprintFor(GraphRagModelSchema schema) => GraphRagEmbeddingSet.Hash(schema.Fingerprint + "\u001f" + Version);
+
+    /// <summary>The user message for one passage.</summary>
+    internal static string PromptFor(string? title, string passage) => (title is null ? "" : "Document: " + title + "\n") + "Passage:\n" + passage;
 
     /// <summary>The schema's fingerprint and the extractor version.</summary>
     public string Fingerprint { get; }
@@ -133,12 +167,14 @@ internal sealed class GraphRagExtractor
     public GraphRagOntologyRuntime Runtime => _ontology.Runtime;
 
     public async Task<GraphRagExtractedGraph> ExtractAsync(string documentId, string? title, string runId, IReadOnlyList<GraphRagEvidenceItem> chunks,
-        GraphRagExtractionTally tally, CancellationToken cancellationToken)
+        GraphRagExtractionTally tally, GraphRagRetryTally? retries, CancellationToken cancellationToken)
     {
-        var replies = new string?[chunks.Count];
+        retries ??= new();
+        var replies = new Reply[chunks.Count];
+        Interlocked.Add(ref tally.Chunks, chunks.Count);
         await Parallel.ForEachAsync(Enumerable.Range(0, chunks.Count),
             new ParallelOptions { MaxDegreeOfParallelism = _options.Lanes, CancellationToken = cancellationToken },
-            async (index, token) => replies[index] = await AskAsync(title, chunks[index].Text, tally, token).ConfigureAwait(false)).ConfigureAwait(false);
+            async (index, token) => replies[index] = await ReadAsync(title, chunks[index].Text, tally, retries, token).ConfigureAwait(false)).ConfigureAwait(false);
 
         // Checks and resolution run in chunk order, so the first name, description and payload are the document's first.
         var graph = new GraphRagExtractedGraph();
@@ -146,75 +182,79 @@ internal sealed class GraphRagExtractor
         for (var i = 0; i < chunks.Count; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (Parse(documentId, chunks[i].ChunkId, replies[i], tally) is { } reply)
+            if (replies[i].Json is { } reply)
                 await AddChunkAsync(graph, aliases, documentId, runId, chunks[i], reply, tally, cancellationToken).ConfigureAwait(false);
+            else
+                tally.Quarantined.Add(new(documentId, chunks[i].ChunkId, replies[i].Error!,
+                    replies[i].Text.Length > _options.MaxQuarantinedCharacters ? replies[i].Text[.._options.MaxQuarantinedCharacters] : replies[i].Text));
         }
         foreach (var entity in graph.Entities.Values.SelectMany(e => e.Values))
             entity.Aliases = aliases.TryGetValue(entity.Id, out var set) && set.Count > 0 ? string.Join('\n', set) : null;
         return graph;
     }
 
-    private async Task<string?> AskAsync(string? title, string passage, GraphRagExtractionTally tally, CancellationToken cancellationToken)
+    /// <summary>A chunk's usable reply, or the error and text of the last unreadable one.</summary>
+    private readonly record struct Reply(JsonElement? Json, string? Error, string Text);
+
+    // Asks for one passage's graph. An unreadable reply is asked again once, with what was wrong; the last error is quarantined.
+    private async Task<Reply> ReadAsync(string? title, string passage, GraphRagExtractionTally tally, GraphRagRetryTally retries,
+        CancellationToken cancellationToken)
     {
-        var prompt = (title is null ? "" : "Document: " + title + "\n") + "Passage:\n" + passage;
+        List<ChatMessage> messages = [new(ChatRole.System, _instructions), new(ChatRole.User, PromptFor(title, passage))];
         for (var attempt = 0; ; attempt++)
         {
-            try
+            var response = await AskAsync(messages, tally, retries, cancellationToken).ConfigureAwait(false);
+            var reply = Parse(response.Text, response.FinishReason);
+            if (reply.Json is not null)
             {
-                Interlocked.Increment(ref tally.Calls);
-                var response = await _chat.GetResponseAsync([new ChatMessage(ChatRole.System, _instructions), new ChatMessage(ChatRole.User, prompt)],
-                    _chatOptions, cancellationToken).ConfigureAwait(false);
-                if (response.Usage?.InputTokenCount is { } tokens) tally.AddTokens(tokens);
-                return response.Text;
+                if (attempt > 0) Interlocked.Increment(ref tally.Repaired);
+                return reply;
             }
-            catch (Exception error) when (error is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
-            {
-                if (attempt >= 2 || !(_options.IsTransient ?? IsTransient)(error)) throw new GraphRagExtractionException("extraction-failed");
-                await Task.Delay(TimeSpan.FromMilliseconds(200 * (1 << (2 * attempt))), _clock, cancellationToken).ConfigureAwait(false);
-            }
+            if (attempt > 0 || !_options.RetryUnreadableReplies) return reply;
+            messages.Add(new(ChatRole.User, "Your reply to this passage couldn't be used: " + Problem(reply.Error!)
+                + ". Reply again with only the JSON object that the schema describes."));
         }
+
+        static string Problem(string error) => error switch
+        {
+            "empty-reply" => "it was empty",
+            "truncated" => "it was cut off at the output limit, so leave out minor things and relationships",
+            "schema-mismatch" => "it didn't have the \"entities\" and \"relationships\" arrays",
+            _ => "it wasn't valid JSON"
+        };
     }
 
-    private static bool IsTransient(Exception error) => error switch
-    {
-        HttpRequestException { StatusCode: { } status } => status is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests || (int)status >= 500,
-        TimeoutException or TaskCanceledException => true,
-        _ => false
-    };
-
-    // A reply is the JSON object, tolerating a code fence or a sentence around it; anything else is quarantined.
-    private JsonElement? Parse(string documentId, string chunkId, string? reply, GraphRagExtractionTally tally)
-    {
-        GraphRagQuarantinedReply Quarantine(string error) => new(documentId, chunkId, error,
-            reply is null ? "" : reply.Length > _options.MaxQuarantinedCharacters ? reply[.._options.MaxQuarantinedCharacters] : reply);
-        if (string.IsNullOrWhiteSpace(reply))
+    private Task<ChatResponse> AskAsync(List<ChatMessage> messages, GraphRagExtractionTally tally, GraphRagRetryTally retries,
+        CancellationToken cancellationToken)
+        => GraphRagRetry.RunAsync(async token =>
         {
-            tally.Quarantined.Add(Quarantine("empty-reply"));
-            return null;
-        }
+            Interlocked.Increment(ref tally.Calls);
+            var response = await _chat.GetResponseAsync(messages, _chatOptions, token).ConfigureAwait(false);
+            tally.AddUsage(response.Usage);
+            return response;
+        }, _retry, retries, _clock, "extraction-failed", (code, error) => new GraphRagExtractionException(code, error), cancellationToken);
+
+    // A reply is the JSON object, tolerating a code fence or a sentence around it; anything else is unreadable.
+    private static Reply Parse(string? reply, ChatFinishReason? finish)
+    {
+        reply ??= "";
+        var invalid = finish == ChatFinishReason.Length ? "truncated" : "invalid-json";
+        if (string.IsNullOrWhiteSpace(reply)) return new(null, finish == ChatFinishReason.Length ? "truncated" : "empty-reply", reply);
         var start = reply.IndexOf('{');
         var end = reply.LastIndexOf('}');
-        if (start < 0 || end <= start)
-        {
-            tally.Quarantined.Add(Quarantine("invalid-json"));
-            return null;
-        }
+        if (start < 0 || end <= start) return new(null, invalid, reply);
         try
         {
             using var json = JsonDocument.Parse(reply.AsMemory(start, end - start + 1));
             var root = json.RootElement;
             if (root.ValueKind != JsonValueKind.Object || !IsArray(root, "entities") || !IsArray(root, "relationships")
                 || root.TryGetProperty("quotes", out var quotes) && quotes.ValueKind is not (JsonValueKind.Array or JsonValueKind.Null))
-            {
-                tally.Quarantined.Add(Quarantine("schema-mismatch"));
-                return null;
-            }
-            return root.Clone();
+                return new(null, "schema-mismatch", reply);
+            return new(root.Clone(), null, reply);
         }
         catch (JsonException)
         {
-            tally.Quarantined.Add(Quarantine("invalid-json"));
-            return null;
+            return new(null, invalid, reply);
         }
 
         static bool IsArray(JsonElement root, string name) => root.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Array;

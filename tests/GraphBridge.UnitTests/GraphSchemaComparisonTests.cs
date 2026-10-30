@@ -221,6 +221,26 @@ public sealed class GraphSchemaComparisonTests
     }
 
     [Fact]
+    public void A_shared_identified_type_checks_and_proposes_its_key_constraint_once()
+    {
+        // ADR 0056: owners of one identified type share its key property, so the constraint is the same for all of them.
+        var edge = Edge("FROM_CHUNK", identified: true, properties: [Property("edge_id"), Property("payload")], indexes: [new(["payload"], false)]);
+        var other = new GraphSchemaRelationship("FROM_CHUNK", GraphSchemaRelationshipIdentity.ApplicationId, "edge_id",
+            new("OtherSource", ["id"], "Cascade"), new("Target", ["id"], "Cascade"), [Property("edge_id")], []);
+        var manifest = new GraphSchemaManifest([], [edge, other], []);
+        var missing = Compare(manifest, []);
+        Assert.Contains(missing.Issues, value => value.Code == "SharedRelationshipType");
+        Assert.Single(missing.Issues, value => value.Code == "MissingIdentityConstraint");
+        var proposal = Assert.Single(missing.Proposals);
+        Assert.Equal((GraphSchemaProposalKind.UniquenessConstraint, "FROM_CHUNK"), (proposal.Kind, proposal.LabelOrType));
+        Assert.Equal(["edge_id"], proposal.Properties);
+
+        var present = Compare(manifest, [new("from_chunk_id", "RELATIONSHIP_UNIQUENESS", "RELATIONSHIP", ["FROM_CHUNK"], ["edge_id"])]);
+        Assert.Single(present.Issues, value => value.Code == "IdentityConstraintPresent");
+        Assert.Empty(present.Proposals);
+    }
+
+    [Fact]
     public void Unknown_capabilities_suppress_DDL_and_opaque_graph_types_are_not_claimed_compared()
     {
         var manifest = Manifest(Node("Thing", ["id"], [Property("id")]));

@@ -57,6 +57,14 @@ public sealed class GraphRagQuickStartTests(DisposableNeo4jFixture fixture) : IA
             Assert.Equal(GraphRagAnswerDisposition.InsufficientEvidence, unrelated.Disposition);
             Assert.Null(unrelated.Text);
 
+            // GR-14: both export, read back to the same document, and check clean without the database.
+            foreach (var exported in new[] { answer, unrelated })
+            {
+                var json = GraphRagAnswerExport.ToJson(exported, DateTimeOffset.UnixEpoch);
+                Assert.Equal(json, GraphRagAnswerExport.ToJson(GraphRagAnswerExport.FromJson(json), DateTimeOffset.UnixEpoch));
+                Assert.Empty(GraphRagAnswerExport.Check(GraphRagAnswerExport.FromJson(json)));
+            }
+
             var again = await provider.GetRequiredService<IGraphRagIngestion>().IngestAsync(files.Select(GraphRagSources.File));
             Assert.All(again.Documents, d => Assert.Equal(GraphRagDocumentStatus.Unchanged, d.Status));
         }

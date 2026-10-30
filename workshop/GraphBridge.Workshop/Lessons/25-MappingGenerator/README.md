@@ -58,7 +58,7 @@ StudioMapping.Verify(db.Model);   // throws if the finalized model differs from 
 var manifest = db.Database.GetGraphSchemaManifest();
 ```
 
-   The generated fingerprint equals the runtime storage manifest's fingerprint from lesson 02.
+   The generated fingerprint equals the runtime storage manifest's fingerprint (introduced in lesson 02).
 
 ## What you should see
 

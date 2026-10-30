@@ -14,10 +14,16 @@
     <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.11.0" />
     <!-- Minimums for the GraphRAG adapters (ADR 0052, sections 1 and 8); refreshed monthly. DataIngestion is a preview. -->
     <PackageVersion Include="Microsoft.Extensions.DataIngestion" Version="10.11.0-preview.1.26513.7" />
+    <!-- Test-only: the Office-document recipe (GR-26) reads with Microsoft's markitdown tool through DataIngestion's reader; approved 26 October 2026. -->
+    <PackageVersion Include="Microsoft.Extensions.DataIngestion.MarkItDown" Version="10.11.0-preview.1.26513.7" />
+    <!-- The PDF loader (ADR 0052, section 14; D4): PdfPig, Apache-2.0, approved 26 October 2026. -->
+    <PackageVersion Include="PdfPig" Version="0.1.16" />
     <PackageVersion Include="Microsoft.Agents.AI.Abstractions" Version="1.26.0" />
     <!-- Test-only: an agent and function calling to drive the Agent Framework adapter, and a tokenizer for DataIngestion's chunkers. -->
     <PackageVersion Include="Microsoft.Agents.AI" Version="1.26.0" />
     <PackageVersion Include="Microsoft.Extensions.AI" Version="10.11.0" />
+    <!-- Test-only: checks the request that the OpenAI client of Microsoft.Extensions.AI sends for the extractor (ADR 0052, section 11). -->
+    <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.11.0" />
     <PackageVersion Include="Microsoft.ML.Tokenizers.Data.O200kBase" Version="1.0.1" />
     <!-- Test-only: the GraphRAG evaluation harness's metrics (ADR 0052, section 9). AgentEval is MIT, by the maintainer; never a runtime dependency. -->
     <PackageVersion Include="AgentEval" Version="0.43.0-beta" />

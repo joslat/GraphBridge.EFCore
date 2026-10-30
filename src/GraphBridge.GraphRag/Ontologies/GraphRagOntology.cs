@@ -15,11 +15,21 @@ public sealed class GraphRagOntology
     private GraphRagOntologyRuntime? _runtime;
 
     internal GraphRagOntology(string name, IReadOnlyList<GraphRagOntologyClass> classes, IReadOnlyList<GraphRagOntologyRelationship> relationships,
-        IReadOnlyList<GraphRagOntologyQuote> quotes, IReadOnlyList<string> placeholders, string instructions)
+        IReadOnlyList<GraphRagOntologyQuote> quotes, IReadOnlyList<string> placeholders, string instructions, bool neo4jGraphRagEntities = false)
     {
         (Name, Classes, Relationships, Quotes, Placeholders, Instructions) = (name, classes, relationships, quotes, placeholders, instructions);
+        if (neo4jGraphRagEntities)
+        {
+            (EntityLabels, NameProperty) = (Neo4jGraphRagEntityLabels, "name");
+            Classes = [.. classes.Select(c => c with { MentionType = Neo4jGraphRagMentionType })];
+        }
         Fingerprint = GraphRagEmbeddingSet.Hash(Canonical());
     }
+
+    /// <summary>neo4j-graphrag 1.22.0's labels on every extracted entity.</summary>
+    internal static readonly IReadOnlyList<string> Neo4jGraphRagEntityLabels = ["__Entity__", "__KGBuilder__"];
+    /// <summary>neo4j-graphrag's relationship from an entity to the chunk it was extracted from.</summary>
+    internal const string Neo4jGraphRagMentionType = "FROM_CHUNK";
 
     public string Name { get; }
     public IReadOnlyList<GraphRagOntologyClass> Classes { get; }
@@ -28,6 +38,10 @@ public sealed class GraphRagOntology
     /// <summary>Normalised names that never merge, such as "the man" or "someone".</summary>
     public IReadOnlyList<string> Placeholders { get; }
     public string Instructions { get; }
+    /// <summary>Further labels on every class's nodes: none, or neo4j-graphrag's <c>__Entity__</c> and <c>__KGBuilder__</c>.</summary>
+    public IReadOnlyList<string> EntityLabels { get; } = [];
+    /// <summary>The stored name of each thing's <see cref="GraphRagEntity.Name"/>: <c>Name</c>, or <c>name</c> as neo4j-graphrag stores it.</summary>
+    public string NameProperty { get; } = nameof(GraphRagEntity.Name);
     /// <summary>Hashes everything above; it joins the ingestion settings, so changing the ontology re-ingests.</summary>
     public string Fingerprint { get; }
 
@@ -49,7 +63,20 @@ public sealed class GraphRagOntology
     public GraphRagOntology WithLabelPrefix(string prefix)
     {
         GraphRagOntologyBuilder.Validate(prefix, "label prefix");
-        return new(Name, Classes.Select(c => c with { Label = prefix + c.Label }).ToArray(), Relationships, Quotes, Placeholders, Instructions);
+        return new(Name, Classes.Select(c => c with { Label = prefix + c.Label }).ToArray(), Relationships, Quotes, Placeholders, Instructions, EntityLabels.Count > 0);
+    }
+
+    /// <summary>
+    /// The same ontology stored as neo4j-graphrag 1.22.0 stores extracted entities (ADR 0052, section 20): every class's nodes
+    /// also carry <c>__Entity__</c> and <c>__KGBuilder__</c>, every mention is a <c>FROM_CHUNK</c> relationship from the thing to
+    /// its chunk, and the name is stored as <c>name</c>. With <see cref="GraphRagLayout.Neo4jGraphRag"/>, neo4j-graphrag's
+    /// retrievers and resolver read the things GraphBridge extracts. The kinds, facts and quotes the model sees don't change.
+    /// </summary>
+    public GraphRagOntology WithNeo4jGraphRagEntities()
+    {
+        if (Relationships.Any(r => r.Type == Neo4jGraphRagMentionType) || Quotes.Any(q => q.Type == Neo4jGraphRagMentionType))
+            throw new ArgumentException($"A fact or quote type is already '{Neo4jGraphRagMentionType}', neo4j-graphrag's mention type.");
+        return new(Name, Classes, Relationships, Quotes, Placeholders, Instructions, neo4jGraphRagEntities: true);
     }
 
     internal GraphRagOntologyRuntime Runtime => _runtime ??= new(this);
@@ -84,6 +111,8 @@ public sealed class GraphRagOntology
         foreach (var q in Quotes)
             text.Append("quote ").Append(q.Type).Append(' ').Append(q.SpeakerKind).Append(' ').Append(q.Addressee).Append(' ').Append(q.Description).Append('\n');
         text.Append("placeholders ").AppendJoin('|', Placeholders).Append('\n').Append(Instructions);
+        // Written only for the neo4j-graphrag shape, so other ontologies keep their fingerprints.
+        if (EntityLabels.Count > 0) text.Append("\nshape neo4j-graphrag");
         return text.ToString();
     }
 }
@@ -94,8 +123,15 @@ public sealed class GraphRagOntology
 /// </summary>
 public sealed record GraphRagOntologyClass(Type ClrType, string Kind, string Label, string Description, bool Aliases, IReadOnlyList<string> Properties)
 {
-    /// <summary>The mention relationship type, <c>MENTIONED_IN_</c> and the label in upper snake case.</summary>
-    public string MentionType => "MENTIONED_IN_" + GraphRagOntologyBuilder.UpperSnake(Label);
+    private readonly string? _mentionType;
+
+    /// <summary>The mention relationship type: <c>MENTIONED_IN_</c> and the label in upper snake case, or <c>FROM_CHUNK</c> for
+    /// every class under <see cref="GraphRagOntology.WithNeo4jGraphRagEntities"/>.</summary>
+    public string MentionType
+    {
+        get => _mentionType ?? "MENTIONED_IN_" + GraphRagOntologyBuilder.UpperSnake(Label);
+        internal init => _mentionType = value;
+    }
     internal Type MentionClrType => typeof(GraphRagMention<>).MakeGenericType(ClrType);
 }
 
@@ -290,7 +326,7 @@ public static class GraphRagOntologies
             .Placeholders(CommonPlaceholders).Placeholders("a voice", "the voice", "the creature", "the animal", "the other", "the others")
             .Instructions(GenericInstructions + """
 
-                Characters include animals and creatures that act or speak. Record speech with SAYS: the speaker and the spoken words, copied exactly.
+                Characters include animals and creatures that act or speak. Record speech with SAYS: the speaker and the spoken words, copied exactly as one unbroken stretch of the passage. When narration interrupts the speech, as in “Yes,” said the King, “but not today.”, record each part as a quote of its own.
                 """);
     });
 
@@ -305,7 +341,7 @@ public static class GraphRagOntologies
             .Placeholders(CommonPlaceholders).Placeholders("a spokesperson", "the spokesperson", "officials", "the company", "the organization")
             .Instructions(GenericInstructions + """
 
-                Record direct quotations with QUOTED: the person quoted and the quoted words, copied exactly.
+                Record direct quotations with QUOTED: the person quoted and the quoted words, copied exactly as one unbroken stretch of the passage. When the attribution interrupts the quotation, record each part as a quote of its own.
                 """);
     });
 

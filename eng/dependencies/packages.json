@@ -8,6 +8,7 @@
       "lockedContentHash": "T4A9277fAvYhsoA62JOted+eVWwAx3Kkv2geajX8sE6fjR3H+R694G63KTLIjg1jikZoq6UOvqJ0ku4ooQPdzA==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -33,6 +34,7 @@
       "projects": [
         "samples/04-DesignTime/DesignTime.App",
         "samples/05-FluentCypher",
+        "samples/09-GraphRagArticles",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.QueryLab.Tests/Export",
@@ -124,7 +126,8 @@
       "version": "3.27.1",
       "lockedContentHash": "7IVz9TzhYCZ8qY0rPhXUnyJSXYdshUqmmxmTI763XmDDSJJFnyfKH43FFcMJu/CZgBcE98xlFztrKwhzcRkiPg==",
       "projects": [
-        "src/GraphBridge.GraphRag.DataIngestion"
+        "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests"
       ],
       "licenseType": "expression",
       "licenseValue": "BSD-3-Clause",
@@ -139,7 +142,9 @@
       "version": "3.30.2",
       "lockedContentHash": "Y2aOVLIt75yeeEWigg9V9YnjsEm53sADtLGq0gLhwaXpk3iu8tYSoauolyhenagA2sWno2TQ2WujI0HQd6s1Vw==",
       "projects": [
+        "samples/09-GraphRagArticles",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -183,6 +188,7 @@
       "projects": [
         "samples/04-DesignTime/DesignTime.App",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -202,6 +208,7 @@
       "lockedContentHash": "ZXAKl2VsdnIZeUo1PFII3Oi1m1L4YQjEyDjygHfHln5vgsjgIo749X6xWkv7qFYp8RROES+vOEfDcvvoVgs8kA==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -226,6 +233,7 @@
       "lockedContentHash": "3e2OJjU0OaE26XC/klgxbJuXvteFWTDJIJv0ITYWcJEoskq7jzUwPSC1s0iz4wPPQnfN7vwwFmg2gJfwRAPwgw==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -250,6 +258,7 @@
       "lockedContentHash": "7GggWrdzKrtGWETRn3dcMnmuLSyWaDkBK94TK80LEHQEVz4bmsQc7FYO7qL40RDdZU2YPz5d98aT9lW5OYExuA==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -267,6 +276,21 @@
           "sha256": "baebca0309090f4eca1b7a82c836cc91e48b2b92139c2280fb0ff69af922c2ae"
         }
       ]
+    },
+    {
+      "id": "Markdig.Signed",
+      "version": "0.43.0",
+      "lockedContentHash": "Ly5oB+iS5rA2GqLuv7KZNJWQnHXLb5oi7cmIpGrrCrsvU9oplSKO/Xo65tLUiC+bcMjhQ7ZHn97h6vcvF24FbQ==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.InteropTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "BSD-2-Clause",
+      "licenseUrl": "https://licenses.nuget.org/BSD-2-Clause",
+      "projectUrl": "https://github.com/xoofx/markdig",
+      "authors": "Alexandre Mutel",
+      "copyright": "Alexandre Mutel",
+      "noticeAssets": []
     },
     {
       "id": "Microsoft.Agents.AI.Abstractions",
@@ -288,7 +312,9 @@
       "version": "1.26.0",
       "lockedContentHash": "BeFCZFMdAw1iU7OTDItwPrfWlqmP2lURsSc+V3bH17aJNxiF90TM7vCpYT9sJ/EaNzK1vRq4Rm4Fa+WLxk92Ug==",
       "projects": [
+        "samples/09-GraphRagArticles",
         "src/GraphBridge.GraphRag.AgentFramework",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -308,6 +334,7 @@
       "lockedContentHash": "lNEz52jDmC3oDZtWpDsQQivue2x7k0iSTT/2+6QUO7Hgmd8xMznMZ26bvGvUrH95sl7sSK/2eVeZ3spubnwE3g==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -341,6 +368,8 @@
       "version": "1.26.0",
       "lockedContentHash": "nnNZXNyuGjj4r4SdJilkeKwmddJfdWboojYk3r0J02ZOMYwsy3/hpvy9C0Pfe96Cl1md7yQZW6rjdCv/kJ8c9g==",
       "projects": [
+        "samples/09-GraphRagArticles",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -653,6 +682,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -685,6 +716,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -698,13 +730,17 @@
         "src/GraphBridge.EntityFrameworkCore.VectorData",
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
+        "src/GraphBridge.GraphRag.AspNetCore",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
@@ -731,6 +767,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -744,13 +781,17 @@
         "src/GraphBridge.EntityFrameworkCore.VectorData",
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
+        "src/GraphBridge.GraphRag.AspNetCore",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
@@ -839,6 +880,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -852,13 +894,17 @@
         "src/GraphBridge.EntityFrameworkCore.VectorData",
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
+        "src/GraphBridge.GraphRag.AspNetCore",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
@@ -883,6 +929,7 @@
       "version": "10.11.0",
       "lockedContentHash": "h4DX/TdJU4fk1GGaf19n6Kujkj6VXbGeL4UEOsQ8+ZJC5fVApPauokCtvBP684BYbczUYZQNfo1mbmyHG4WVSg==",
       "projects": [
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/06-VectorSearch",
         "samples/07-GraphRagQuickStart",
         "samples/08-GraphRagNovel",
@@ -890,8 +937,12 @@
         "src/GraphBridge.EntityFrameworkCore.VectorData",
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
+        "src/GraphBridge.GraphRag.AspNetCore",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -914,6 +965,7 @@
       "lockedContentHash": "RcYLnPwShmerXorN23xSGIb/n8pn/NZ34d3nRksdsdYi13tNMNW2N+k+VJmQNZXDUUTXztbs8RyHxVJg3Lhhzw==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -932,7 +984,9 @@
       "version": "10.10.0",
       "lockedContentHash": "YXdqOSHl8X1/Vkmuu6QoV330FQ7aiYtNDqIUIiICSDd0HMx0No9D/ZWo0ocOPXd9bk00YQQfyK5HKcgRnRmQbQ==",
       "projects": [
+        "samples/09-GraphRagArticles",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -947,11 +1001,28 @@
       "noticeAssets": []
     },
     {
+      "id": "Microsoft.Extensions.AI.OpenAI",
+      "version": "10.11.0",
+      "lockedContentHash": "p8fJdcPOrwaUPRrag5dY9SLohaouutY+bqg1Lw+8OOEFqMXvCHGNWQXv2GcUUNPBCkTR4mcBEHoP9LAV2RtxzA==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
       "id": "Microsoft.Extensions.AI",
       "version": "10.10.0",
       "lockedContentHash": "XKvtDUD3KySkvA5UpS+UF67M5rcqiXjAQchTZZ26WnavVKXxwlUTVdK/Ju0tc/25+16AVUdNl8cnVVGX/tx03A==",
       "projects": [
-        "tests/GraphBridge.GraphRag.Evaluation"
+        "samples/09-GraphRagArticles",
+        "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",
@@ -967,6 +1038,7 @@
       "lockedContentHash": "PtgeWqaC3gQ8/saMgkUiwKeqCBPfDOcjfqDLcXtwJI//pu79gYZqUMPOh7/bFdFWcJihP/rWq9sgQd2xQtEP0A==",
       "projects": [
         "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -987,6 +1059,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1000,13 +1073,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1037,6 +1111,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1050,13 +1125,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1085,7 +1161,9 @@
       "version": "10.10.0",
       "lockedContentHash": "Sh3ujDRJpCMNY4x+43ljCROt4qBOoWfsL8l816RPYZS1S+Tw277r5002rbB15Sh6hFcCT8mGYBO7NtpfSYrQ0Q==",
       "projects": [
+        "samples/09-GraphRagArticles",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -1181,10 +1259,26 @@
       "lockedContentHash": "LAODOVo7a0LiNVP1QVTLaH8Lo/t3JKmPkscp5UznHk1H3mrgA51PgBytFJ0EGkzq1WUVHDYTzIDL4H6x4GlpbA==",
       "projects": [
         "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
         "tests/GraphBridge.Tooling.IntegrationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "Microsoft.Extensions.DataIngestion.MarkItDown",
+      "version": "10.11.0-preview.1.26513.7",
+      "lockedContentHash": "YC87JqcFAv1OSwrHO+QW2QS2vSF5DdqjVECJ2gCDf/vtB6pl80hNay41Kt6psOXrdBtAWIgZdjYIUIvbHxF/7g==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.InteropTests"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",
@@ -1200,6 +1294,7 @@
       "lockedContentHash": "uyrX0hzZP40WzernoxWaXX+rxmuhIJW/ZKiaGs3ZSO9K1sW21RC3yQp99mrKhNRH2ZwuanLMh5lwIHeUVE7cew==",
       "projects": [
         "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -1220,6 +1315,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1233,13 +1329,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1270,6 +1367,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1283,13 +1381,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1340,7 +1439,6 @@
       "lockedContentHash": "45cV+UeI0chPAIXrx9Wv7K4PJXuuIR2pnOur5MOAo6kOFclBHSLLDrvGAxMfWRMtUvpv/kQZkxlgaUN56jwzSQ==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
         "tests/GraphBridge.Tooling.IntegrationTests"
@@ -1365,6 +1463,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1378,13 +1477,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1415,6 +1515,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1428,13 +1529,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1464,7 +1566,6 @@
       "lockedContentHash": "opBULzn9F7ZOL8EoFuqM2QjI6x9AG04DFNdnU2ky/kI4aUzbiXEfuy9jvCuu3D/ieccuDHTlalyC62esPD8wGg==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
         "tests/GraphBridge.Tooling.IntegrationTests"
@@ -1489,6 +1590,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1502,13 +1604,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1539,6 +1642,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1552,13 +1656,14 @@
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
-        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
         "tests/GraphBridge.SpecificationTests",
@@ -1587,7 +1692,9 @@
       "version": "10.10.0",
       "lockedContentHash": "bZdR7QbdLLqmc9xPJIiD5U6H678xyv8eMATjQ0SmH7OZyi+/12G/nFAGCE6DNG22q76YNwkXo+V7GMyUckjjgw==",
       "projects": [
+        "samples/09-GraphRagArticles",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests"
       ],
       "licenseType": "expression",
@@ -1625,7 +1732,8 @@
       "version": "9.7.0",
       "lockedContentHash": "Vth/omSCX2vR0JabzSRU/hdPhr0CvUVZlaS2lJPWHrEwvak8ntrQLDtLMtMiWKSvviGBe/WmjUW8gA3qqn9tjw==",
       "projects": [
-        "src/GraphBridge.GraphRag.DataIngestion"
+        "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",
@@ -1667,7 +1775,8 @@
       "version": "1.0.1",
       "lockedContentHash": "9d6wyh+OSMbzh52OdBQDf9+g7yqr99bBGTACkFBorkvkgmrNoIDIVIjdGjCnAdDGLWFhD4W8L0vGZjUWQgIqjg==",
       "projects": [
-        "src/GraphBridge.GraphRag.DataIngestion"
+        "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",
@@ -1691,7 +1800,9 @@
       "version": "2.0.0",
       "lockedContentHash": "+b8lT4cLLO/sBR2hjvE/qG6qrZG15h7/PBvnIrzTh4xDaAxdHUY6449rC+1pHzQUsBiCHZVbj+VMn+xS0sL7TA==",
       "projects": [
+        "samples/09-GraphRagArticles",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -1722,6 +1833,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -1770,6 +1883,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -1794,6 +1909,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -1837,6 +1954,21 @@
       ]
     },
     {
+      "id": "ModelContextProtocol.Core",
+      "version": "1.2.0",
+      "lockedContentHash": "x0eQqFKtV30nWP6yVy0d/3RnAKwM14ay1CHnUNb7EpwZEXJJJqjPENYvpzwqi8+8LNMMK/g33WnnLYIf1JGMOg==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.InteropTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": "https://csharp.sdk.modelcontextprotocol.io/",
+      "authors": "ModelContextProtocol",
+      "copyright": "© Model Context Protocol a Series of LF Projects, LLC.",
+      "noticeAssets": []
+    },
+    {
       "id": "Mono.TextTemplating",
       "version": "3.0.0",
       "lockedContentHash": "YqueG52R/Xej4VVbKuRIodjiAhV0HR/XVbLbNrJhCZnzjnSjgMJ/dCdV0akQQxavX6hp/LC6rqLGLcXeQYU7XA==",
@@ -1864,6 +1996,7 @@
       "projects": [
         "benchmarks/GraphBridge.Benchmarks",
         "benchmarks/GraphBridge.Benchmarks.Tests",
+        "benchmarks/GraphBridge.GraphRag.Scale",
         "samples/01-Blogging-CodeFirst/Blogging.App",
         "samples/02-Organization-OntologyFirst/Organization.App",
         "samples/03-Movies-DatabaseFirst/Movies.App",
@@ -1877,13 +2010,17 @@
         "src/GraphBridge.EntityFrameworkCore.VectorData",
         "src/GraphBridge.GraphRag",
         "src/GraphBridge.GraphRag.AgentFramework",
+        "src/GraphBridge.GraphRag.AspNetCore",
         "src/GraphBridge.GraphRag.DataIngestion",
+        "src/GraphBridge.GraphRag.Pdf",
         "src/GraphBridge.Tool",
         "src/GraphBridge.Tooling",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
         "tests/GraphBridge.Generators.Tests/Consumer",
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.QueryLab.Tests/Export",
@@ -1980,6 +2117,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.UnitTests"
@@ -2027,11 +2166,27 @@
       ]
     },
     {
+      "id": "OpenAI",
+      "version": "2.14.0",
+      "lockedContentHash": "AeyC3GxbrJ7KRoWDyFeNSUOQQWD9AnNvM7LYQijCcXcqjyr53aGRcf5GBLExcSBzIs0RWYHe+NbzPrHTeuU5zA==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/openai/openai-dotnet/tree/OpenAI_2.14.0",
+      "authors": "OpenAI",
+      "copyright": "Copyright (c) 2026 OpenAI (https://openai.com)",
+      "noticeAssets": []
+    },
+    {
       "id": "OpenTelemetry.Api",
       "version": "1.18.0",
       "lockedContentHash": "Dhzm5oughIY9EWckt2J1yXcEbXpki5WCL2q7prJoYxzH6C7jdkfGtPMTkUVZZ4AhjJKzQnlC+kLSIlmIVwC4Vw==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2055,11 +2210,33 @@
       ]
     },
     {
+      "id": "PdfPig",
+      "version": "0.1.16",
+      "lockedContentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA==",
+      "projects": [
+        "samples/07-GraphRagQuickStart",
+        "src/GraphBridge.GraphRag.Pdf",
+        "tests/GraphBridge.GraphRag.RealModelTests",
+        "tests/GraphBridge.GraphRag.Tests",
+        "tests/GraphBridge.IntegrationTests",
+        "tests/GraphBridge.SpecificationTests",
+        "tests/GraphBridge.Tooling.IntegrationTests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "Apache-2.0",
+      "licenseUrl": "https://licenses.nuget.org/Apache-2.0",
+      "projectUrl": "https://github.com/UglyToad/PdfPig",
+      "authors": "UglyToad",
+      "copyright": null,
+      "noticeAssets": []
+    },
+    {
       "id": "PDFsharp-MigraDoc",
       "version": "6.2.4",
       "lockedContentHash": "ZlRUJaAAo4K2oMt1v02GTeGOHIOoOvcH1e1WYMpunCG1MK8jd4EBrbzSHoYSN7yOfKWFtOIUfzvmKhRGPsyWQQ==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2079,6 +2256,7 @@
       "lockedContentHash": "GhTr9F1uOYXHCIEOB5PXIgqn5a8WLsJL2m0eewTA0IvY1j6N4HGXHKKmEyB90/N6vrjmYamf41V9zbmdW2HY3g==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2098,6 +2276,7 @@
       "lockedContentHash": "fajBdRJFr3hu2Mr6mEVsXjvVKD9Q/Q6hfPEUMpV/xlwxWdFebmpGdi0FLQTApMvpapy72v9dvcGuk7e7NQmQyQ==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2127,6 +2306,21 @@
       "licenseValue": "MIT",
       "licenseUrl": "https://licenses.nuget.org/MIT",
       "projectUrl": "https://github.com/dotnet/maintenance-packages",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": []
+    },
+    {
+      "id": "System.ClientModel",
+      "version": "1.15.0",
+      "lockedContentHash": "y6zQLInrpX+oGL1gXM04DrUSu1O1esWxt4rD/zrujTnzIFChn/noD1OiVVpTrU8ZvglwqO2Uw038svUR3SiAOg==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://github.com/Azure/azure-sdk-for-net/blob/System.ClientModel_1.15.0/sdk/core/System.ClientModel/README.md",
       "authors": "Microsoft",
       "copyright": "© Microsoft Corporation. All rights reserved.",
       "noticeAssets": []
@@ -2521,6 +2715,26 @@
       ]
     },
     {
+      "id": "System.Memory.Data",
+      "version": "10.0.9",
+      "lockedContentHash": "YweovHiLUoEdbr2Xv8eRqCSkTu1vMms4a6xBHaQiMSFVy32PL+hXv6Vhol2NWOmLHjaVgTyhJ3R52U6JxS6w3Q==",
+      "projects": [
+        "tests/GraphBridge.GraphRag.Tests"
+      ],
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "projectUrl": "https://dot.net/",
+      "authors": "Microsoft",
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "noticeAssets": [
+        {
+          "path": "THIRD-PARTY-NOTICES.TXT",
+          "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+        }
+      ]
+    },
+    {
       "id": "System.Memory",
       "version": "4.6.3",
       "lockedContentHash": "qdcDOgnFZY40+Q9876JUHnlHu7bosOHX8XISRoH94fwk6hgaeQGSgfZd8srWRZNt5bV9ZW2TljcegDNxsf+96A==",
@@ -2540,7 +2754,9 @@
       "version": "10.0.12",
       "lockedContentHash": "17brFrnQHV/XMMazXNqFq4GkvzWy8yzDPo5Gb8TT8zJtMFbUqDycOCyPCp9F+eMc4L75kcCKRZqaeBHMwLCL9Q==",
       "projects": [
-        "tests/GraphBridge.GraphRag.Evaluation"
+        "samples/09-GraphRagArticles",
+        "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests"
       ],
       "licenseType": "expression",
       "licenseValue": "MIT",
@@ -2561,6 +2777,7 @@
       "lockedContentHash": "E4JC7KcY4j1yx9uy8tVsHlGThnwLdUWtUz6aLHCqbN/jbtwbwbZgnVEF9atUr/7ynFCbo8Rbij056Y9bWM9ALg==",
       "projects": [
         "src/GraphBridge.GraphRag.DataIngestion",
+        "tests/GraphBridge.GraphRag.InteropTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2667,6 +2884,7 @@
       "lockedContentHash": "a+EovgC1fBnwdlQ6cn3j4JFBfKqiFaFvoAhjisOoSvazLAcIznaBzPQP0oYnvccmeXfqUH1KebVZOxSeH6rMaw==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2783,6 +3001,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2807,6 +3027,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2831,6 +3053,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2855,6 +3079,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2879,6 +3105,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2903,6 +3131,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2927,6 +3157,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2951,6 +3183,8 @@
         "benchmarks/GraphBridge.Benchmarks.Tests",
         "tests/GraphBridge.EnterpriseIntegrationTests",
         "tests/GraphBridge.Generators.Tests",
+        "tests/GraphBridge.GraphRag.InteropTests",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests",
@@ -2973,6 +3207,7 @@
       "lockedContentHash": "SgMOdxbz8X65z8hraIs6hOEdnkH6hESTAIUa7viEngHOYaH+6q5XJmwr1+yb9vJpNQ19hCQY69xbFsLtXpobQA==",
       "projects": [
         "tests/GraphBridge.GraphRag.Evaluation",
+        "tests/GraphBridge.GraphRag.RealModelTests",
         "tests/GraphBridge.GraphRag.Tests",
         "tests/GraphBridge.IntegrationTests",
         "tests/GraphBridge.SpecificationTests"

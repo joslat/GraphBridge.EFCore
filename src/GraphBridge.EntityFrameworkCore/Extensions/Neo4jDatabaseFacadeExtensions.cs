@@ -48,9 +48,9 @@ public static class Neo4jDatabaseFacadeExtensions
     /// <summary>A Fluent query with its own timeout, which applies only to a transaction this call owns (ADR 0050).</summary>
     internal static Task<IReadOnlyList<T>> QueryCypherWithTimeoutAsync<T>(DatabaseFacade database, string cypher,
         IReadOnlyDictionary<string, object?> parameters, Func<IRecord, T> project, int maxRows, TimeSpan? timeout,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, Func<IAsyncTransaction, CancellationToken, Task>? preflight = null)
         => GraphBridgeDiagnostics.OperationAsync(GraphBridgeDiagnostics.NativeQueryActivityName,
-            () => QueryCypherCoreAsync(database, cypher, parameters, project, maxRows, cancellationToken, timeout: timeout));
+            () => QueryCypherCoreAsync(database, cypher, parameters, project, maxRows, cancellationToken, preflight, timeout: timeout));
 
     internal static async Task<IReadOnlyList<T>> QueryCypherCoreAsync<T>(DatabaseFacade database,
         string cypher, IReadOnlyDictionary<string, object?> parameters, Func<IRecord, T> project,

@@ -17,6 +17,16 @@ if ($Live) {
     . (Join-Path $PSScriptRoot '../../eng/scripts/Benchmark.Common.ps1')
     $templateFixture = ConvertFrom-BenchmarkFixtureEnvironment -Lines ([IO.File]::ReadAllLines((Join-Path $templateRepo 'eng/.fixture.env')))
     Assert-FixtureResources -Mode ExistingFixture -FixtureProject $templateFixture.GRAPHBRIDGE_COMPOSE_PROJECT
+    # The GraphRAG starter writes the default GraphRAG schema. Sample 07's tests create the same names under their own
+    # migration, so the starter needs a fixture they haven't used: refuse up front rather than fail halfway.
+    $templateCompose = @('compose', '--project-name', $templateFixture.GRAPHBRIDGE_COMPOSE_PROJECT, '-f', (Join-Path $templateRepo 'eng/docker-compose.yml'),
+        '--env-file', (Join-Path $templateRepo 'eng/.fixture.env'))
+    $templateSchema = "SHOW CONSTRAINTS YIELD name WHERE name = 'graphrag_document_key' RETURN count(*) AS n;" |
+        & docker @templateCompose exec -T neo4j sh -c 'exec cypher-shell -u neo4j -p "${NEO4J_AUTH#*/}" --format plain' 2>$null
+    if ($LASTEXITCODE) { throw 'Could not read the fixture schema for the GraphRAG starter.' }
+    if (($templateSchema | Select-Object -Last 1).Trim() -ne '0') {
+        throw 'The default GraphRAG schema already exists in this fixture, so the GraphRAG starter would not set up; run -Live on a fresh fixture.'
+    }
 }
 $templateId = [Guid]::NewGuid().ToString('N')
 $templateVersion = '0.1.0-templatecheck.' + $templateId
@@ -36,12 +46,14 @@ New-Item -ItemType Directory -Path $templateFeed, $templateConsumer -Force | Out
 Push-Location $templateRepo
 try {
     if ($CandidateFeed) {
-        foreach ($name in @('GraphBridge.EntityFrameworkCore', 'GraphBridge.Templates')) {
+        foreach ($name in @('GraphBridge.EntityFrameworkCore', 'GraphBridge.GraphRag', 'GraphBridge.Templates')) {
             Copy-Item -LiteralPath (Join-Path $CandidateFeed "$name.$templateVersion.nupkg") -Destination $templateFeed
         }
     } else {
         Invoke-TemplateDotnet pack src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj --no-restore '-m:1' '-p:UseSharedCompilation=false' '-nodeReuse:false' "-p:PackageVersion=$templateVersion" -o $templateFeed
         if ($LASTEXITCODE) { throw 'Template provider package failed.' }
+        Invoke-TemplateDotnet pack src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj --no-restore '-m:1' '-p:UseSharedCompilation=false' '-nodeReuse:false' "-p:PackageVersion=$templateVersion" -o $templateFeed
+        if ($LASTEXITCODE) { throw 'Template GraphRAG package failed.' }
         Invoke-TemplateDotnet pack templates/GraphBridge.Templates.csproj '-m:1' '-p:UseSharedCompilation=false' '-nodeReuse:false' "-p:PackageVersion=$templateVersion" -o $templateFeed
         if ($LASTEXITCODE) { throw 'Template package failed.' }
     }
@@ -99,6 +111,40 @@ try {
     if ($LASTEXITCODE) { throw 'Generated solution build failed.' }
     Invoke-TemplateDotnet test (Join-Path $templateConsumer "Tests/$templateName.Tests.csproj") --no-build --no-restore
     if ($LASTEXITCODE) { throw 'Generated contract tests failed.' }
+    # The GraphRAG starter (GR-64): the same isolated install, then create, two restores, exact versions, build and offline tests.
+    $ragName = 'VerifiedRag'
+    $ragConsumer = Join-Path ([IO.Path]::GetTempPath()) ('GraphBridgeRagTemplate-' + $templateId)
+    Invoke-TemplateDotnet new graphbridge-graphrag --name $ragName --provider-version $templateVersion --output $ragConsumer --debug:custom-hive $templateHive
+    foreach ($path in @('App/Program.cs', 'App/StandIns.cs', 'App/docs/graph-retrieval.md', 'LICENSE', 'global.json')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $ragConsumer $path))) { throw "Generated GraphRAG starter is missing $path." }
+    }
+    [xml] $ragProject = Get-Content -LiteralPath (Join-Path $ragConsumer "App/$ragName.csproj") -Raw
+    $ragPins = @($ragProject.Project.ItemGroup.PackageReference | Where-Object { $_.Include -notlike 'GraphBridge.*' } |
+        ForEach-Object { '{0}/{1}' -f $_.Include, $_.Version.Trim('[', ']') })
+    if (($ragPins | ForEach-Object { $_.Split('/')[0] } | Sort-Object) -join ',' -cne 'Microsoft.EntityFrameworkCore,Microsoft.Extensions.AI.Abstractions,Neo4j.Driver') {
+        throw 'GraphRAG starter must pin exactly EF Core, Microsoft.Extensions.AI.Abstractions and Neo4j.Driver.'
+    }
+    if (-not $CandidateFeed) {
+        [xml] $central = Get-Content -LiteralPath (Join-Path $templateRepo 'Directory.Packages.props') -Raw
+        foreach ($pin in $ragPins) {
+            $id, $version = $pin.Split('/')
+            $tested = @($central.Project.ItemGroup.PackageVersion | Where-Object Include -ceq $id)[0].Version
+            if ($tested -match '^\[\s*([^,\]\s]+)\s*,') { $tested = $Matches[1] }
+            if ($tested -cne $version) { throw "GraphRAG starter pins $pin, but the repository tests $id $tested." }
+        }
+    }
+    $ragSolution = Join-Path $ragConsumer "$ragName.slnx"
+    $ragConfig = Join-Path $ragConsumer 'NuGet.Config'
+    Invoke-TemplateDotnet nuget add source $templateFeed --name GraphBridgePreview --configfile $ragConfig
+    Invoke-TemplateDotnet restore $ragSolution --configfile $ragConfig --disable-parallel '-m:1' '-nodeReuse:false'
+    Invoke-TemplateDotnet restore $ragSolution --configfile $ragConfig --disable-parallel '-m:1' '-nodeReuse:false' --locked-mode
+    $ragAssets = Get-Content -LiteralPath (Join-Path $ragConsumer 'App/obj/project.assets.json') -Raw | ConvertFrom-Json
+    foreach ($required in @("GraphBridge.GraphRag/$templateVersion", "GraphBridge.EntityFrameworkCore/$templateVersion") + $ragPins) {
+        if ($ragAssets.libraries.PSObject.Properties.Name -cnotcontains $required) { throw "Generated GraphRAG starter did not resolve $required." }
+    }
+    if (@($ragAssets.libraries.PSObject.Properties | Where-Object { $_.Value.type -eq 'project' }).Count -ne 0) { throw 'Generated GraphRAG starter references checkout source.' }
+    Invoke-TemplateDotnet build $ragSolution --no-restore '-m:1' '-p:UseSharedCompilation=false' '-nodeReuse:false'
+    Invoke-TemplateDotnet test (Join-Path $ragConsumer "Tests/$ragName.Tests.csproj") --no-build --no-restore
     if ($Live) {
         foreach ($name in $templateFixture.Keys) {
             $templateSavedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
@@ -109,11 +155,22 @@ try {
         if ($LASTEXITCODE) { throw 'Generated application live run failed.' }
         $liveOutput | Write-Output
         if ($liveOutput -cnotcontains 'Package-only live CRUD verified: create, parameterized fresh read, update/version, explicit rollback, delete and absence.') { throw 'Generated application did not prove live CRUD completion.' }
+        # It writes the default GraphRAG schema (checked absent above), so run any suite that uses it before this, not after.
+        $ragApp = Join-Path $ragConsumer "App/$ragName.csproj"
+        foreach ($command in @(@('setup'), @('ingest'))) {
+            Invoke-TemplateDotnet run --project $ragApp --no-build --no-restore -- @command | Write-Output
+        }
+        $ragAnswer = @(Invoke-TemplateDotnet run --project $ragApp --no-build --no-restore -- ask "Which route finds passages that contain the question's words?")
+        $ragAnswer | Write-Output
+        if (-not ($ragAnswer | Where-Object { $_ -match '^\s+\[bytes \d+-\d+\] "' })) { throw 'Generated GraphRAG starter did not answer with a checked citation.' }
+        Invoke-TemplateDotnet run --project $ragApp --no-build --no-restore -- cleanup | Write-Output
     }
-    [ordered]@{ version = $templateVersion; consumer = $templateConsumer; package = $templatePackage; liveCrudPassed = [bool]$Live; published = $false } |
+    [ordered]@{ version = $templateVersion; consumer = $templateConsumer; graphRagConsumer = $ragConsumer; package = $templatePackage; liveCrudPassed = [bool]$Live; graphRagLivePassed = [bool]$Live; published = $false } |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $templateRoot 'verification.json') -Encoding utf8
-    Write-Output "Template package, isolated install, fresh build and two tests verified. Live CRUD: $([bool]$Live). Evidence: $templateRoot"
+    Write-Output "Template package, isolated install, fresh builds, two provider tests and three GraphRAG starter tests verified. Live CRUD and GraphRAG starter run: $([bool]$Live). Evidence: $templateRoot"
 } finally {
-    foreach ($name in $templateSavedEnvironment.Keys) { [Environment]::SetEnvironmentVariable($name, $templateSavedEnvironment[$name], 'Process') }
+    # An unset variable must stay unset: an empty one overrides Docker's --env-file and breaks the fixture's teardown.
+    . (Join-Path $PSScriptRoot 'Restore-ProcessEnvironment.ps1')
+    Restore-ProcessEnvironment -Snapshot $templateSavedEnvironment
     Pop-Location
 }

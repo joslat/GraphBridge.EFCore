@@ -125,7 +125,13 @@ public sealed class GraphRagServeTests
         }
         var ingestion = new CapturingIngestion();
         await new GraphBridgeChunkWriter(ingestion).WriteAsync(chunks.ToAsyncEnumerable());
-        Assert.Equal(chunker.Fingerprint, Assert.Single(ingestion.Documents).Plan.Fingerprint);
+        var written = Assert.Single(ingestion.Documents);
+        Assert.Equal(chunker.Fingerprint, written.Plan.Fingerprint);
+        Assert.Null(written.Source.Metadata);
+
+        // A reader that converts its source: every document the writer stores names where its text came from (GR-26).
+        await new GraphBridgeChunkWriter(ingestion, new GraphBridgeChunkWriterOptions { TextOrigin = "markitdown 0.1.9" }).WriteAsync(chunks.ToAsyncEnumerable());
+        Assert.Equal("markitdown 0.1.9", ingestion.Documents[^1].Source.Metadata?.TextOrigin);
     }
 
     [Fact]
@@ -195,6 +201,9 @@ public sealed class GraphRagServeTests
                 [new GraphRagCitation("doc-1", "chunk-1", 10, 32, "Graphs connect facts.")], null, evidence));
         }
 
+        public IAsyncEnumerable<GraphRagAnswerUpdate> AnswerStreamingAsync(string question, GraphRagRetrievalOptions? options = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
         public Task<GraphRagEvidence> RetrieveAsync(string question, GraphRagRetrievalOptions? options = null, CancellationToken cancellationToken = default)
         {
             LastMaxItems = options?.MaxItems ?? 0;
@@ -210,6 +219,8 @@ public sealed class GraphRagServeTests
         public bool Fail { get; set; }
 
         public Task<GraphRagIngestionReceipt> IngestAsync(IEnumerable<GraphRagSource> sources, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<GraphRagIngestionPreview> PreviewAsync(IEnumerable<GraphRagSource> sources, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 
         public Task<GraphRagIngestionReceipt> IngestChunkedAsync(IEnumerable<GraphRagChunkedDocument> documents, CancellationToken cancellationToken = default)
         {

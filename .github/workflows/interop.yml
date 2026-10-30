@@ -1,0 +1,49 @@
+name: GraphRAG interop with neo4j-graphrag
+
+# Manual. Runs GraphBridge and Neo4j's Python neo4j-graphrag, pinned with hashes, on one disposable Neo4j on a fresh
+# GitHub-hosted VM (GraphRAG v2, GR-52). No model is called. It never publishes anything.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, tag or branch to test
+        type: string
+        default: main
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  interop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Fresh GitHub-hosted VM; the local and self-hosted 5 GiB reserve remains the default.
+      GRAPHBRIDGE_DEDICATED_HOSTED_RUNNER: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Restore locked dependencies
+        run: dotnet restore GraphBridge.sln --locked-mode --disable-parallel
+      - name: Build
+        run: dotnet build GraphBridge.sln --no-restore -m:1 -p:UseSharedCompilation=false
+      - name: Install the pinned neo4j-graphrag into an isolated environment
+        run: |
+          python -m venv .artifacts/interop-venv
+          .artifacts/interop-venv/bin/python -m pip install --disable-pip-version-check --require-hashes -r tests/interop/python/requirements.txt
+      - name: Start disposable Neo4j
+        shell: pwsh
+        run: ./eng/scripts/Start-Neo4jFixture.ps1
+      - name: Interop suite
+        shell: pwsh
+        run: |
+          $env:GRAPHBRIDGE_INTEROP_PYTHON = (Resolve-Path .artifacts/interop-venv/bin/python).Path
+          ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite Interop

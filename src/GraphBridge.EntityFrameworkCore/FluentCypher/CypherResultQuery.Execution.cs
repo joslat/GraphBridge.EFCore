@@ -35,7 +35,7 @@ public sealed partial class CypherResultQuery<TResult>
             throw new InvalidOperationException("Specify Limit(1..10000) before executing a fluent Cypher query.");
         var compiled = Compile();
         return Neo4jDatabaseFacadeExtensions.QueryCypherWithTimeoutAsync(Query.Context.Database, compiled.Command.Text,
-            compiled.Command.Parameters, record => compiled.Read(record.Values), limit, Timeout, cancellationToken);
+            compiled.Command.Parameters, record => compiled.Read(record.Values), limit, Timeout, cancellationToken, compiled.Preflight);
     }
     internal CompiledCypher<TResult> Compile(bool captureSemantics = false) => new CypherCompiler(Query.Context).Compile(this, captureSemantics);
 }

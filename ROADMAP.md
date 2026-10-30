@@ -2,23 +2,21 @@
 
 GraphBridge is a **developer preview**. This page shows where it is heading and why. It is a direction, not a promise: priorities move with what people report and ask for. What has already shipped is in the [changelog](CHANGELOG.md), and what works today is in [compatibility](docs/reference/COMPATIBILITY.md) and [known limitations](docs/reference/KNOWN_LIMITATIONS.md).
 
-*Last updated: October 2026, with 0.1.0-preview.5.*
+*Last updated: October 2026, with 0.2.0-preview.1.*
 
 ## Now: the next previews
 
 - **Fixes from feedback.** Reports from people trying the previews come first.
-- **GraphRAG toolkit for .NET** (experimental; in the repository now, with packages in a later preview once verified with a real model; see the [GraphRAG docs](docs/graphrag/README.md)). Building blocks on GraphBridge for the whole lifecycle: documents, sections and chunks with exact byte positions; ontologies as C# classes, with three standard ones (generic document, novel, article); schema-guided extraction; vector, full-text and graph retrieval fused by identity; answers with verified citations, or an honest "insufficient evidence"; re-ingest, remove and health checks; agent tools, and adapters for Microsoft.Extensions.DataIngestion and Agent Framework. A layout preset uses the names of the document and chunk layer that Neo4j's Python GraphRAG library writes; interop between the two isn't tested yet.
-- **Provider features GraphRAG needs** (shipped in 0.1.0-preview.5). Embeddings as EF properties, search index steps in migrations, and typed upserts for relationships.
-- **EF Core 11 readiness.** EF Core 11 is due in November 2026. We'll build against it and list what changes. EF Core 10, the long-term-support release, stays the supported target, and the next preview's packages declare EF Core below 11.
+- **GraphRAG toolkit for .NET** (experimental; its packages are on NuGet from 0.2.0-preview.1; see the [GraphRAG docs](docs/graphrag/README.md)). Building blocks on GraphBridge for the whole lifecycle: documents, sections and chunks with exact byte positions; ontologies as C# classes, with three standard ones (generic document, novel, article); schema-guided extraction; vector, full-text and graph retrieval fused by identity, optionally scoped to part of the graph; answers with verified citations, or an honest "insufficient evidence"; follow-up questions, answer export and an experimental Text2Cypher; re-ingest, remove, merge suggestions and health checks; PDF with page-aware citations; agent tools, ASP.NET Core endpoints, and adapters for Microsoft.Extensions.DataIngestion and Agent Framework. It has run end to end with a real model on a whole novel, and an interop suite runs it against Neo4j's Python GraphRAG library, `neo4j-graphrag` 1.22.0, on one graph, entities included ([interop](docs/graphrag/INTEROP.md)).
+- **Provider features GraphRAG needs.** Embeddings as EF properties, search index steps in migrations and typed upserts for relationships shipped in 0.2.0-preview.1, with the toolkit. Next: additional labels per entity type, relationship types shared by several entity types, and Fluent queries that start from a vector or full-text search.
+- **EF Core 11 readiness.** EF Core 11 is due in November 2026. We'll build against it and list what changes. EF Core 10, the long-term-support release, stays the supported target, and the packages declare EF Core below 11 from 0.2.0-preview.1.
 - **Monthly dependency refresh.** EF Core 10 patches, Neo4j.Driver 6, Microsoft.Extensions.VectorData and the latest Neo4j calendar release.
 
 ## Next: likely, driven by demand
 
 - **Neo4j Aura compatibility check.** Run the preflight, capability, CRUD and search checks against Aura and document the result.
-- **Search inside Fluent Cypher.** A vector or text match followed by a graph pattern in one typed query.
-- **Scoped search.** Search within part of the graph, such as a tenant or a set of documents.
 - **LINQ gaps people report.** For example set operations, composed paging and Include edge cases.
-- **GraphRAG beyond the first toolkit.** Text2Cypher, several labels per entity type (for full interoperability with Neo4j's Python GraphRAG library), evidence export, and an ASP.NET Core endpoint package.
+- **GraphRAG beyond the toolkit.** Filters inside a search index, and readers for more document formats; tell us which ones you need.
 
 ## Exploring: no commitment
 

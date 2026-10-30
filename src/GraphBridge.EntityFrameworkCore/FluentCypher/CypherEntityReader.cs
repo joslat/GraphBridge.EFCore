@@ -70,7 +70,7 @@ internal sealed class CypherEntityReader
             // Mirrors the LINQ membership diagnostic: count physical links first (at most two), then test the parent's label.
             entries.Add(ReferenceKey + ": COLLECT { MATCH (" + Parent + ")-[:" + Identifier(reference.RelationshipType) + "]->(" + symbol + ") RETURN "
                 + Parent + " {" + string.Join(", ", Keys(CypherPropertyOwner.Source).Append(PrincipalKey + ": (" + Parent + ":"
-                + Identifier(reference.Principal.Label) + ")")) + "} LIMIT 2 }");
+                + Labels(reference.Principal.Labels) + ")")) + "} LIMIT 2 }");
         else
         {
             if (Endpoint(CypherPropertyOwner.Source, "startNode") is { } source) entries.Add(SourceKey + ": " + source);
@@ -144,6 +144,9 @@ internal sealed class CypherEntityReader
                     QueryTrackingBehavior.NoTracking), parameter);
             return Expression.Lambda<Func<MaterializationContext, object>>(Expression.Convert(body, typeof(object)), parameter).Compile();
         });
+
+    // A node type's labels, separated by colons (ADR 0055), each validated and quoted.
+    private static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
 
     private static string Identifier(string value) => CypherQueryRenderer.Identifier(value);
 }

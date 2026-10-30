@@ -72,12 +72,12 @@ internal sealed class GraphReadBinding
     }
 
     public static GraphReadBinding FromNode(NodeBinding node)
-        => new(node.EntityType, new CypherNodeRoot(node.Label),
+        => new(node.EntityType, new CypherNodeRoot(node.Labels),
             node.Properties.Select(p => new GraphReadProperty(p, new CypherProperty(p.Name))));
 
     public static GraphReadBinding FromNodeReference(NodeReferenceBinding reference)
         => new(reference.Dependent.EntityType,
-            new CypherNodeReferenceRoot(reference.Dependent.Label, reference.RelationshipType, reference.Principal.Label, reference.ForeignKey.IsRequired),
+            new CypherNodeReferenceRoot(reference.Dependent.Labels, reference.RelationshipType, reference.Principal.Labels, reference.ForeignKey.IsRequired),
             reference.Dependent.StoredProperties.Select(p => new GraphReadProperty(p, new CypherProperty(p.Name)))
                 .Concat(reference.ForeignKeyProperties.Select((dependent, index) => new GraphReadProperty(dependent,
                     new CypherProperty(reference.PrincipalKeyProperties[index].Name, CypherPropertyOwner.Source)))),
@@ -85,7 +85,7 @@ internal sealed class GraphReadBinding
 
     public static GraphReadBinding FromAssociation(AssociationEdgeBinding association)
         => new(association.EntityType,
-            new CypherAssociationRoot(association.Source.Node.Label, association.RelationshipType, association.Target.Node.Label),
+            new CypherAssociationRoot(association.Source.Node.Labels, association.RelationshipType, association.Target.Node.Labels),
             EndpointProperties(association.Source, CypherPropertyOwner.Source)
                 .Concat(EndpointProperties(association.Target, CypherPropertyOwner.Target))
                 .Concat(association.PayloadProperties.Select(p =>
@@ -94,7 +94,7 @@ internal sealed class GraphReadBinding
 
     public static GraphReadBinding FromIdentifiedEdge(IdentifiedEdgeBinding edge)
         => new(edge.EntityType,
-            new CypherIdentifiedEdgeRoot(edge.Source.Node.Label, edge.RelationshipType, edge.Target.Node.Label, edge.KeyProperty.Name),
+            new CypherIdentifiedEdgeRoot(edge.Source.Node.Labels, edge.RelationshipType, edge.Target.Node.Labels, edge.KeyProperty.Name),
             EndpointProperties(edge.Source, CypherPropertyOwner.Source)
                 .Concat(EndpointProperties(edge.Target, CypherPropertyOwner.Target))
                 .Concat(new[] { edge.KeyProperty }.Concat(edge.PayloadProperties).Select(p =>

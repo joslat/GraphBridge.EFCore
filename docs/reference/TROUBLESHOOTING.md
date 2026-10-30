@@ -24,11 +24,23 @@ When you report a problem, include exact versions, the sanitized URI scheme and 
 | Exception | Cause | What to do |
 |---|---|---|
 | `Neo4jQueryTranslationException` with a `GBQ` code | A LINQ shape outside the supported subset | See [refusal codes](KNOWN_LIMITATIONS.md#refusal-codes) for the alternative |
-| `FluentCypherException` (a `NotSupportedException`): "GraphBridge fluent Cypher [GBFC...]" | A Fluent query GraphBridge refuses; the code is in `Code` and in `Exception.Data["GraphBridge.FluentDiagnostic"]` | See the codes in [Fluent Cypher](../features/FLUENT_CYPHER.md#predicates-as-c-lambdas) |
+| `FluentCypherException` (a `NotSupportedException`): "GraphBridge fluent Cypher [GBFC...]" | A Fluent query GraphBridge refuses; the code is in `Code` and in `Exception.Data["GraphBridge.FluentDiagnostic"]` | See the [Fluent Cypher codes](KNOWN_LIMITATIONS.md#fluent-cypher-codes) for the alternative |
 | `NotSupportedException` asking for async operations | `SaveChanges()`, `ToList()`, synchronous transaction calls | Use the async API and `await using` |
 | `InvalidOperationException`: "GraphBridge requires an existing uniqueness constraint" | A key constraint is missing | Deploy the reviewed constraint ([schema and migrations](../features/SCHEMA_AND_MIGRATIONS.md)) |
-| `DbUpdateConcurrencyException` | Someone else changed or deleted the element since you loaded it | Reload in a fresh context and decide ([optimistic concurrency](../features/TRANSACTIONS_AND_CONCURRENCY.md#optimistic-concurrency)) |
+| `DbUpdateConcurrencyException` | Someone else changed or deleted the element since you loaded it, or an endpoint is missing | Reload in a fresh context and decide ([optimistic concurrency](../features/TRANSACTIONS_AND_CONCURRENCY.md#optimistic-concurrency)). `Exception.Data["GraphBridge.MutationStep"]` says which command failed: `mutation`; a lock such as `lock 2 of 2`, of the element or of a relationship's endpoints; or `reference`, a node's native-reference membership check. `["GraphBridge.MutationResult"]` says what it reported |
 | `DbUpdateException` saying the commit outcome may be unknown | The commit failed or its response was lost | Do not retry blindly; check durable state first ([recovery](../features/TRANSACTIONS_AND_CONCURRENCY.md#recovering-a-failed-graph-operation)) |
+
+## GraphRAG (experimental)
+
+| Symptom | Cause | What to do |
+|---|---|---|
+| Warning `GBRAG001` | The toolkit is experimental | Acknowledge it once with `<NoWarn>$(NoWarn);GBRAG001</NoWarn>` |
+| A document failed in the receipt | Its outcome code says why: unreadable, too large, a lease, the embeddings, extraction or the write | See [document outcomes](../graphrag/INGEST.md#runs-leases-and-receipts) |
+| Fewer things extracted than expected | The checks pruned them; each has a reason in the receipt | See [prune reasons](../graphrag/INGEST.md#extraction); quarantined replies are in [use a real model](../graphrag/REAL_MODELS.md) |
+| `InsufficientEvidence` instead of an answer | No evidence, or the model declined, or a citation wasn't found in the stored text | See [refusals](../graphrag/ANSWERS.md); a refusal is the toolkit working, not failing |
+| `ArgumentOutOfRangeException` naming an option | An option outside its range | See [bounds and where to set them](../graphrag/LIMITS.md#bounds-the-toolkit-enforces) |
+| Reset refuses the graph | Nodes under the toolkit's labels without a run it knows: another tool wrote them | Adopt that graph first ([interop](../graphrag/INTEROP.md#adopt-a-graph-neo4j-graphrag-built)), or use other labels |
+| A sample answers from recordings when you meant a model, or the reverse | `AI_INFERENCE_PROVIDER` wins over `GRAPHBRIDGE_AI_MODE=replay` | See [the samples' variables](../graphrag/REAL_MODELS.md#the-samples-variables) |
 
 ## Doctor decision tree
 

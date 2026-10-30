@@ -6,7 +6,7 @@ Lessons print their own code, the Cypher it generates and what they observed. Co
 
 ## Start
 
-You need the .NET SDK version pinned in [global.json](../../global.json) (10.0.401): `dotnet --version` must print it. Install it from [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/10.0) if not.
+You need the .NET SDK version pinned in [global.json](../../global.json) (10.0.401): `dotnet --version` must print it. Install it from [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/10.0) if not. Run every command from the repository root.
 
 ```powershell
 # The interactive menu
@@ -26,7 +26,7 @@ Lessons marked ◇ need no database. Add `--offline` to any command to ignore a 
 
 ## Get a database
 
-The workshop writes Person, Movie and Review nodes and can reset them, so give it a **disposable** Neo4j. With Docker and PowerShell 7, this keeps the password out of command lines and shell history:
+The workshop writes Person, Movie and Review nodes and can reset them, and the GraphRAG lessons (31 to 35) write their own nodes and schema while they run, so give it a **disposable** Neo4j. With Docker and PowerShell 7, this keeps the password out of command lines and shell history:
 
 ```powershell
 $env:GRAPHBRIDGE_WORKSHOP_PASSWORD = Read-Host -MaskInput 'Choose a Neo4j password (8+ characters)'
@@ -36,27 +36,29 @@ docker run -d --name graphbridge-workshop -p 127.0.0.1:7687:7687 -p 127.0.0.1:74
 $env:GRAPHBRIDGE_WORKSHOP_URI = 'bolt://localhost:7687'
 ```
 
-`-e NEO4J_AUTH` without a value passes the variable from your session. Neo4j refuses passwords shorter than eight characters. Optional: `GRAPHBRIDGE_WORKSHOP_USERNAME` (default `neo4j`) and `GRAPHBRIDGE_WORKSHOP_DATABASE` (default `neo4j`). Settings come only from environment variables, never from command arguments or files in the repository. Lesson 20 (search) needs Neo4j 2026.09 or later; the other lessons run on any version the provider supports. Repository maintainers can use the owned fixture instead: the workshop also reads the fixture's `GRAPHBRIDGE_NEO4J_*` settings. If another Neo4j already uses port 7687 or 7474, map different host ports, for example `-p 127.0.0.1:7688:7687 -p 127.0.0.1:7478:7474`, and set `GRAPHBRIDGE_WORKSHOP_URI` to `bolt://localhost:7688`.
+`-e NEO4J_AUTH` without a value passes the variable from your session. Neo4j refuses passwords shorter than eight characters. Optional: `GRAPHBRIDGE_WORKSHOP_USERNAME` (default `neo4j`) and `GRAPHBRIDGE_WORKSHOP_DATABASE` (default `neo4j`). Settings come only from environment variables, never from command arguments or files in the repository. Lessons 20 (search) and 31 to 35 (GraphRAG) need Neo4j 2026.09 or later; the other lessons run on any version the provider supports. Repository maintainers can use the owned fixture instead: `eng/scripts/Start-Neo4jFixture.ps1` writes its `GRAPHBRIDGE_NEO4J_*` settings to the ignored `eng/.fixture.env` and does not set them in your session, so load that file first, for example `Get-Content eng/.fixture.env | ForEach-Object { $name, $value = $_ -split '=', 2; Set-Item "env:$name" $value }`. The workshop reads those settings when `GRAPHBRIDGE_WORKSHOP_URI` is not set. If another Neo4j already uses port 7687 or 7474, map different host ports, for example `-p 127.0.0.1:7688:7687 -p 127.0.0.1:7478:7474`, and set `GRAPHBRIDGE_WORKSHOP_URI` to `bolt://localhost:7688`.
 
 **Safety.** The workshop refuses a database that is not on this machine (pass `--allow-remote` for a disposable remote one), and a database that holds other data (pass `--allow-other-data` for a disposable shared one). It refuses a database whose Person, Movie or Review nodes it did not create. Once it has created its ownership marker, it treats every Person, Movie and Review node in that database as workshop data, so with `--allow-other-data` use a database where no other application writes those labels. `reset` shows how much it will delete, asks you to type `reset` (in scripts, `reset --confirm`), and deletes nothing if the data changed in the meantime. Run one workshop process per database at a time; a second one is refused, because two runs change each other's data.
 
 The first lesson that needs data applies the reviewed uniqueness constraints (lesson 03) and loads a small movie graph through EF Core. If a lesson is interrupted or an experiment changes the data, the next run warns that the graph differs from the seed; `reset` restores it.
+
+Lessons 31 to 35 (GraphRAG) also write `Workshop*` nodes and `workshop_rag_*` constraints and indexes for the length of the lesson, and remove them when it ends; `reset` does not touch them. If a GraphRAG lesson is stopped mid-run, run it again: whether or not that run passes, its clean-up removes what the stopped run left behind.
 
 ## The movie graph
 
 Nine people, five movies, four reviews and the relationships between them:
 
 ```text
-(:Person)-[:ACTED_IN {role, billing}]->(:Movie)    identified relationship: Hugo Weaving and Tom Hanks each have two roles in Cloud Atlas
-(:Person)-[:DIRECTED]->(:Movie)                    optional reference: John Wick has no director
-(:Movie)-[:HAS_REVIEW]->(:Review)                  required reference
-(:Person)-[:LIKES {stars}]->(:Movie)               association with skip navigations
-(:Person)-[:FOLLOWS]->(:Person)                    association: Keanu → Carrie-Anne → Laurence → Keanu is a cycle
+(:Person)-[:ACTED_IN {id, role, billing}]->(:Movie)  identified relationship: Hugo Weaving and Tom Hanks each have two roles in Cloud Atlas
+(:Person)-[:DIRECTED]->(:Movie)                      optional reference: John Wick has no director
+(:Movie)-[:HAS_REVIEW]->(:Review)                    required reference
+(:Person)-[:LIKES {stars}]->(:Movie)                 association with skip navigations
+(:Person)-[:FOLLOWS]->(:Person)                      association: Keanu → Carrie-Anne → Laurence → Keanu is a cycle
 ```
 
 ## Lessons
 
-★ core track (about three hours to read and run, by the lessons' own estimates; longer with the exercises) · ◇ offline · ● needs Neo4j
+★ core track (about three hours to read and run, by the lessons' own estimates; longer with the exercises) · ◇ offline · ● needs Neo4j · lessons 20 and 31 to 35 need Neo4j 2026.09 or later
 
 | # | Lesson | Mode | You learn |
 |---|---|---|---|
@@ -84,7 +86,7 @@ Nine people, five movies, four reviews and the relationships between them:
 | 17 ★ | [Fluent Cypher II: optional matches and counts](Lessons/17-FluentOptionalAndCounts/README.md) | ◇● | Predicate ownership, rows vs distinct counts, aggregates, a refused predicate |
 | 18 | [Fluent Cypher III: existence](Lessons/18-FluentExists/README.md) | ◇● | Correlated `EXISTS` and `NOT EXISTS`, and EXISTS inside a lambda with `Graph.Is` |
 | 19 | [Bounded paths](Lessons/19-BoundedPaths/README.md) | ◇● | Repeated patterns, cycles, `QueryPathsAsync`, `HasMorePaths` |
-| 20 | [Full-text and vector search](Lessons/20-Search/README.md) | ● | Explicit indexes, scores, provenance, and the same search through `IVectorSearchable` (Neo4j 2026.09+) |
+| 20 | [Full-text and vector search](Lessons/20-Search/README.md) | ● | Explicit indexes, scores, provenance, and the same search through `IVectorSearchable` |
 | 21 | [Bulk update and delete](Lessons/21-BulkMutations/README.md) | ● | `ExecuteUpdateAsync`, `ExecuteDeleteAsync`, stale tracked entities |
 | 22 ★ | [Capstone: one question, three query surfaces](Lessons/22-ThreeSurfaces/README.md) | ◇● | LINQ, Fluent and native Cypher side by side |
 | **E** | **Operating the graph** | | |
@@ -98,9 +100,13 @@ Nine people, five movies, four reviews and the relationships between them:
 | 29 | [Design-time migration commands](Lessons/29-DesignTime/README.md) | ◇● | In-app `list`, `preview` and `status` with JSON output |
 | 30 | [Authoring toolchains: database-first](Lessons/30-AuthoringToolchains/README.md) | ● | Inspect your graph, review keys, scaffold an EF model |
 | **G** | **GraphRAG (experimental)** | | |
-| 31 | [From documents to cited answers](Lessons/31-CitedAnswers/README.md) | ◇● | Chunks with exact positions, citations checked against the stored bytes, refusals (Neo4j 2026.09+) |
+| 31 | [From documents to cited answers](Lessons/31-CitedAnswers/README.md) | ◇● | Chunks with exact positions, citations checked against the stored bytes, refusals |
+| 32 | [Things, facts and quotes](Lessons/32-ThingsFactsQuotes/README.md) | ◇● | An ontology, extraction checked against the passage, pruned items with their reasons, LINQ over the graph |
+| 33 | [Retrieval, scopes and streamed answers](Lessons/33-RetrievalAndStreaming/README.md) | ◇● | Two routes and their ranks, retrieval kept to chosen documents, provisional text then the checked answer |
+| 34 | [Keeping the graph tidy](Lessons/34-KeepingItTidy/README.md) | ● | Merge suggestions with undo, re-ingesting only what changed, removal and orphans, the health check |
+| 35 | [Follow-ups, answer export and graph questions](Lessons/35-FollowUpsExportAndGraph/README.md) | ◇● | A follow-up rewritten with its conversation, an export a check can trust, Text2Cypher that may only read |
 
-The full track is 32 lessons (00–31); `list` shows them all with their modes.
+The full track is 36 lessons (00–35); `list` shows them all with their modes.
 
 ## Experimenting
 

@@ -33,6 +33,18 @@ public sealed record GraphRagLayout
     /// <summary>Prefix of the constraint and index names <see cref="GraphRagSchema"/> declares.</summary>
     public string SchemaPrefix { get; init; } = "graphrag";
 
+    /// <summary>
+    /// The chunk vector index; <see langword="null"/> derives it from <see cref="SchemaPrefix"/> and the embedding set. Neo4j
+    /// allows one vector index per label and property, so name an existing one, such as neo4j-graphrag's, to search it
+    /// (ADR 0052, section 13).
+    /// </summary>
+    public string? VectorIndexName { get; init; }
+
+    /// <summary>The chunk text full-text index; <see langword="null"/> is <c>{SchemaPrefix}_chunk_text</c>.</summary>
+    public string? FullTextIndexName { get; init; }
+
+    internal string VectorIndexFor(GraphRagEmbeddingSet embeddingSet) => VectorIndexName ?? embeddingSet.VectorIndexNameFor(SchemaPrefix);
+
     /// <summary>Labels <c>Document</c>, <c>Section</c>, <c>Chunk</c>, <c>IngestionRun</c>, <c>GraphRagLease</c>; CLR property names.</summary>
     public static GraphRagLayout Default { get; } = new();
 
@@ -52,7 +64,7 @@ public sealed record GraphRagLayout
 
     internal void Validate()
     {
-        foreach (var (name, value) in Names())
+        foreach (var (name, value) in Names().Concat([(nameof(VectorIndexName), VectorIndexName ?? "_"), (nameof(FullTextIndexName), FullTextIndexName ?? "_")]))
             if (string.IsNullOrEmpty(value) || !IsInitial(value[0]) || value.Any(c => !IsInitial(c) && c is not (>= '0' and <= '9')))
                 throw new ArgumentException($"GraphRagLayout.{name} must match [A-Za-z_][A-Za-z0-9_]*.");
         var labels = new[] { DocumentLabel, SectionLabel, ChunkLabel, RunLabel, LeaseLabel };

@@ -43,7 +43,7 @@ var query = db.Movies
 var matrix = await query.SingleAsync(cancellationToken);
 ```
 
-   The Cypher matches the movies first, then collects each movie's reviews in a `CALL { MATCH (n)-[:HAS_REVIEW]->(i) ... }` subquery. Both the movie and each review prove their single parent link before EF shapes them.
+   The Cypher matches the movies first, then collects each movie's reviews in a `CALL (n) { MATCH (n)-[:HAS_REVIEW]->(i) ... }` subquery. Both the movie and each review prove their single parent link before EF shapes them.
 
 3. **The other direction meets a documented limit.**
 

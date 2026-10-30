@@ -111,6 +111,35 @@ public static class GraphModelBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Further labels every node of the type carries besides its <c>ToGraphNode</c> label, such as neo4j-graphrag's
+    /// <c>__Entity__</c> (ADR 0055). They are written on create and upsert, and every match of the type requires them.
+    /// </summary>
+    public static EntityTypeBuilder HasAdditionalGraphLabels(this EntityTypeBuilder builder, params string[] labels)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        builder.HasAnnotation(GraphAnnotationNames.AdditionalNodeLabels, AdditionalLabels(labels));
+        return builder;
+    }
+
+    /// <inheritdoc cref="HasAdditionalGraphLabels(EntityTypeBuilder, string[])"/>
+    public static EntityTypeBuilder<TEntity> HasAdditionalGraphLabels<TEntity>(this EntityTypeBuilder<TEntity> builder, params string[] labels)
+        where TEntity : class
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        builder.HasAnnotation(GraphAnnotationNames.AdditionalNodeLabels, AdditionalLabels(labels));
+        return builder;
+    }
+
+    private static string AdditionalLabels(string[] labels)
+    {
+        ArgumentNullException.ThrowIfNull(labels);
+        if (labels.Length == 0) throw new ArgumentException("Name at least one additional label.", nameof(labels));
+        foreach (var label in labels) GraphIdentifier.Validate(label, nameof(labels));
+        if (labels.Distinct(StringComparer.Ordinal).Count() != labels.Length) throw new ArgumentException("Additional labels must be distinct.", nameof(labels));
+        return string.Join(':', labels);
+    }
+
     public static PropertyBuilder HasGraphPropertyName(this PropertyBuilder builder, string name)
     {
         ArgumentNullException.ThrowIfNull(builder);

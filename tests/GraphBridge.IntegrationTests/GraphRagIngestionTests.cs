@@ -179,6 +179,29 @@ public sealed partial class GraphRagIngestionTests(DisposableNeo4jFixture fixtur
     }
 
     [Neo4jIntegrationFact]
+    public async Task A_document_that_takes_longer_than_its_lease_keeps_it_renewed_and_a_second_run_stays_out()
+    {
+        // GraphRAG v2, wave 7 (GR-63): the whole book's extraction outlasted the 10-minute lease, and its write was refused.
+        await ProvisionAsync();
+        var source = GraphRagSources.Text("slow", "# slow\n\nA document whose embedding takes longer than its lease.", "text/markdown");
+        using var started = new SemaphoreSlim(0);
+        await using var slow = Services(new HashGenerator { Delay = TimeSpan.FromSeconds(4), OnText = _ => started.Release() }, TimeSpan.FromSeconds(1.5));
+        var first = slow.GetRequiredService<IGraphRagIngestion>().IngestAsync([source]);
+        await started.WaitAsync(TimeSpan.FromSeconds(30));
+        await Task.Delay(TimeSpan.FromSeconds(2.5));
+
+        // Past the first lease's original expiry: still held, because it was renewed.
+        await using (var second = Services(new HashGenerator(), TimeSpan.FromSeconds(1.5)))
+        {
+            var held = Assert.Single((await second.GetRequiredService<IGraphRagIngestion>().IngestAsync([source])).Documents);
+            Assert.Equal((GraphRagDocumentStatus.Failed, "lease-held"), (held.Status, held.ErrorCode));
+        }
+        Assert.Equal(GraphRagDocumentStatus.Ingested, Assert.Single((await first).Documents).Status);
+        await using var db = Context();
+        Assert.Equal(0, await db.Set<GraphRagLease>().CountAsync());
+    }
+
+    [Neo4jIntegrationFact]
     public async Task Typed_vector_search_finds_a_written_chunk()
     {
         await ProvisionAsync();
@@ -202,14 +225,20 @@ public sealed partial class GraphRagIngestionTests(DisposableNeo4jFixture fixtur
             await Execute("CALL db.awaitIndex($index, 60)", new { index });
     }
 
-    private ServiceProvider Services(HashGenerator generator, IChatClient? chat = null)
+    private ServiceProvider Services(HashGenerator generator, IChatClient? chat = null) => Services(generator, null, chat);
+
+    private ServiceProvider Services(HashGenerator generator, TimeSpan? leaseDuration, IChatClient? chat = null)
     {
         var services = new ServiceCollection();
         if (chat is not null) services.AddSingleton(chat);
         services.AddSingleton(Layout);
         services.AddDbContext<RagContext>(o => o.UseNeo4j(fixture.Driver, fixture.Database).ReplaceService<IModelCacheKeyFactory, LayoutKey>());
         services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(generator);
-        services.AddGraphRag<RagContext>(_set, o => o.Chunking.MaxUtf8Bytes = 96);
+        services.AddGraphRag<RagContext>(_set, o =>
+        {
+            o.Chunking.MaxUtf8Bytes = 96;
+            if (leaseDuration is { } lease) o.Ingestion.LeaseDuration = lease;
+        });
         return services.BuildServiceProvider();
     }
 
@@ -258,6 +287,7 @@ public sealed partial class GraphRagIngestionTests(DisposableNeo4jFixture fixtur
     private sealed class HashGenerator : IEmbeddingGenerator<string, Embedding<float>>
     {
         public Action<string>? OnText { get; init; }
+        public TimeSpan Delay { get; init; }
 
         public static float[] Vector(string text)
         {
@@ -265,13 +295,14 @@ public sealed partial class GraphRagIngestionTests(DisposableNeo4jFixture fixtur
             return [.. hash.Take(8).Select(b => 1f + b)];
         }
 
-        public Task<GeneratedEmbeddings<Embedding<float>>> GenerateAsync(IEnumerable<string> values, EmbeddingGenerationOptions? options = null,
+        public async Task<GeneratedEmbeddings<Embedding<float>>> GenerateAsync(IEnumerable<string> values, EmbeddingGenerationOptions? options = null,
             CancellationToken cancellationToken = default)
         {
             var texts = values.ToArray();
             foreach (var text in texts) OnText?.Invoke(text);
             cancellationToken.ThrowIfCancellationRequested();
-            return Task.FromResult(new GeneratedEmbeddings<Embedding<float>>(texts.Select(t => new Embedding<float>(Vector(t)))));
+            if (Delay > TimeSpan.Zero) await Task.Delay(Delay, cancellationToken);
+            return new GeneratedEmbeddings<Embedding<float>>(texts.Select(t => new Embedding<float>(Vector(t))));
         }
 
         public object? GetService(Type serviceType, object? serviceKey = null) => null;

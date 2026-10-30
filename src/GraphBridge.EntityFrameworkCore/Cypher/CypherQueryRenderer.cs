@@ -129,7 +129,7 @@ internal static class CypherQueryRenderer
         // cover returned rows only: filters and pagination can exclude malformed dependents.
         var count = Identifier(CypherQueryPlan.NodeReferenceCountAlias);
         var principal = Identifier(CypherQueryPlan.NodeReferencePrincipalAlias);
-        var label = Identifier(root.PrincipalLabel);
+        var label = Labels(root.PrincipalLabel);
         ValidateToken(nodeAlias);
         ValidateToken(sourceAlias);
         text.Append("\nCALL (").Append(nodeAlias).Append(") {\n  OPTIONAL MATCH (parent)-[candidate:").Append(Identifier(root.RelationshipType)).Append("]->(").Append(nodeAlias).Append(")")
@@ -193,10 +193,10 @@ internal static class CypherQueryRenderer
 
     internal static string RenderRootMatch(CypherQueryRoot root) => root switch
     {
-        CypherNodeRoot node => $"MATCH (n:{Identifier(node.Label)})",
-        CypherNodeReferenceRoot reference => $"MATCH (n:{Identifier(reference.DependentLabel)})",
-        CypherAssociationRoot association => $"MATCH (s:{Identifier(association.SourceLabel)})-[r:{Identifier(association.RelationshipType)}]->(t:{Identifier(association.TargetLabel)})",
-        CypherIdentifiedEdgeRoot edge => $"MATCH (s:{Identifier(edge.SourceLabel)})-[r:{Identifier(edge.RelationshipType)}]->(t:{Identifier(edge.TargetLabel)})",
+        CypherNodeRoot node => $"MATCH (n:{Labels(node.Label)})",
+        CypherNodeReferenceRoot reference => $"MATCH (n:{Labels(reference.DependentLabel)})",
+        CypherAssociationRoot association => $"MATCH (s:{Labels(association.SourceLabel)})-[r:{Identifier(association.RelationshipType)}]->(t:{Labels(association.TargetLabel)})",
+        CypherIdentifiedEdgeRoot edge => $"MATCH (s:{Labels(edge.SourceLabel)})-[r:{Identifier(edge.RelationshipType)}]->(t:{Labels(edge.TargetLabel)})",
         _ => throw new InvalidOperationException("Unknown Cypher query root.")
     };
 
@@ -241,6 +241,10 @@ internal static class CypherQueryRenderer
         ValidateToken(value);
         return "`" + value + "`";
     }
+
+    /// <summary>A node type's labels, separated by colons as <c>NodeBinding.Labels</c> holds them, each validated and quoted
+    /// (ADR 0055): <c>`Person`:`__Entity__`</c>. In a pattern or a label predicate, a node must carry every one.</summary>
+    internal static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
 
     private static string ParameterName(string value)
     {

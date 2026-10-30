@@ -5,3 +5,5 @@ samples/**/generated-readonly/** text eol=lf
 # C# raw-string query fixtures preserve source newlines at compilation.
 # Keep the exact Cypher baselines identical on Windows and Unix checkouts.
 *.cs text eol=lf
+# Recorded model calls are keyed by the exact bytes of the texts they were made on, on every checkout.
+samples/**/data/** text eol=lf

@@ -61,7 +61,7 @@ public static class GraphRagSchema
             Unique($"{prefix}_chunk_key", layout.ChunkLabel, layout.ChunkIdProperty),
             Unique($"{prefix}_run_key", layout.RunLabel, nameof(GraphRagIngestionRun.Id)),
             Unique($"{prefix}_lease_key", layout.LeaseLabel, nameof(GraphRagLease.Key)),
-            GraphMigrationSchemaDefinition.VectorIndex(embeddingSet.VectorIndexNameFor(prefix), "NODE", layout.ChunkLabel,
+            GraphMigrationSchemaDefinition.VectorIndex(layout.VectorIndexFor(embeddingSet), "NODE", layout.ChunkLabel,
                 layout.ChunkEmbeddingProperty, embeddingSet.Dimensions, embeddingSet.Similarity),
             GraphMigrationSchemaDefinition.FullTextIndex(FullTextIndexName(layout), "NODE", [layout.ChunkLabel], [layout.ChunkTextProperty])
         };
@@ -69,16 +69,19 @@ public static class GraphRagSchema
         {
             // Constraints stay ahead of the indexes, so the steps create them first.
             var index = definitions.FindLastIndex(d => !d.IsIndex) + 1;
+            var mentionTypes = new HashSet<string>(StringComparer.Ordinal);
             foreach (var type in ontology.Classes)
             {
                 var name = GraphRagOntologyBuilder.UpperSnake(type.Label).ToLowerInvariant();
                 definitions.Insert(index++, Unique($"{prefix}_{name}_key", type.Label, nameof(Ontologies.GraphRagEntity.Id)));
-                definitions.Insert(index++, UniqueRelationship($"{prefix}_{type.MentionType.ToLowerInvariant()}_key", type.MentionType));
+                // A mention type every class shares (FROM_CHUNK) has one key constraint (ADR 0056).
+                if (mentionTypes.Add(type.MentionType))
+                    definitions.Insert(index++, UniqueRelationship($"{prefix}_{type.MentionType.ToLowerInvariant()}_key", type.MentionType));
             }
             foreach (var quote in ontology.Quotes)
                 definitions.Insert(index++, UniqueRelationship($"{prefix}_{quote.Type.ToLowerInvariant()}_key", quote.Type));
             definitions.Add(GraphMigrationSchemaDefinition.FullTextIndex(EntityNamesIndexName(layout), "NODE", ontology.Classes.Select(c => c.Label).ToArray(),
-                [nameof(Ontologies.GraphRagEntity.Name), nameof(Ontologies.GraphRagEntity.Aliases)]));
+                [ontology.NameProperty, nameof(Ontologies.GraphRagEntity.Aliases)]));
         }
         return definitions.AsReadOnly();
     }
@@ -96,7 +99,7 @@ public static class GraphRagSchema
         return $"{layout.SchemaPrefix}_entity_names";
     }
 
-    internal static string FullTextIndexName(GraphRagLayout layout) => $"{layout.SchemaPrefix}_chunk_text";
+    internal static string FullTextIndexName(GraphRagLayout layout) => layout.FullTextIndexName ?? $"{layout.SchemaPrefix}_chunk_text";
 
     private static GraphMigrationSchemaDefinition Unique(string name, string label, string property)
         => new(name, GraphMigrationSchemaKind.UniquenessConstraint, "NODE", label, [property]);

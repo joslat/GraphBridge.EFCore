@@ -1,8 +1,10 @@
 using System.Text.Json;
 using GraphBridge.EntityFrameworkCore.Migrations;
 using GraphBridge.GraphRag;
+using GraphBridge.GraphRag.AgentFramework;
 using GraphBridge.GraphRag.Ontologies;
 using GraphBridge.Samples.GraphRagShared;
+using Microsoft.Agents.AI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +23,7 @@ public sealed class ArticlesContext(DbContextOptions<ArticlesContext> options) :
 
 public static class Articles
 {
-    public static SampleModelSettings? Models { get; } = SampleModelSettings.FromEnvironment();
+    public static SampleModelSettings? Models { get; } = SampleModelSettings.FromEnvironment(Path.Combine(AppContext.BaseDirectory, "data", "article-recordings.json"));
 
     public static GraphRagEmbeddingSet EmbeddingSet { get; } = Models is { } models
         ? new(models.EmbeddingModel, models.EmbeddingDimensions)
@@ -42,14 +44,15 @@ public static class Articles
     /// <summary>The two fictional articles shipped with the sample, written for it.</summary>
     public static string Folder => Path.Combine(AppContext.BaseDirectory, "data", "articles");
 
+    /// <summary>Extraction replies written by hand for the two articles, not recorded from a model.</summary>
     public static string RecordedReplies => Path.Combine(AppContext.BaseDirectory, "data", "article-replies.json");
 
     public static IServiceCollection AddArticles(this IServiceCollection services)
     {
         if (Models is { } models)
         {
-            var client = new OpenAiCompatibleClient(models);
-            services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(client).AddSingleton<IChatClient>(client);
+            var (chat, embeddings) = models.CreateClients();
+            services.AddSingleton(embeddings).AddSingleton(chat);
         }
         else
         {
@@ -62,7 +65,8 @@ public static class Articles
 
     /// <summary>
     /// The Markdown files of a folder, with each one's metadata from <c>articles.json</c> next to the folder when it lists the
-    /// file: title, published date, publisher and URL are the source's own, stored on the article and never extracted.
+    /// file: title, published date, publisher and URL are the source's own, stored on the article and never extracted. The
+    /// shipped articles are named by their address in the repository (<see cref="SampleData"/>).
     /// </summary>
     public static IReadOnlyList<GraphRagSource> Sources(string folder)
     {
@@ -74,11 +78,27 @@ public static class Articles
             foreach (var entry in json.RootElement.EnumerateArray())
                 metadata[entry.GetProperty("file").GetString()!] = new(Text(entry, "title"), Text(entry, "published"), Text(entry, "publisher"), Text(entry, "url"));
         }
-        return GraphRagSources.Folder(folder)
+        return SampleData.Folder(folder, "09-GraphRagArticles")
             .Select(source => metadata.TryGetValue(Path.GetFileName(source.Path!), out var found) ? source with { Metadata = found } : source)
             .ToArray();
 
         static string? Text(JsonElement entry, string name) => entry.TryGetProperty(name, out var value) ? value.GetString() : null;
+    }
+
+    /// <summary>
+    /// Asks a Microsoft Agent Framework agent, which answers through the toolkit's tools, so its answer rests on citations the
+    /// toolkit checked. The trail records each tool call with the spans it returned. Offline, the agent's model is
+    /// <see cref="AnswerToolStandIn"/>, which always asks <c>answer_from_documents</c>.
+    /// </summary>
+    public static async Task<(string Text, IReadOnlyList<GraphRagToolCall> Calls)> AskAgentAsync(IServiceProvider services, string question,
+        CancellationToken cancellationToken = default)
+    {
+        var trail = new GraphRagToolTrail();
+        var context = GraphRagContextProvider.Create<ArticlesContext>(services, new GraphRagToolOptions { Trail = trail });
+        var chat = Models is null ? new AnswerToolStandIn() : services.GetRequiredService<IChatClient>();
+        var agent = new ChatClientAgent(chat, new ChatClientAgentOptions { AIContextProviders = [context] });
+        var response = await agent.RunAsync(question, cancellationToken: cancellationToken);
+        return (response.Text, trail.Calls);
     }
 
     /// <summary>

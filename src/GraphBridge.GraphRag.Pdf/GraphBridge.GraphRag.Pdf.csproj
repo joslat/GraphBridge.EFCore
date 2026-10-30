@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Experimental PDF loader for the GraphBridge GraphRAG toolkit: ingests a PDF's text layer page by page with PdfPig, and stores a page map so citations name their pages. The API may change in any preview.</Description>
+    <Version>0.2.0-preview.1</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- The loader builds on the experimental toolkit (ADR 0052, section 14) and is experimental itself. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <PackageReference Include="PdfPig" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="GraphBridge.GraphRag.Tests" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+  <PropertyGroup>
+    <PackageTags>$(PackageTags);GraphRAG;RAG;PDF;PdfPig</PackageTags>
+  </PropertyGroup>
+</Project>

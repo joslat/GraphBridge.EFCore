@@ -9,6 +9,7 @@
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
     <Compile Include="../GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
-    <None Include="data/chapter-1-opening.txt;data/novel-replies.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../GraphRagShared/ModelRecordings.cs" Link="Shared/ModelRecordings.cs" />
+    <None Include="data/chapter-1-opening.txt;data/*-recordings.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

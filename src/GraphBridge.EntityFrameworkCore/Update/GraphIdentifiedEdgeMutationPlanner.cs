@@ -69,17 +69,17 @@ internal sealed class GraphIdentifiedEdgeMutationPlanner(GraphBindingCompiler co
         var command = entry.EntityState switch
         {
             EntityState.Added => IdentifiedEdgeMutationRenderer.Create(binding.RelationshipType, binding.KeyProperty.Name, key,
-                binding.Source.Node.Label, source, binding.Target.Node.Label, target, payload),
+                binding.Source.Node.Labels, source, binding.Target.Node.Labels, target, payload),
             EntityState.Modified => IdentifiedEdgeMutationRenderer.Update(binding.RelationshipType, binding.KeyProperty.Name, key,
-                binding.Source.Node.Label, source, binding.Target.Node.Label, target, tokens, payload),
+                binding.Source.Node.Labels, source, binding.Target.Node.Labels, target, tokens, payload),
             EntityState.Deleted => IdentifiedEdgeMutationRenderer.Delete(binding.RelationshipType, binding.KeyProperty.Name, key,
-                binding.Source.Node.Label, source, binding.Target.Node.Label, target, tokens),
+                binding.Source.Node.Labels, source, binding.Target.Node.Labels, target, tokens),
             _ => throw new InvalidOperationException("Unsupported identified-edge mutation state.")
         };
         return new(entry, binding, command, Array.AsReadOnly(new[]
         {
-            CypherMutationRenderer.Lock(binding.Source.Node.Label, source),
-            CypherMutationRenderer.Lock(binding.Target.Node.Label, target)
+            CypherMutationRenderer.Lock(binding.Source.Node.Labels, source),
+            CypherMutationRenderer.Lock(binding.Target.Node.Labels, target)
         }), generated.AsReadOnly());
     }
 

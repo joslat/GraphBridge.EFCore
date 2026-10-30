@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Experimental ASP.NET Core endpoints for the GraphBridge GraphRAG toolkit: ask with a streamed answer whose citations are checked against the stored text, search passages with exact spans, and read a document's metadata. The API may change in any preview.</Description>
+    <Version>0.2.0-preview.1</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- The endpoints build on the experimental toolkit (ADR 0052, section 12) and are experimental themselves. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Import Project="../../eng/GraphBridge.Package.props" />
+  <PropertyGroup>
+    <PackageTags>$(PackageTags);GraphRAG;RAG;ASP.NET Core;server-sent events</PackageTags>
+  </PropertyGroup>
+</Project>

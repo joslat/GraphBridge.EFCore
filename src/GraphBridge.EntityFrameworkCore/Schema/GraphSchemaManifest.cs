@@ -46,6 +46,8 @@ public sealed class GraphSchemaManifest
             {
                 json.WriteStartObject();
                 json.WriteString("label", node.Label);
+                // Written only when present, so the manifests and fingerprints of models without them don't change (ADR 0055).
+                if (node.AdditionalLabels.Count > 0) Strings(json, "additionalLabels", node.AdditionalLabels);
                 Strings(json, "keyProperties", node.KeyProperties);
                 Indexes(json, node.AlternateKeys, "alternateKeys");
                 Properties(json, node.Properties);
@@ -141,9 +143,10 @@ public sealed class GraphSchemaNode
 {
     internal GraphSchemaNode(string label, IEnumerable<string> keyProperties,
         IEnumerable<GraphSchemaProperty> properties, IEnumerable<GraphSchemaIndex> indexes,
-        IEnumerable<GraphSchemaIndex>? alternateKeys = null)
+        IEnumerable<GraphSchemaIndex>? alternateKeys = null, IEnumerable<string>? additionalLabels = null)
     {
         Label = label;
+        AdditionalLabels = Array.AsReadOnly((additionalLabels ?? []).Order(StringComparer.Ordinal).ToArray());
         KeyProperties = Array.AsReadOnly(keyProperties.ToArray());
         AlternateKeys = Array.AsReadOnly((alternateKeys ?? [])
             .OrderBy(k => string.Join("\u001f", k.Properties), StringComparer.Ordinal).ToArray());
@@ -153,6 +156,8 @@ public sealed class GraphSchemaNode
         Indexes = Array.AsReadOnly(indexes.ToArray());
     }
     public string Label { get; }
+    /// <summary>Further labels every node of the type carries (ADR 0055); empty without any.</summary>
+    public IReadOnlyList<string> AdditionalLabels { get; }
     public IReadOnlyList<string> KeyProperties { get; }
     /// <summary>Required alternate uniqueness contracts, separate from the primary key and optional indexes.</summary>
     public IReadOnlyList<GraphSchemaIndex> AlternateKeys { get; }

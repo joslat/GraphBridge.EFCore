@@ -1,6 +1,6 @@
 # 31 · From documents to cited answers
 
-**Goal:** store two short documents with exact chunk positions, then answer a question with a citation checked against the stored bytes, and refuse one the documents don't answer.
+**Goal:** store a short document with two headings, with exact chunk positions, then answer a question with a citation checked against the stored bytes, and refuse one the document doesn't answer.
 **Track:** full · **Mode:** offline + Neo4j 2026.09 or later · **Time:** ~15 min · **Builds on:** 20, 23
 
 > The GraphRAG toolkit is **experimental** (`GBRAG001`): its API may change in any release.
@@ -28,11 +28,11 @@ var plan = GraphRagChunkers.Create(new GraphRagChunkerOptions { MaxUtf8Bytes = 1
     .Chunk(new GraphRagLoadedDocument("text:notes", "text/markdown", "Notes", bytes));
 ```
 
-2. **Check a quote the way answers are checked.** Whitespace runs and up to two `...` elisions are forgiven; nothing else is. The citation records the stored text, not the quote as written.
+2. **Check a quote the way answers are checked.** Whitespace runs, quotation marks, typographic apostrophes and dashes are normalised, the emphasis marks `_` and `*` are ignored, and up to two `...` elisions are allowed; nothing else is: no case folding, no fuzzy matching. The citation records the stored text, not the quote as written.
 
 <!-- region: Locate -->
 ```csharp
-var chunk = new GraphRagEvidenceItem("c", "d", "Tom Hanks and Hugo Weaving each play several roles.", 0, 52, 1, []);
+var chunk = new GraphRagEvidenceItem("c", "d", "Tom Hanks and Hugo Weaving each play several roles.", 0, 51, 1, []);
 var found = GraphRagCitationVerifier.Locate(chunk, "Hugo   Weaving each play...roles");
 var invented = GraphRagCitationVerifier.Locate(chunk, "Hugo Weaving plays one role");
 ```
@@ -48,7 +48,7 @@ var receipt = await ingestion.IngestAsync([GraphRagSources.Text("notes", Notes, 
 var again = await ingestion.IngestAsync([GraphRagSources.Text("notes", Notes, "text/markdown")], cancellationToken);
 ```
 
-5. **Answer and refuse.** An extractive chat client stands in for a model, so the run needs no key: it quotes the evidence line that shares the most words with the question.
+5. **Answer and refuse.** An extractive chat client stands in for a model, so the run needs no key: it quotes the evidence line that shares the most words with the question. Embeddings come from a stand-in, `HashingEmbedder`, which hashes words, so here the vector route also ranks by shared words; a real embedding model ranks by meaning.
 
 <!-- region: Answer -->
 ```csharp

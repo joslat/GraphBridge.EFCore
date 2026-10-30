@@ -83,6 +83,8 @@ internal static partial class Neo4jUpsertExecutor
             .Append(" {").Append(string.Join(", ", keys.Select(k => CypherQueryRenderer.Identifier(k.Name) + ": row.key." + CypherQueryRenderer.Identifier(k.Name))))
             .Append("})\nON CREATE SET n += row.create");
         if (update.Count != 0) text.Append("\nON MATCH SET n += row.update");
+        // A node with the key but without an additional label is the type's node: the uniqueness constraint is on its own label.
+        if (node.AdditionalLabels.Count != 0) text.Append("\nSET n:").Append(CypherQueryRenderer.Labels(string.Join(':', node.AdditionalLabels)));
         text.Append("\nRETURN count(n) AS affected");
         return new([node], null, null, text.ToString(), new Dictionary<string, object> { [RowsParameter] = rows.ToArray() }, rows.Count, Relationship: false);
     }

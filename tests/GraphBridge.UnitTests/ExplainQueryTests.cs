@@ -90,12 +90,28 @@ public sealed partial class ExplainQueryTests
     [InlineData("CYPHER 25 PROFILE CREATE (n)")]
     [InlineData("// preamble\nPROFILE CREATE (n)")]
     [InlineData("/* preamble */ RETURN 1")]
+    [InlineData("CYPHER runtime=slotted MATCH (n) RETURN n")]
+    [InlineData("CYPHER 25 /* option */ RETURN 1")]
+    [InlineData("// only a tag")]
     public async Task Mode_preambles_and_leading_comments_are_rejected_before_transport(string text)
     {
         var script = new Script();
         await using var db = Context(script);
         await Assert.ThrowsAsync<ArgumentException>(() => db.Database.ExplainCypherAsync(text, Empty));
         Assert.Empty(script.Calls);
+    }
+
+    [Theory]
+    [InlineData("CYPHER 25 MATCH (n) RETURN n")]
+    [InlineData("// GraphBridge tag: movies\n// second tag\nCYPHER 25 MATCH (n) RETURN n")]
+    public async Task Fluent_tag_lines_and_a_bare_version_are_kept_out_of_the_way_of_EXPLAIN(string text)
+    {
+        // Fluent search commands start this way (ADR 0057); Verify explains them.
+        var script = new Script();
+        await using var db = Context(script);
+        var result = await db.Database.ExplainCypherAsync(text, Empty);
+        Assert.Equal("CYPHER 25 EXPLAIN MATCH (n) RETURN n", script.Command);
+        Assert.Equal(Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(text))), result.StatementFingerprint);
     }
 
     private static readonly IReadOnlyDictionary<string, object?> Empty = new Dictionary<string, object?>();

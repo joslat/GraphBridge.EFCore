@@ -119,6 +119,26 @@ public sealed class ProviderEdgeUpsertTests(DisposableNeo4jFixture fixture, ITes
         Assert.Equal(0L, await CountAsync("MATCH (:UPEPerson {Run: $run})-[r:UPE_LOOSE]->() RETURN count(r) AS c"));
     }
 
+    [Neo4jIntegrationFact]
+    public async Task An_endpoint_an_upsert_locked_can_be_deleted_and_added_again_in_the_same_transaction()
+    {
+        // GR-69: the upsert's endpoint locks don't write a key to itself, which on Neo4j 2026.09 kept the key taken for the rest
+        // of the transaction, so the node couldn't be added again.
+        var (people, shelves) = await SeedAsync(1, 1);
+        await using var db = Context();
+        await using (var transaction = await db.Database.BeginTransactionAsync())
+        {
+            var visit = Guid.NewGuid();
+            Assert.Equal((1, 0), Counts(await db.Visits.ExecuteUpsertAsync([new Visit { Id = visit, PersonId = people[0], ShelfId = shelves[0] }])));
+            Assert.Equal(1, await db.Visits.Where(v => v.Id == visit).ExecuteDeleteAsync());
+            Assert.Equal(1, await db.Set<Person>().Where(p => p.Id == people[0]).ExecuteDeleteAsync());
+            db.Add(new Person { Id = people[0], Run = _run });
+            Assert.Equal(1, await db.SaveChangesAsync());
+            await transaction.CommitAsync();
+        }
+        Assert.Equal(1L, await CountAsync("MATCH (p:UPEPerson {Id: $id}) WHERE p.__graphbridge_lock IS NULL RETURN count(p) AS c", people[0]));
+    }
+
     private async Task<(Guid[] People, Guid[] Shelves)> SeedAsync(int people, int shelves)
     {
         await using var db = Context();

@@ -13,10 +13,11 @@ internal static class GraphModelValidation
     public static void Validate(IModel model)
     {
         var labels = new HashSet<string>(StringComparer.Ordinal);
+        var primaryLabels = model.GetEntityTypes().Select(e => e[GraphAnnotationNames.NodeLabel] as string).OfType<string>().ToHashSet(StringComparer.Ordinal);
         var edgeOwners = new HashSet<(IEntityType Source, string Type, IEntityType Target)>();
         var identifiedTypes = model.GetEntityTypes().Where(IsIdentifiedEdge)
             .Select(e => e[GraphAnnotationNames.RelationshipType] as string).ToHashSet(StringComparer.Ordinal);
-        var identifiedOwners = new HashSet<string>(StringComparer.Ordinal);
+        var identifiedOwners = new Dictionary<string, List<(IEntityType Source, IEntityType Target, string Key)>>(StringComparer.Ordinal);
         var referenceTypes = new HashSet<string>(StringComparer.Ordinal);
         var entityEdgeTypes = model.GetEntityTypes().Where(IsAssociation)
             .Select(entity => entity[GraphAnnotationNames.RelationshipType] as string).ToHashSet(StringComparer.Ordinal);
@@ -39,11 +40,21 @@ internal static class GraphModelValidation
                     Fail(entity, "native node references cannot be configured on association or identified-edge endpoint foreign keys");
                 if (entity.FindAnnotation(GraphAnnotationNames.NodeLabel) is not null)
                     Fail(entity, "node and association-edge storage are mutually exclusive");
+                if (entity.FindAnnotation(GraphAnnotationNames.AdditionalNodeLabels) is not null)
+                    Fail(entity, "additional labels belong on node entity types, not on relationships");
                 var (source, target, relationshipType) = ValidateAssociation(entity);
                 if (IsIdentifiedEdge(entity))
                 {
-                    if (!identifiedOwners.Add(relationshipType))
-                        Fail(entity, "an identified relationship type must have exactly one EF entity owner across all endpoint types");
+                    // ADR 0056: owners of one type are told apart by their endpoint types, and share the key property that the
+                    // type's uniqueness constraint covers.
+                    var key = entity.FindPrimaryKey()!.Properties[0];
+                    var keyName = key[GraphAnnotationNames.PropertyName] as string ?? key.Name;
+                    if (!identifiedOwners.TryGetValue(relationshipType, out var owners)) identifiedOwners[relationshipType] = owners = [];
+                    if (owners.Any(o => o.Source == source.PrincipalEntityType && o.Target == target.PrincipalEntityType))
+                        Fail(entity, $"identified relationship type '{relationshipType}' already has an owner from {source.PrincipalEntityType.DisplayName()} to {target.PrincipalEntityType.DisplayName()}; owners of one type need different source or target node types, so reads can tell them apart");
+                    if (owners.Any(o => o.Key != keyName))
+                        Fail(entity, $"owners of identified relationship type '{relationshipType}' must store their key under one property name, which the type's uniqueness constraint covers");
+                    owners.Add((source.PrincipalEntityType, target.PrincipalEntityType, keyName));
                 }
                 else if (identifiedTypes.Contains(relationshipType))
                     Fail(entity, "a relationship type cannot be shared by identified-edge and endpoint-pair association mappings");
@@ -69,8 +80,25 @@ internal static class GraphModelValidation
                 if (label is null)
                     Fail(entity, "an explicit ToGraphNode(label) mapping is required");
                 GraphIdentifier.Validate(label, "label");
+                if (label.StartsWith(ReservedLabelPrefix, StringComparison.Ordinal))
+                    Fail(entity, $"node label '{label}' uses the prefix '{ReservedLabelPrefix}', which GraphBridge reserves for its migration journal");
                 if (!labels.Add(label))
                     Fail(entity, $"node label '{label}' is already mapped by another entity type");
+                // Set directly through the annotation, a value other than a nonempty string would be read as no labels at all.
+                if (entity.FindAnnotation(GraphAnnotationNames.AdditionalNodeLabels) is { } annotation && annotation.Value is not string { Length: > 0 })
+                    Fail(entity, "additional labels must be one nonempty string, the labels separated by ':'; use HasAdditionalGraphLabels");
+                var additional = AdditionalLabels(entity);
+                if (additional.Distinct(StringComparer.Ordinal).Count() != additional.Count)
+                    Fail(entity, "additional labels must be distinct");
+                foreach (var extra in additional)
+                {
+                    GraphIdentifier.Validate(extra, "label");
+                    if (extra.StartsWith(ReservedLabelPrefix, StringComparison.Ordinal))
+                        Fail(entity, $"additional label '{extra}' uses the prefix '{ReservedLabelPrefix}', which GraphBridge reserves for its migration journal");
+                    // A type's own label read as an extra would make every match ambiguous with that type.
+                    if (primaryLabels.Contains(extra))
+                        Fail(entity, $"additional label '{extra}' is the label of an entity type; additional labels must not identify a type");
+                }
             }
 
             var names = new HashSet<string>(StringComparer.Ordinal);
@@ -139,6 +167,14 @@ internal static class GraphModelValidation
             && ReferenceEquals(wrapper.Instance, mappingComparer);
     }
 #pragma warning restore EF1001
+
+    // The migration journal's labels (__GraphBridgeMigration and its kin): a mapped type carrying one would read journal records.
+    private const string ReservedLabelPrefix = "__GraphBridge";
+
+    /// <summary>The type's additional labels, in ordinal order; empty without any (ADR 0055).</summary>
+    internal static IReadOnlyList<string> AdditionalLabels(IReadOnlyEntityType entity)
+        => entity[GraphAnnotationNames.AdditionalNodeLabels] is string { Length: > 0 } value
+            ? Array.AsReadOnly(value.Split(':').Order(StringComparer.Ordinal).ToArray()) : [];
 
     internal static bool IsAssociation(IEntityType entity)
         => entity.FindAnnotation(GraphAnnotationNames.RelationshipType) is not null;

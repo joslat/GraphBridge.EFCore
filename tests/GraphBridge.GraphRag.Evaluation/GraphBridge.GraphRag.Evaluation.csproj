@@ -13,5 +13,8 @@
     <!-- The public corpus: sample 08's public-domain excerpt, with labelled questions. -->
     <None Include="../../samples/08-GraphRagNovel/data/chapter-1-opening.txt" Link="corpus/alice-chapter-1-opening.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Update="corpus/alice-cases.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Labelled questions on the whole book, which sample 08 fetches; the book itself is never committed. -->
+    <None Update="corpus/alice-book-cases.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="corpus/alice-book-follow-ups.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

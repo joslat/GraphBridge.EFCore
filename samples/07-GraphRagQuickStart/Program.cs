@@ -26,6 +26,7 @@ await using var services = new ServiceCollection()
     .BuildServiceProvider();
 await using var scope = services.CreateAsyncScope();
 var provider = scope.ServiceProvider;
+Console.WriteLine(QuickStart.Models is null ? "Offline: stand-in models." : $"Models: {QuickStart.Models.Describe()}.");
 
 switch (args[0])
 {
@@ -35,18 +36,30 @@ switch (args[0])
         var db = provider.GetRequiredService<QuickStartContext>();
         foreach (var step in QuickStart.SchemaPlan.Preview().Steps) Console.WriteLine(step.Command.Cypher);
         await db.Database.InitializeGraphMigrationsAsync();
+        // The plan has no predecessor, so it is the database's first migration: one with other migrations refuses it.
+        var check = await db.Database.ValidateGraphMigrationAsync(QuickStart.SchemaPlan);
+        if (!check.AlreadyApplied && check.Issues.Count > 0)
+        {
+            Console.Error.WriteLine($"Not applied: {string.Join(" ", check.Issues)}");
+            Console.Error.WriteLine("The sample's schema is its database's first migration, and it names its embedding model. A database another sample, "
+                + "or this one in another mode (offline, replay or a real model), set up refuses it: give each an empty database.");
+            return 2;
+        }
         var applied = await db.Database.ApplyGraphMigrationAsync(QuickStart.SchemaPlan);
         Console.WriteLine(applied.AlreadyApplied ? "The schema was already applied." : $"Applied {applied.CompletedSteps} steps; the indexes are ONLINE.");
         return 0;
     }
     case "ingest":
     {
-        var folder = args.Length == 2 ? args[1] : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "docs");
-        var receipt = await provider.GetRequiredService<IGraphRagIngestion>().IngestAsync(GraphRagSources.Folder(folder));
+        // A replay has recordings for the sample's copy of three pages only; otherwise the repository's docs folder.
+        var folder = args.Length == 2 ? args[1]
+            : QuickStart.Models?.ReplayFile is not null ? QuickStart.RecordedDocs
+            : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "docs");
+        var receipt = await provider.GetRequiredService<IGraphRagIngestion>().IngestAsync(QuickStart.Sources(folder));
         foreach (var group in receipt.Documents.GroupBy(d => d.Status)) Console.WriteLine($"{group.Key}: {group.Count()}");
         foreach (var failed in receipt.Documents.Where(d => d.Status == GraphRagDocumentStatus.Failed)) Console.WriteLine($"  {failed.SourceUri}: {failed.ErrorCode}");
         Console.WriteLine($"{receipt.ChunksWritten} chunks written in {receipt.Elapsed.TotalSeconds:0.0} s.");
-        return 0;
+        return receipt.Documents.Any(d => d.Status == GraphRagDocumentStatus.Failed) ? 1 : 0;
     }
     case "ask":
     {
@@ -58,7 +71,7 @@ switch (args[0])
         }
         Console.WriteLine(answer.Text);
         foreach (var citation in answer.Citations)
-            Console.WriteLine($"  [{citation.DocumentId[..8]} bytes {citation.StartByte}-{citation.EndByte}] \"{citation.Quote}\"");
+            Console.WriteLine($"  [{citation.DocumentId[..8]} bytes {citation.StartByte}-{citation.EndByte}{Pages(citation)}] \"{citation.Quote}\"");
         return 0;
     }
     default:
@@ -68,3 +81,7 @@ switch (args[0])
         return 0;
     }
 }
+
+// A PDF citation names its pages; other documents have none.
+static string Pages(GraphRagCitation citation) => citation.Page is not { } page ? ""
+    : citation.EndPage is { } end && end != page ? $", pages {page}-{end}" : $", page {page}";

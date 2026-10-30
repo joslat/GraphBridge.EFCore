@@ -121,7 +121,7 @@ internal static class CypherAssociationMutationRenderer
             parameters[name] = pair.Value!;
             return Identifier(pair.Key) + ": $" + name;
         }).ToArray();
-        return $"MATCH ({alias}:{Identifier(label)} {{{string.Join(", ", slots)}}})";
+        return $"MATCH ({alias}:{Labels(label)} {{{string.Join(", ", slots)}}})";
     }
 
     private static void ValidateNames(IEnumerable<string> names)
@@ -129,6 +129,9 @@ internal static class CypherAssociationMutationRenderer
         foreach (var name in names)
             Identifier(name);
     }
+
+    // A node type's labels, separated by colons (ADR 0055), each validated and quoted.
+    private static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
 
     private static string Identifier(string name)
     {

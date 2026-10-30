@@ -4,7 +4,7 @@ This inventory distinguishes referenced packages, bundled assets and source-infl
 
 ## Locked package inventory
 
-[packages.json](eng/dependencies/packages.json) records **88 package/version pairs from 21 tracked lock files**: consuming projects, locked NuGet content hashes, license expressions/files/URLs, publisher metadata and SHA-256 hashes of bundled notice assets. Scope includes runtime, tooling, generator, samples, restored tests, benchmark source and test-host projects. Development dependencies are not automatically bundled in runtime packages. A missing license file does not imply an unlicensed package; many declare an SPDX expression.
+[packages.json](eng/dependencies/packages.json) records **128 package/version pairs from 39 tracked lock files**: consuming projects, locked NuGet content hashes, license expressions/files/URLs, publisher metadata and SHA-256 hashes of bundled notice assets. Scope includes runtime, tooling, generator, samples, restored tests, benchmark source and test-host projects. Development dependencies are not automatically bundled in runtime packages. A missing license file does not imply an unlicensed package; many declare an SPDX expression.
 
 Reproduce after locked restore with PowerShell 7:
 
@@ -20,7 +20,8 @@ Generation reads restored metadata without fetching packages, accepting terms or
 | Provider `.nupkg` | GraphBridge provider DLL, README, MIT license, inventory and preserved notices | EF Core 10.0.13 and Neo4j.Driver 6.4.0 are references restored separately; no dependency DLL embedded |
 | Generator `.nupkg` | GraphBridge analyzer DLL, README, MIT license, inventory and preserved notices | Roslyn is private build tooling, not a bundled DLL or published dependency |
 | Optional tooling library | GraphBridge tooling DLL, README, MIT license, inventory and preserved notices | Provider and five tooling dependencies are references; no dependency DLL embedded. Compiled CLI/application bundles remain outside this distribution. |
-| Starter template | Original starter source, SDK pin, license and attribution payloads | Package references restored by generated applications; no dependency DLL embedded |
+| Starter templates | Original starter source, SDK pin, license and attribution payloads | Package references restored by generated applications; no dependency DLL embedded |
+| GraphRAG `.nupkg`s (experimental) | GraphBridge DLLs, READMEs, MIT license, inventory and preserved notices | The core references the provider and Microsoft.Extensions.AI.Abstractions; the adapters reference their frameworks; the PDF loader references PdfPig 0.1.16, which declares Apache-2.0. All are restored separately; no dependency DLL embedded |
 | Tests/research | Test source and package references; ignored upstream checkout | Not provider package content; ignored research stays out of releases |
 
 The provider's net10.0 closure has 12 package/version entries, including EF's analyzer build asset. All except Neo4j.Driver declare MIT; Neo4j.Driver declares Apache-2.0. Application bundles may have different runtime closures. The inventory preserves Roslyn/Microsoft notice paths and hashes, including RTF files, without claiming their assemblies ship in GraphBridge's analyzer package.

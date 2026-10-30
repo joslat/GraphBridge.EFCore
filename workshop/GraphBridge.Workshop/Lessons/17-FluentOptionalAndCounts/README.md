@@ -139,6 +139,7 @@ Nine people with null titles where appropriate; three people after the filter; `
 
 ## Limits
 
+- Fluent Cypher is read-only, and every executed query needs `Limit(1..10000)`. `Collect` needs a max (1 to 10,000) and doesn't guarantee order. Predicates whose C# and Cypher meanings differ are refused (`GBFC110`); state the meaning with `.Ne`, `.IsNull` or `.IsNotNull`.
 
 ## Read more
 

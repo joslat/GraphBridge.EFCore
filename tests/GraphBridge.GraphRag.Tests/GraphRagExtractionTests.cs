@@ -91,13 +91,18 @@ public sealed class GraphRagExtractionTests
     }
 
     [Fact]
-    public async Task Unreadable_replies_are_quarantined_truncated_and_write_nothing()
+    public async Task Unreadable_replies_are_asked_again_once_then_quarantined_truncated_and_write_nothing()
     {
         var options = new GraphRagExtractionOptions { MaxQuarantinedCharacters = 8 };
         var (graph, tally, _) = await ExtractAsync(GraphRagOntologies.Novel, [First, Second, "A third passage."], ["", "not json at all", """{"entities": {}, "relationships": []}"""], options);
         Assert.Empty(graph.Entities);
         Assert.Equal([("chunk-0", "empty-reply", ""), ("chunk-1", "invalid-json", "not json"), ("chunk-2", "schema-mismatch", "{\"entiti")],
             tally.Quarantined.Select(q => (q.ChunkId, q.Error, q.Reply)));
+        Assert.Equal((6, 3, 0), (tally.Calls, tally.Chunks, tally.Repaired));
+
+        // Without the second ask, one call per passage.
+        (_, tally, _) = await ExtractAsync(GraphRagOntologies.Novel, [First], ["not json at all"], new GraphRagExtractionOptions { RetryUnreadableReplies = false });
+        Assert.Equal((1, "invalid-json"), (tally.Calls, Assert.Single(tally.Quarantined).Error));
     }
 
     [Fact]
@@ -193,9 +198,11 @@ public sealed class GraphRagExtractionTests
             start += length + 1;
         }
         chat ??= new Chat(prompt => replies![items.FindIndex(item => prompt.EndsWith(item.Text, StringComparison.Ordinal))]);
-        var extractor = new GraphRagExtractor(schema, chat, options ?? new GraphRagExtractionOptions(), verifier);
+        // The chat sees the passage's message: a second ask adds a note after it.
+        var extractor = new GraphRagExtractor(schema, chat, options ?? new GraphRagExtractionOptions(), new GraphRagRetryOptions { BaseDelay = TimeSpan.FromMilliseconds(1) },
+            verifier);
         var tally = new GraphRagExtractionTally();
-        var graph = await extractor.ExtractAsync("doc-1", "Alice", "run-1", items, tally, CancellationToken.None);
+        var graph = await extractor.ExtractAsync("doc-1", "Alice", "run-1", items, tally, null, CancellationToken.None);
         return (graph, tally, document);
     }
 
@@ -221,13 +228,16 @@ public sealed class GraphRagExtractionTests
         public string System { get; private set; } = "";
         public string User { get; private set; } = "";
         public ChatOptions? Options { get; private set; }
+        /// <summary>How many messages each call carried: two for a first ask, three for a second.</summary>
+        public List<int> Asked { get; } = [];
 
         public Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
         {
             if (Interlocked.Increment(ref _calls) <= FailFirst) throw Failure!;
             var list = messages.ToList();
-            (System, User, Options) = (list[0].Text, list[^1].Text, options);
-            return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, reply(list[^1].Text))));
+            (System, User, Options) = (list[0].Text, list[1].Text, options);
+            lock (Asked) Asked.Add(list.Count);
+            return Task.FromResult(new ChatResponse(new ChatMessage(ChatRole.Assistant, reply(list[1].Text))));
         }
 
         public IAsyncEnumerable<ChatResponseUpdate> GetStreamingResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null,

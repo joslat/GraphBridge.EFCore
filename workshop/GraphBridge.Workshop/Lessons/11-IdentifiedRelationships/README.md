@@ -43,7 +43,7 @@ var query = db.Credits
 var credits = await query.ToListAsync(cancellationToken);
 ```
 
-   Each row's Cypher also checks that its relationship key is unique: the `CALL { MATCH ()-[candidate:ACTED_IN]->() WHERE candidate.id = r.id ... }` block.
+   Each row's Cypher also checks that its relationship key is unique: the `CALL (r) { MATCH ()-[candidate:ACTED_IN]->() WHERE candidate.id = r.id ... }` block.
 
 3. **A third role** is just another entity:
 

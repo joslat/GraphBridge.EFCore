@@ -149,6 +149,26 @@ public sealed class GraphRagChunkingTests
             Assert.Equal("unsupported-media-type", (await Assert.ThrowsAsync<GraphRagLoadException>(() => loader.LoadAsync(pdf))).ErrorCode);
             Assert.Equal(["broken.txt", "guide.md"], GraphRagSources.Folder(folder.FullName, "*.*").Select(s => Path.GetFileName(s.Path!)));
 
+            // Named sources keep their identity wherever the files are; the path is still what's read.
+            var named = GraphRagSources.File(markdown, new Uri("https://docs.example.com/guide.md"));
+            Assert.Equal(("https://docs.example.com/guide.md", markdown), (named.SourceUri, named.Path));
+            Assert.Equal("Guide", (await loader.LoadAsync(named)).Title);
+            Directory.CreateDirectory(Path.Combine(folder.FullName, "deep dir"));
+            await File.WriteAllTextAsync(Path.Combine(folder.FullName, "deep dir", "a b.md"), "# A");
+            Assert.Equal(["https://docs.example.com/v1/deep%20dir/a%20b.md", "https://docs.example.com/v1/guide.md"],
+                GraphRagSources.Folder(folder.FullName, new Uri("https://docs.example.com/v1")).Select(s => s.SourceUri));
+            var copy = Directory.CreateTempSubdirectory("graphrag-loader-copy-");
+            try
+            {
+                File.Copy(markdown, Path.Combine(copy.FullName, "guide.md"));
+                Assert.Equal(GraphRagSources.Folder(folder.FullName, new Uri("https://repo.example/corpus/"), "guide.md").Single().SourceUri,
+                    GraphRagSources.Folder(copy.FullName, new Uri("https://repo.example/corpus/"), "guide.md").Single().SourceUri);
+            }
+            finally { copy.Delete(recursive: true); }
+            Assert.Throws<ArgumentException>(() => GraphRagSources.File(markdown, new Uri("guide.md", UriKind.Relative)));
+            Assert.Throws<ArgumentException>(() => GraphRagSources.Folder(folder.FullName, new Uri("https://docs.example.com/?v=1")));
+            Assert.Equal("urn:corpus/guide.md", GraphRagSources.Folder(folder.FullName, new Uri("urn:corpus"), "guide.md").Single().SourceUri);
+
             var text = GraphRagSources.Text("note-1", "Plain text.");
             Assert.Equal("text:note-1", text.SourceUri);
             Assert.Equal("note-1", (await loader.LoadAsync(text)).Title);

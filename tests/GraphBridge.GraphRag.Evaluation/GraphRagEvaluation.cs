@@ -7,8 +7,12 @@ namespace GraphBridge.GraphRag.Evaluation;
 // ADR 0052, section 9 (GR-23): a test-only harness with deterministic checks, built on AgentEval's metric contract. No model
 // judges anything here: citations are compared byte for byte, refusals against labels, coverage against required phrases.
 
-/// <summary>One labelled question: whether the corpus answers it, and phrases the retrieved evidence must contain if it does.</summary>
-public sealed record GraphRagEvaluationCase(string Id, string Question, bool Answerable, IReadOnlyList<string> RequiredEvidence);
+/// <summary>
+/// One labelled question: whether the corpus answers it, and phrases the retrieved evidence must contain if it does. With
+/// <see cref="History"/>, the question is a follow-up to those turns (GR-57).
+/// </summary>
+public sealed record GraphRagEvaluationCase(string Id, string Question, bool Answerable, IReadOnlyList<string> RequiredEvidence,
+    IReadOnlyList<GraphRagTurn>? History = null);
 
 /// <summary>The keys under which the harness puts the answer and the case on AgentEval's <see cref="EvaluationContext"/>.</summary>
 public static class GraphRagEvaluationKeys
@@ -145,7 +149,8 @@ public static class GraphRagEvaluator
         var results = new List<GraphRagCaseResult>();
         foreach (var label in cases)
         {
-            var answer = await answers.AnswerAsync(label.Question, options, cancellationToken).ConfigureAwait(false);
+            var answer = await answers.AnswerAsync(label.Question, label.History is { Count: > 0 } ? WithHistory(options, label.History) : options, cancellationToken)
+                .ConfigureAwait(false);
             var context = new EvaluationContext
             {
                 Input = label.Question, Output = answer.Text ?? "",
@@ -160,7 +165,24 @@ public static class GraphRagEvaluator
         return new(results);
     }
 
-    /// <summary>Reads cases from JSON: <c>{"cases": [{"id", "question", "answerable", "requiredEvidence"}]}</c>, or a bare array.</summary>
+    // The caller's options, or the defaults, with the case's history; the caller's object is left as it was.
+    private static GraphRagRetrievalOptions WithHistory(GraphRagRetrievalOptions? options, IReadOnlyList<GraphRagTurn> history)
+    {
+        var copy = new GraphRagRetrievalOptions();
+        if (options is not null)
+        {
+            (copy.Routes, copy.CandidatesPerRoute, copy.MaxItems, copy.MaxUtf8Bytes, copy.NeighbourChunks, copy.Scope, copy.ScopeExactChunks)
+                = (options.Routes, options.CandidatesPerRoute, options.MaxItems, options.MaxUtf8Bytes, options.NeighbourChunks, options.Scope, options.ScopeExactChunks);
+            if (options.CypherExpansion is { } cypher) copy = copy.WithCypherExpansion(cypher, options.CypherExpansionParameters);
+        }
+        copy.History = history;
+        return copy;
+    }
+
+    /// <summary>
+    /// Reads cases from JSON: <c>{"cases": [{"id", "question", "answerable", "requiredEvidence", "history"}]}</c>, or a bare
+    /// array. <c>history</c> is optional: earlier turns, each <c>{"question", "answer"}</c>.
+    /// </summary>
     public static IReadOnlyList<GraphRagEvaluationCase> LoadCases(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -168,7 +190,11 @@ public static class GraphRagEvaluator
         var list = json.RootElement.ValueKind == JsonValueKind.Array ? json.RootElement : json.RootElement.GetProperty("cases");
         return list.EnumerateArray().Select(e => new GraphRagEvaluationCase(e.GetProperty("id").GetString()!, e.GetProperty("question").GetString()!,
             e.GetProperty("answerable").GetBoolean(),
-            e.TryGetProperty("requiredEvidence", out var required) ? required.EnumerateArray().Select(r => r.GetString()!).ToArray() : [])).ToArray();
+            e.TryGetProperty("requiredEvidence", out var required) ? required.EnumerateArray().Select(r => r.GetString()!).ToArray() : [],
+            e.TryGetProperty("history", out var history)
+                ? history.EnumerateArray().Select(t => new GraphRagTurn(t.GetProperty("question").GetString()!,
+                    t.TryGetProperty("answer", out var answer) ? answer.GetString() : null)).ToArray()
+                : null)).ToArray();
     }
 
     /// <summary>The public corpus shipped with the harness: sample 08's excerpt and its labelled cases.</summary>
@@ -177,4 +203,12 @@ public static class GraphRagEvaluator
         var folder = Path.Combine(AppContext.BaseDirectory, "corpus");
         return (Path.Combine(folder, "alice-chapter-1-opening.txt"), LoadCases(Path.Combine(folder, "alice-cases.json")));
     }
+
+    /// <summary>The labelled cases for the whole of <i>Alice's Adventures in Wonderland</i>, which sample 08's <c>fetch</c> downloads.</summary>
+    public static IReadOnlyList<GraphRagEvaluationCase> AliceBookCases()
+        => LoadCases(Path.Combine(AppContext.BaseDirectory, "corpus", "alice-book-cases.json"));
+
+    /// <summary>Follow-up questions on the whole book (GR-57): each needs its history to name what it asks about.</summary>
+    public static IReadOnlyList<GraphRagEvaluationCase> AliceBookFollowUps()
+        => LoadCases(Path.Combine(AppContext.BaseDirectory, "corpus", "alice-book-follow-ups.json"));
 }

@@ -60,6 +60,18 @@ public static class GraphDoctor
                 diagnostics.Add(GraphDiagnosticCatalog.Classify(error, GraphDiagnosticPhase.Schema));
             }
         }
+        // Additional labels (ADR 0055) are checked only when the model has them, against a completely observed profile.
+        if (database is not null && context.Database.GetGraphSchemaManifest() is { } manifest && GraphLabelInspection.Applies(manifest))
+        {
+            try
+            {
+                diagnostics.AddRange(await GraphLabelInspection.InspectAsync(context, manifest, maxSchemaRows, cancellationToken).ConfigureAwait(false));
+            }
+            catch (Exception error) when (error is not OutOfMemoryException)
+            {
+                diagnostics.Add(GraphDiagnosticCatalog.Classify(error, GraphDiagnosticPhase.Schema));
+            }
+        }
         return capture with { Report = new(GraphEvidenceMode.Inspect, offline.Queries, diagnostics, offline.Model, database, searchIndexes) };
     }
 

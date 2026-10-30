@@ -121,7 +121,7 @@ async Task<int> ResetAsync(WorkshopConnection? connection, bool confirmed)
     if (connection is null) throw new WorkshopConfigurationException("Reset needs a database. Set GRAPHBRIDGE_WORKSHOP_URI and GRAPHBRIDGE_WORKSHOP_PASSWORD.");
     var done = await WorkshopData.ResetAsync(connection, (nodes, relationships) =>
     {
-        Console.WriteLine($"Reset deletes {nodes} Person/Movie/Review nodes and their {relationships} relationships in '{connection.Database}'. Constraints stay.");
+        Console.WriteLine($"Reset deletes {nodes} Person/Movie/Review nodes and their {relationships} relationships in '{connection.Database}'. Constraints stay. GraphRAG lessons (31 to 35) remove their own Workshop* nodes and schema when they end; after a stopped one, run it again to clean up.");
         if (confirmed) return true;
         if (Console.IsInputRedirected) { Console.WriteLine("Not confirmed. Pass --confirm in scripts."); return false; }
         Console.Write("Type reset to confirm: ");

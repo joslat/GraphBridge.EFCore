@@ -10,6 +10,7 @@
   - Chunks from other chunkers are placed in order: without a header chunker's heading-path prefix, byte-exact, then with whitespace runs normalised.
   - A chunk that can't be placed fails its document with `position-not-recovered`, and nothing of that document is written.
 - **`GraphRagSpanChunker`** chunks with the toolkit's own structure-aware chunker and records each span in the chunk's metadata, so no recovery is needed.
+- **Derived text:** when the reader converts its source, as `MarkItDownReader` converts Office files, set `GraphBridgeChunkWriterOptions.TextOrigin` (for example `markitdown 0.1.9`), and every citation from those documents names it.
 
 ```csharp
 var writer = new GraphBridgeChunkWriter(services.GetRequiredService<IGraphRagIngestion>());

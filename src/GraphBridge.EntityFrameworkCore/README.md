@@ -132,13 +132,14 @@ Other versions, Enterprise schema deployment and clustering are not verified yet
 | [GraphBridge.Tooling](https://www.nuget.org/packages/GraphBridge.Tooling) | Doctor, Verify, Query Lab, design-time commands, ontology compilation and scaffolding |
 | [GraphBridge.Generators](https://www.nuget.org/packages/GraphBridge.Generators) | Compile-time mapping registration from attributes |
 | [GraphBridge.Templates](https://www.nuget.org/packages/GraphBridge.Templates) | `dotnet new graphbridge`: a console app with offline query tests |
+| [GraphBridge.EntityFrameworkCore.VectorData](https://www.nuget.org/packages/GraphBridge.EntityFrameworkCore.VectorData) | Neo4j vector indexes as `IVectorSearchable<TRecord>` for Microsoft.Extensions.VectorData |
 
-None of them is needed at runtime.
+None of the first three is needed at runtime; the VectorData adapter is, where you use it.
 
 ## Learn more
 
 - [Visual introduction](https://joslat.github.io/GraphBridge.EFCore/WHAT_IS_GRAPHBRIDGE.html) and [documentation](https://joslat.github.io/GraphBridge.EFCore/)
-- [Workshop](https://github.com/joslat/GraphBridge.EFCore/blob/main/workshop/README.md): 31 runnable lessons
+- [Workshop](https://github.com/joslat/GraphBridge.EFCore/blob/main/workshop/README.md): 36 runnable lessons
 - [Samples](https://github.com/joslat/GraphBridge.EFCore/tree/main/samples): code-first, ontology-first and database-first applications
 - [Changelog](https://github.com/joslat/GraphBridge.EFCore/blob/main/CHANGELOG.md) and [verification summary](https://github.com/joslat/GraphBridge.EFCore/blob/main/tests/verification/VERIFICATION_SUMMARY.md)
 

@@ -79,18 +79,20 @@ public static class GraphSchemaComparer
                 if (shared)
                     Add(GraphSchemaStatus.Warn, GraphSchemaIssueCategory.Capability, "SharedRelationshipType",
                         "RELATIONSHIP:" + group.Key,
-                        "Multiple endpoint mappings share this relationship type. Type-wide property/index proposals are suppressed; review their combined schema manually.");
+                        "Multiple endpoint mappings share this relationship type. Type-wide property/index proposals are suppressed; review their combined schema manually. An identified key's constraint is still checked and proposed, once.");
+                // Owners of a shared identified type share one key property (ADR 0056), so its constraint is checked once.
+                var keyed = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var edge in group)
                 {
                     var identity = edge.Identity switch
                     {
-                        GraphSchemaRelationshipIdentity.ApplicationId => new[] { edge.KeyProperty! },
+                        GraphSchemaRelationshipIdentity.ApplicationId => keyed.Add(edge.KeyProperty!) ? new[] { edge.KeyProperty! } : [],
                         GraphSchemaRelationshipIdentity.EndpointPair or GraphSchemaRelationshipIdentity.DependentNode => [],
                         _ => throw new NotSupportedException("Unknown GraphBridge relationship identity cannot be compared as an association.")
                     };
                     Owner("RELATIONSHIP", edge.RelationshipType,
                         identity,
-                        edge.Properties, edge.Indexes, allowProposals: !shared);
+                        edge.Properties, edge.Indexes, allowProposals: !shared, identityProposals: true);
                     if (edge.Identity == GraphSchemaRelationshipIdentity.EndpointPair)
                         Add(GraphSchemaStatus.Warn, GraphSchemaIssueCategory.Identity, "EndpointPairApplicationEnforced",
                             "RELATIONSHIP:" + edge.RelationshipType,
@@ -127,12 +129,12 @@ public static class GraphSchemaComparer
 
         private void Owner(string entityType, string label, IReadOnlyList<string> identity,
             IReadOnlyList<GraphSchemaProperty> properties, IReadOnlyList<GraphSchemaIndex> indexes, bool allowProposals,
-            IReadOnlyList<GraphSchemaIndex>? alternateKeys = null)
+            IReadOnlyList<GraphSchemaIndex>? alternateKeys = null, bool? identityProposals = null)
         {
             GraphIdentifier.Validate(label, nameof(label));
             foreach (var property in properties) GraphIdentifier.Validate(property.Name, nameof(properties));
             if (identity.Count > 0)
-                Unique(entityType, label, identity, required: true, allowProposals);
+                Unique(entityType, label, identity, required: true, identityProposals ?? allowProposals);
             foreach (var alternateKey in alternateKeys ?? [])
                 Unique(entityType, label, alternateKey.Properties, required: true, allowProposals, alternate: true);
             foreach (var property in properties)

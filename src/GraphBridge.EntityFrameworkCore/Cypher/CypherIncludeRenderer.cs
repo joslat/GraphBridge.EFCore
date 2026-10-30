@@ -21,7 +21,7 @@ internal static class CypherIncludeRenderer
             || include.Included.Orderings is not null || include.Included.SkipParameter is not null || include.Included.LimitParameter is not null)
             throw new NotSupportedException("Filtered, ordered, paginated, or aggregated Include is not supported.");
         var rows = Id(CypherIncludePlan.RowsAlias);
-        var label = Id(include.IncludedLabel);
+        var label = CypherQueryRenderer.Labels(include.IncludedLabel);
         var type = Id(include.RelationshipType);
         if (root.Columns.Concat(include.Included.Columns).Any(c => c.Alias is CypherIncludePlan.RowsAlias or CypherIncludePlan.IncludedLabelAlias))
             throw new InvalidOperationException("Include output aliases are reserved.");

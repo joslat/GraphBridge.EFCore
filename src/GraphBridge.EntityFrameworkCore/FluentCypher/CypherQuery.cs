@@ -23,6 +23,39 @@ public sealed class CypherQuery
     public CypherQuery Match<T>(CypherNode<T> node) where T : class
         => Match((node ?? throw new ArgumentNullException(nameof(node))).Pattern());
 
+    /// <summary>
+    /// Starts the query with a vector search over <paramref name="node"/>'s type (ADR 0057):
+    /// <c>MATCH (n:Label) SEARCH n IN (VECTOR INDEX index FOR $vector LIMIT $limit) SCORE AS score</c>. It must be the first
+    /// clause, and needs Neo4j 2026 with Cypher 25. Before the query runs, the index must exist, be ONLINE, be a node vector index
+    /// on the type's own label, and have the vector's dimensions. <paramref name="score"/> is a fresh <c>Cypher.Score()</c>.
+    /// </summary>
+    public CypherQuery SearchVector<T>(CypherNode<T> node, string index, IReadOnlyList<float> vector, int limit, CypherValue<double>? score = null)
+        where T : class
+    {
+        ArgumentNullException.ThrowIfNull(vector);
+        if (vector.Count == 0 || vector.Any(v => !float.IsFinite(v))) throw new ArgumentException("The vector needs one or more finite values.", nameof(vector));
+        // Every float32 is a double exactly, as embeddings are stored (ADR 0054).
+        return AppendSearch(node, Search.GraphSearchRequest.Vector(index, vector.Select(v => (double)v).ToArray(), limit, Search.GraphSearchEntityKind.Node), score);
+    }
+
+    /// <summary>
+    /// Starts the query with a full-text search over <paramref name="node"/>'s type (ADR 0057):
+    /// <c>MATCH (n:Label) SEARCH n IN (FULLTEXT INDEX index FOR $query LIMIT $limit) SCORE AS score</c>, with a Lucene query.
+    /// It must be the first clause, and needs Neo4j 2026.09 or later. Before the query runs, the index must exist, be ONLINE and be
+    /// a node full-text index on the type's own label.
+    /// </summary>
+    public CypherQuery SearchFullText<T>(CypherNode<T> node, string index, string query, int limit, CypherValue<double>? score = null) where T : class
+        => AppendSearch(node, Search.GraphSearchRequest.FullText(index, query, limit, Search.GraphSearchEntityKind.Node), score);
+
+    private CypherQuery AppendSearch(CypherNode node, Search.GraphSearchRequest request, CypherAlias? score)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        if (Clauses.Count != 0) throw CypherDiagnostics.Create("GBFC305", "A search starts the query: call SearchVector or SearchFullText first, then match from its node.");
+        if (score is not null && score.Definition is not CypherScoreTerm)
+            throw CypherDiagnostics.Create("GBFC306", "A search's score is a fresh Cypher.Score() value.");
+        return new(Context, [new CypherSearchClause(node, request, score)]);
+    }
+
     /// <summary>OPTIONAL MATCH whose predicate is visibly owned by this clause; same as OptionalMatch(pattern).Where(where).</summary>
     public CypherQuery OptionalMatch(CypherPattern pattern, CypherPredicate where) => OptionalMatch(pattern).Where(where);
 
@@ -33,7 +66,11 @@ public sealed class CypherQuery
     public CypherQuery Where(CypherPredicate predicate)
     {
         ArgumentNullException.ThrowIfNull(predicate);
-        if (Clauses.Count == 0) throw new InvalidOperationException("WHERE requires a preceding MATCH or WITH clause.");
+        if (Clauses.Count == 0)
+            throw new InvalidOperationException("WHERE requires a preceding MATCH or WITH clause.");
+        // The index's LIMIT comes first, so a filter here would quietly return fewer than the limit (ADR 0057).
+        if (Clauses[^1] is CypherSearchClause)
+            throw CypherDiagnostics.Create("GBFC307", "A WHERE can't filter a search's own hits, which the index has already limited; add With(...) and filter there, or match onwards and filter that.");
         var clauses = Clauses.ToArray();
         clauses[^1] = clauses[^1] switch
         {
@@ -147,4 +184,5 @@ public sealed partial class CypherResultQuery<TResult>
 internal abstract record CypherClause;
 internal sealed record CypherMatchClause(IReadOnlyList<CypherPattern> Patterns, bool Optional, CypherTerm? Predicate) : CypherClause;
 internal sealed record CypherWithClause(IReadOnlyList<CypherAlias> Aliases, bool Distinct, CypherTerm? Predicate) : CypherClause;
+internal sealed record CypherSearchClause(CypherNode Node, Search.GraphSearchRequest Request, CypherAlias? Score) : CypherClause;
 internal sealed record CypherSort(CypherTerm Expression, bool Descending);

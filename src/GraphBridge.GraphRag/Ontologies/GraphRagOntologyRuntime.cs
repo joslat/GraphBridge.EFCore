@@ -9,6 +9,8 @@ namespace GraphBridge.GraphRag;
 internal sealed class GraphRagOntologyRuntime(GraphRagOntology ontology)
 {
     private const int UpsertPage = 10_000;
+    /// <summary>Facts listing the documents of one removal, at most. Settable only so a test reaches it with a few facts.</summary>
+    internal static int MaxListedFacts { get; set; } = 100_000;
 
     public GraphRagOntology Ontology { get; } = ontology;
 
@@ -75,7 +77,7 @@ internal sealed class GraphRagOntologyRuntime(GraphRagOntology ontology)
     /// the document from every fact that lists it. Those facts are locked first, then re-read, so a concurrent run adding
     /// its own document can't be lost; facts left listing nothing are deleted.
     /// </summary>
-    public async Task<int> RemoveAsync(DbContext db, GraphRagLayout layout, string documentId, IReadOnlyList<string> chunkIds, CancellationToken cancellationToken)
+    public async Task<int> RemoveAsync(DbContext db, GraphRagLayout layout, string[] documentIds, IReadOnlyList<string> chunkIds, CancellationToken cancellationToken)
     {
         var removed = 0;
         foreach (var page in chunkIds.Chunk(GraphRagRemoval.PageSize))
@@ -86,14 +88,18 @@ internal sealed class GraphRagOntologyRuntime(GraphRagOntology ontology)
         if (Facts.Count == 0) return removed;
 
         var types = Ontology.Relationships.Select(r => r.Type).Distinct(StringComparer.Ordinal).ToArray();
-        // Workaround for GR-06 (string functions in LINQ): the facts that list the document, across every fact type, in one bounded read.
+        // Workaround for GR-06 (string functions in LINQ): the facts that list any of the documents, across every fact type, in one
+        // bounded read. A listing that reaches the bound is refused, so no fact keeps a removed document.
         var listing = await db.Database.QueryCypherAsync(
-            "MATCH (a)-[f]->(b) WHERE type(f) IN $types AND f.DocumentIds CONTAINS $documentId "
+            "MATCH (a)-[f]->(b) WHERE type(f) IN $types AND any(id IN $documentIds WHERE f.DocumentIds CONTAINS id) "
             + "RETURN type(f) AS type, labels(a) AS fromLabels, labels(b) AS toLabels, a.Id AS fromId, b.Id AS toId LIMIT $limit",
-            new Dictionary<string, object?> { ["types"] = types, ["documentId"] = documentId, ["limit"] = 100_000L },
+            new Dictionary<string, object?> { ["types"] = types, ["documentIds"] = documentIds, ["limit"] = (long)MaxListedFacts + 1 },
             record => (Type: record["type"].As<string>(), From: Kind(record["fromLabels"].As<List<string>>()), To: Kind(record["toLabels"].As<List<string>>()),
                 FromId: record["fromId"].As<string>(), ToId: record["toId"].As<string>()),
-            maxRows: 100_000, cancellationToken).ConfigureAwait(false);
+            maxRows: MaxListedFacts + 1, cancellationToken).ConfigureAwait(false);
+        if (listing.Count > MaxListedFacts)
+            throw new GraphRagRemoval.FactListingLimitException($"More than {MaxListedFacts:N0} facts list the documents being removed; nothing of them was removed.");
+        var removing = documentIds.ToHashSet(StringComparer.Ordinal);
         foreach (var group in listing.GroupBy(row => (row.Type, row.From, row.To)))
         {
             var type = Ontology.Relationships.FirstOrDefault(r => r.Type == group.Key.Type && r.FromKind == group.Key.From && r.ToKind == group.Key.To);
@@ -101,15 +107,18 @@ internal sealed class GraphRagOntologyRuntime(GraphRagOntology ontology)
             var ops = Facts[type];
             var pairs = group.Select(row => (row.FromId, row.ToId)).Distinct().ToArray();
             // The facts exist, so this upsert creates nothing; its preflight takes the locks.
-            await ops.CreateMissingAsync(db, pairs.Select(p => ops.New(p.FromId, p.ToId, documentId)), cancellationToken).ConfigureAwait(false);
+            await ops.CreateMissingAsync(db, pairs.Select(p => ops.New(p.FromId, p.ToId, documentIds[0])), cancellationToken).ConfigureAwait(false);
             var stored = await ops.DocumentIdsAsync(db, pairs, cancellationToken).ConfigureAwait(false);
             var kept = new List<GraphRagFact>();
+            // A fact that lists only removed documents goes; its stored list, exactly, is what the delete matches.
+            var gone = new HashSet<string>(StringComparer.Ordinal);
             foreach (var (pair, ids) in stored)
             {
-                var rest = Lines(ids).Where(id => id != documentId).ToArray();
+                var rest = Lines(ids).Where(id => !removing.Contains(id)).ToArray();
                 if (rest.Length > 0) kept.Add(ops.New(pair.From, pair.To, string.Join('\n', rest)));
+                else gone.Add(ids);
             }
-            removed += await ops.DeleteListingOnlyAsync(db, documentId, cancellationToken).ConfigureAwait(false);
+            if (gone.Count > 0) removed += await ops.DeleteListingOnlyAsync(db, [.. gone], cancellationToken).ConfigureAwait(false);
             if (kept.Count > 0) await ops.UpdateDocumentIdsAsync(db, kept, cancellationToken).ConfigureAwait(false);
         }
         return removed;
@@ -191,7 +200,7 @@ internal sealed class GraphRagOntologyRuntime(GraphRagOntology ontology)
         Task CreateMissingAsync(DbContext db, IEnumerable<GraphRagFact> facts, CancellationToken cancellationToken);
         Task<Dictionary<(string From, string To), string>> DocumentIdsAsync(DbContext db, IReadOnlyCollection<(string From, string To)> pairs, CancellationToken cancellationToken);
         Task UpdateDocumentIdsAsync(DbContext db, IEnumerable<GraphRagFact> facts, CancellationToken cancellationToken);
-        Task<int> DeleteListingOnlyAsync(DbContext db, string documentId, CancellationToken cancellationToken);
+        Task<int> DeleteListingOnlyAsync(DbContext db, string[] documentIdLists, CancellationToken cancellationToken);
         Task<int> DeleteTouchingAsync(DbContext db, string[] ids, bool from, bool to, CancellationToken cancellationToken);
     }
 
@@ -273,8 +282,14 @@ internal sealed class GraphRagOntologyRuntime(GraphRagOntology ontology)
                 await db.Set<TFact>().ExecuteUpsertAsync(page, f => f.DocumentIds, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<int> DeleteListingOnlyAsync(DbContext db, string documentId, CancellationToken cancellationToken)
-            => GraphRagRemoval.DeleteInPagesAsync(db.Set<TFact>().Where(f => f.DocumentIds == documentId).OrderBy(f => f.FromId).ThenBy(f => f.ToId), cancellationToken);
+        public async Task<int> DeleteListingOnlyAsync(DbContext db, string[] documentIdLists, CancellationToken cancellationToken)
+        {
+            var deleted = 0;
+            foreach (var page in documentIdLists.Chunk(1_000))
+                deleted += await GraphRagRemoval.DeleteInPagesAsync(db.Set<TFact>().Where(f => page.Contains(f.DocumentIds)).OrderBy(f => f.FromId).ThenBy(f => f.ToId),
+                    cancellationToken).ConfigureAwait(false);
+            return deleted;
+        }
 
         public Task<int> DeleteTouchingAsync(DbContext db, string[] ids, bool from, bool to, CancellationToken cancellationToken)
             => GraphRagRemoval.DeleteInPagesAsync((from && to ? db.Set<TFact>().Where(f => ids.Contains(f.FromId) || ids.Contains(f.ToId))

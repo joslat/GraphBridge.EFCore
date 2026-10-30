@@ -31,7 +31,7 @@ public sealed class Lesson30AuthoringToolchains : ILesson
         // workshop:end Scaffold
         lesson.Table(compiled.Diagnostics.Select(d => new { d.Code, d.Severity, d.Subject }));
         lesson.Check("the reviewed policy compiles to a tracked model", compiled.Success && compiled.Model is not null);
-        lesson.Note("Every warning is a review prompt: a sample cannot prove that keys always exist, and ObservedParallelEdges is Hugo Weaving's two Cloud Atlas roles.");
+        lesson.Note("Every warning is a review prompt: a sample cannot prove that keys always exist, and ObservedParallelEdges comes from Hugo Weaving and Tom Hanks, who each have two Cloud Atlas roles.");
 
         lesson.Step("Generate the EF source");
         lesson.Code("Generate");

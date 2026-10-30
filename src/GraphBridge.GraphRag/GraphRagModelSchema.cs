@@ -49,13 +49,17 @@ public sealed class GraphRagModelSchema
         return new(ontology, Array.AsReadOnly(classes), Array.AsReadOnly(patterns), Array.AsReadOnly(quotes));
     }
 
-    /// <summary>The JSON Schema of an extraction reply: <c>entities</c>, <c>relationships</c> and, when the ontology has quote types, <c>quotes</c>.</summary>
+    /// <summary>
+    /// The JSON Schema of an extraction reply: <c>entities</c>, <c>relationships</c> and, when the ontology has quote types,
+    /// <c>quotes</c>. It meets strict structured output's rules: every object is closed and lists all its fields as required,
+    /// and a field a reply may leave out is nullable instead.
+    /// </summary>
     public string ToJsonSchema()
     {
         var kinds = new JsonArray(Classes.Select(c => (JsonNode)c.Kind).ToArray());
         var entity = Properties(("kind", new JsonObject { ["type"] = "string", ["enum"] = kinds }), ("name", Text()),
-            ("aliases", Strings()), ("description", Text()), ("mentions", Strings()));
-        foreach (var property in Classes.SelectMany(c => c.Properties).Distinct(StringComparer.Ordinal)) entity[Camel(property)] = Text();
+            ("aliases", Strings()), ("description", Optional()), ("mentions", Strings()));
+        foreach (var property in Classes.SelectMany(c => c.Properties).Distinct(StringComparer.Ordinal)) entity[Camel(property)] = Optional();
         // The document is an endpoint kind only when a pattern links to it.
         var endpoints = Classes.Select(c => c.Kind).ToList();
         if (Patterns.Any(p => p.FromKind == GraphRagOntologyBuilder.DocumentKind || p.ToKind == GraphRagOntologyBuilder.DocumentKind))
@@ -63,18 +67,14 @@ public sealed class GraphRagModelSchema
         JsonObject EndpointKind() => new() { ["type"] = "string", ["enum"] = new JsonArray(endpoints.Select(k => (JsonNode)k).ToArray()) };
         var relationship = Properties(("type", new JsonObject { ["type"] = "string", ["enum"] = new JsonArray(Patterns.Select(p => (JsonNode)p.Type).Distinct().ToArray()) }),
             ("from", Text()), ("fromKind", EndpointKind()), ("to", Text()), ("toKind", EndpointKind()));
-        foreach (var property in Patterns.SelectMany(p => p.Properties).Distinct(StringComparer.Ordinal)) relationship[Camel(property)] = Text();
-        var root = new JsonObject
-        {
-            ["entities"] = Array(entity, "kind", "name", "mentions"),
-            ["relationships"] = Array(relationship, "type", "from", "fromKind", "to", "toKind")
-        };
+        foreach (var property in Patterns.SelectMany(p => p.Properties).Distinct(StringComparer.Ordinal)) relationship[Camel(property)] = Optional();
+        var root = new JsonObject { ["entities"] = Array(entity), ["relationships"] = Array(relationship) };
         if (Quotes.Count > 0)
         {
             var quote = Properties(("type", new JsonObject { ["type"] = "string", ["enum"] = new JsonArray(Quotes.Select(q => (JsonNode)q.Type).ToArray()) }),
                 ("speaker", Text()), ("words", Text()));
-            if (Quotes.Any(q => q.Addressee)) quote["addressee"] = Text();
-            root["quotes"] = Array(quote, "type", "speaker", "words");
+            if (Quotes.Any(q => q.Addressee)) quote["addressee"] = Optional();
+            root["quotes"] = Array(quote);
         }
         var schema = new JsonObject
         {
@@ -84,6 +84,7 @@ public sealed class GraphRagModelSchema
         return schema.ToJsonString(new JsonSerializerOptions { WriteIndented = false });
 
         static JsonObject Text() => new() { ["type"] = "string" };
+        static JsonObject Optional() => new() { ["type"] = new JsonArray("string", "null") };
         static JsonObject Strings() => new() { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string" } };
         static JsonObject Properties(params (string Name, JsonNode Value)[] properties)
         {
@@ -91,12 +92,13 @@ public sealed class GraphRagModelSchema
             foreach (var (name, value) in properties) result[name] = value;
             return result;
         }
-        static JsonObject Array(JsonObject properties, params string[] required) => new()
+        static JsonObject Array(JsonObject properties) => new()
         {
             ["type"] = "array",
             ["items"] = new JsonObject
             {
-                ["type"] = "object", ["properties"] = properties, ["required"] = new JsonArray(required.Select(r => (JsonNode)r).ToArray())
+                ["type"] = "object", ["properties"] = properties, ["required"] = new JsonArray(properties.Select(p => (JsonNode)p.Key).ToArray()),
+                ["additionalProperties"] = false
             }
         };
     }

@@ -46,7 +46,7 @@ Five passing checkpoints and the provider's message for each refused shape.
 ## Try it yourself
 
 1. Rewrite the paging example so it is supported: filter first, then `Take(5)`.
-2. Lesson 14 shows a Fluent Cypher refusal (`GBFC110`). LINQ codes start with `GBQ` and Fluent codes with `GBFC`. Why does Fluent refuse `!=` on a nullable property while LINQ translates it?
+2. Come back after lesson 17, which shows a Fluent Cypher refusal (`GBFC110`). LINQ codes start with `GBQ` and Fluent codes with `GBFC`. Why does Fluent refuse `!=` on a nullable property while LINQ translates it?
 
 ## Limits
 

@@ -28,7 +28,8 @@ public static class GraphRagReembedding
         from.Validate();
         to.Validate();
         if (from.Id == to.Id) throw new ArgumentException("The new embedding set is the current one; there is nothing to re-embed.", nameof(to));
-        var newLayout = layout with { ChunkEmbeddingProperty = stagingProperty };
+        // After cut-over the new set's index is searched by its derived name.
+        var newLayout = layout with { ChunkEmbeddingProperty = stagingProperty, VectorIndexName = null };
         newLayout.Validate();
         string[] taken = [layout.ChunkEmbeddingProperty, layout.ChunkIdProperty, layout.ChunkTextProperty, layout.ChunkOrderProperty,
             nameof(GraphRagChunk.DocumentId), nameof(GraphRagChunk.StartByte), nameof(GraphRagChunk.EndByte), nameof(GraphRagChunk.TokenCount),
@@ -66,8 +67,8 @@ public sealed class GraphRagReembeddingPlan
         });
         CleanupSteps = Array.AsReadOnly(new[]
         {
-            GraphMigrationStep.DropIndex("drop-" + from.VectorIndexNameFor(prefix), GraphMigrationSchemaDefinition.VectorIndex(
-                from.VectorIndexNameFor(prefix), "NODE", layout.ChunkLabel, layout.ChunkEmbeddingProperty, from.Dimensions, from.Similarity),
+            GraphMigrationStep.DropIndex("drop-" + layout.VectorIndexFor(from), GraphMigrationSchemaDefinition.VectorIndex(
+                layout.VectorIndexFor(from), "NODE", layout.ChunkLabel, layout.ChunkEmbeddingProperty, from.Dimensions, from.Similarity),
                 $"Re-embedding to {to.Model}: the vectors of {from.Model} are no longer searched.")
         });
     }

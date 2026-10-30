@@ -87,8 +87,15 @@
       "graphbridge.graphrag": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.11.0, )"
+        }
+      },
+      "graphbridge.graphrag.pdf": {
+        "type": "Project",
+        "dependencies": {
+          "GraphBridge.GraphRag": "[0.1.0-preview.5, )",
+          "PdfPig": "[0.1.16, )"
         }
       },
       "Microsoft.EntityFrameworkCore": {
@@ -114,6 +121,12 @@
         "requested": "[6.4.0, 7.0.0)",
         "resolved": "6.4.0",
         "contentHash": "y4HRrzUL3B3TxOMhF7BFgm7mAQxXporngAx+MN3KrR73T8Von316tkzcP+8knmfqlEFlfJ9y5QaM/l4j3gvn/A=="
+      },
+      "PdfPig": {
+        "type": "CentralTransitive",
+        "requested": "[0.1.16, )",
+        "resolved": "0.1.16",
+        "contentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA=="
       }
     }
   }

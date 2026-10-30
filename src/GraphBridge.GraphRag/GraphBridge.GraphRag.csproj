@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Experimental GraphRAG building blocks for GraphBridge: store documents as typed graphs through EF Core, with exact chunk positions, embeddings and resumable ingestion. Uses Microsoft.Extensions.AI abstractions; testable without a model. The API may change in any preview.</Description>
-    <Version>0.1.0-preview.5</Version>
+    <Version>0.2.0-preview.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
@@ -11,6 +11,9 @@
   <ItemGroup>
     <None Update="README.md" Pack="true" PackagePath="/" />
     <InternalsVisibleTo Include="GraphBridge.GraphRag.Tests" />
+    <!-- The DataIngestion adapter ships at the core's exact version and places chunks with the core's text locator. -->
+    <InternalsVisibleTo Include="GraphBridge.GraphRag.DataIngestion" />
+    <InternalsVisibleTo Include="GraphBridge.GraphRag.AspNetCore" />
     <InternalsVisibleTo Include="GraphBridge.IntegrationTests" />
   </ItemGroup>
   <Import Project="../../eng/GraphBridge.Package.props" />

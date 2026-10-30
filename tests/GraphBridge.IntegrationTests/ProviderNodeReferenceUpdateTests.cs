@@ -125,6 +125,8 @@ public sealed partial class ProviderNodeReferenceUpdateTests(DisposableNeo4jFixt
                     if (deletion) context.Remove(candidate); else candidate.Title = "must not persist";
                     var error = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
                     Assert.Same(candidate, Assert.Single(error.Entries).Entity);
+                    // The node and its parent are locked; the membership check names itself (GR-69).
+                    Assert.Equal(("reference", "affected 0"), ((string?)error.Data["GraphBridge.MutationStep"], (string?)error.Data["GraphBridge.MutationResult"]));
                     Assert.Equal(deletion ? EntityState.Deleted : EntityState.Modified, context.Entry(candidate).State);
                     Assert.Equal(1L, candidate.Version);
                     Assert.Null(context.Database.CurrentTransaction);

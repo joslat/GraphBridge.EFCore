@@ -26,7 +26,7 @@ Console.WriteLine(similar.Provenance.SimilarityFunction);   // as configured on 
 
 Each returns `GraphSearchResults<T>`: `Results`, a list of `GraphScoredResult<T>` (`Value`, `Score`, `ElementId`), and `Provenance`. Provenance is present even for an empty result: server version and edition, index name and provider, labels or types, properties, vector dimensions and similarity function or full-text analyzer and consistency, and the requested limit. `ElementId` is a diagnostic store identity, not an application key.
 
-To search the same indexes through `Microsoft.Extensions.VectorData`'s `IVectorSearchable<TRecord>`, use the optional [VectorData adapter](VECTOR_DATA.md).
+To search the same indexes through `Microsoft.Extensions.VectorData`'s `IVectorSearchable<TRecord>`, use the optional [VectorData adapter](VECTOR_DATA.md). To follow relationships from the hits in one typed query, [start a Fluent Cypher query from a search](FLUENT_CYPHER.md#starting-from-a-search).
 
 ## Writing vectors through EF
 

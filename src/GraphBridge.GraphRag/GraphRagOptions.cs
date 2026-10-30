@@ -9,6 +9,8 @@ public sealed class GraphRagOptions
     public GraphRagRetrievalOptions Retrieval { get; set; } = new();
     /// <summary>Bounds for extraction, which runs when the model maps an ontology (ADR 0052, section 7).</summary>
     public GraphRagExtractionOptions Extraction { get; set; } = new();
+    /// <summary>How failed embedding and extraction calls are retried (ADR 0052, section 11).</summary>
+    public GraphRagRetryOptions Retry { get; set; } = new();
 }
 
 /// <summary>Service keys the toolkit looks up.</summary>
@@ -31,9 +33,6 @@ public sealed class GraphRagIngestionOptions
     public int MaxDocumentBytes { get; set; } = 16 << 20;
     /// <summary>How long a run holds a document before another run may take it over: 1 second to 1 day.</summary>
     public TimeSpan LeaseDuration { get; set; } = TimeSpan.FromMinutes(10);
-    /// <summary>Which embedding failures are retried, at most twice. Null: an <see cref="HttpRequestException"/> with status
-    /// 408, 429 or 5xx, or a timeout. Return false for everything when the client already retries.</summary>
-    public Func<Exception, bool>? IsTransient { get; set; }
 
     internal void Validate()
     {
@@ -56,16 +55,42 @@ public interface IGraphRagIngestion
     /// same lease, unchanged check, embeddings, extraction and transaction as files. All documents of one call share a chunker.
     /// </summary>
     Task<GraphRagIngestionReceipt> IngestChunkedAsync(IEnumerable<GraphRagChunkedDocument> documents, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// What <see cref="IngestAsync"/> would do with these sources, without a model call or a write (ADR 0052, section 11): each
+    /// document loaded, checked against what's stored and chunked; the embedding and extraction calls that would follow; and
+    /// their input tokens, counted with the registered <see cref="IGraphRagTokenCounter"/> or estimated without one.
+    /// </summary>
+    Task<GraphRagIngestionPreview> PreviewAsync(IEnumerable<GraphRagSource> sources, CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// A cost preview of one ingestion call. Calls and tokens count only the documents that would be ingested. Extraction calls
+/// are one per chunk, plus one more for each reply that comes back unreadable. Tokens are input tokens:
+/// <see cref="TokensCounted"/> is true when an <see cref="IGraphRagTokenCounter"/> counted them, and false when they're
+/// estimated at four bytes of UTF-8 per token. Both add a few tokens per message for the chat format, and neither counts the
+/// JSON schema, which some providers bill as input. Output tokens depend on the model, and a reasoning model's include its
+/// reasoning, so they aren't estimated.
+/// </summary>
+public sealed record GraphRagIngestionPreview(IReadOnlyList<GraphRagDocumentPreview> Documents, int Chunks, int EmbeddingCalls, int ExtractionCalls,
+    long EmbeddingTokens, long ExtractionInputTokens, bool TokensCounted, IReadOnlyList<GraphRagLimit> LimitsReached);
+
+/// <summary>One document in a preview: whether it would be ingested, is unchanged, or would fail (with the same
+/// <see cref="ErrorCode"/> as ingestion), its size, and its chunks when it would be ingested.</summary>
+public sealed record GraphRagDocumentPreview(string DocumentId, string SourceUri, GraphRagPreviewStatus Status, string? ErrorCode, int Bytes, int Chunks);
+
+public enum GraphRagPreviewStatus { WouldIngest, Unchanged, WouldFail }
+
 /// <summary>What one ingestion call did. <see cref="InputTokens"/> is null when the generator reports no usage;
-/// <see cref="Extraction"/> is null when the model maps no ontology.</summary>
+/// <see cref="Extraction"/> is null when the model maps no ontology; <see cref="Retries"/> counts the embedding and extraction
+/// calls that were retried, and the time spent waiting.</summary>
 public sealed record GraphRagIngestionReceipt(string RunId, IReadOnlyList<GraphRagDocumentOutcome> Documents,
     int ChunksWritten, int EmbeddingCalls, long? InputTokens, TimeSpan Elapsed, IReadOnlyList<GraphRagLimit> LimitsReached,
-    GraphRagExtractionSummary? Extraction = null);
+    GraphRagExtractionSummary? Extraction = null, GraphRagRetrySummary? Retries = null);
 
 /// <summary>One document's outcome. <see cref="ErrorCode"/> is set when it failed, such as <c>invalid-utf8</c>,
-/// <c>lease-held</c> or <c>extraction-failed</c>; messages and document text are never part of the outcome.</summary>
+/// <c>lease-held</c>, <c>embedding-failed</c>, <c>extraction-failed</c> or <c>rate-limited</c>; messages and document text are
+/// never part of the outcome.</summary>
 public sealed record GraphRagDocumentOutcome(string DocumentId, string SourceUri, GraphRagDocumentStatus Status, string? ErrorCode);
 
 public enum GraphRagDocumentStatus { Ingested, Unchanged, Failed }

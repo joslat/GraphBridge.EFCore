@@ -7,7 +7,7 @@
 
 - `db.Cypher()` is a typed builder for **native Cypher clauses**. It uses the same EF mappings for labels, relationship types and property names, and returns untracked rows: scalars, DTOs or whole entities.
 - **Symbols** stand for pattern variables: `Graph.Node<Person>()`, `Graph.Edge<Credit>()`. Two `Person` symbols are two different variables.
-- C# predicates such as `actor.Value.Name == actorName` are accepted only where they mean the same in Cypher as in C# (lesson 17 shows a refusal).
+- C# predicates such as `actor.Value.Name == actorName` are accepted only where they mean the same in Cypher as in C# (this lesson shows `GBFC106`; lesson 17 shows `GBFC110`).
 - Predicates come in two forms that compile to the same Cypher: C# lambdas (`() => actor.Value.Name == actorName`, the C# meaning) and explicit methods (`actor.Property(p => p.Name).Eq(actorName)`, the native meaning). See [choosing a level](../../../../docs/features/FLUENT_CYPHER.md#choosing-a-level).
 
 ## Run it

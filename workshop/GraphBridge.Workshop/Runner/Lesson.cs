@@ -6,7 +6,7 @@ public enum LessonMode { Offline, Connected, Mixed }
 /// <summary>What the runner prepares before a connected lesson runs.</summary>
 public enum Requirement
 {
-    /// <summary>Nothing beyond the safety guard, which creates the ownership marker; the lesson writes no workshop data.</summary>
+    /// <summary>Nothing: the runner prepares nothing (lesson 00 runs the guard itself).</summary>
     None,
     /// <summary>Safety guard only; the lesson manages schema itself (lesson 03).</summary>
     Guarded,

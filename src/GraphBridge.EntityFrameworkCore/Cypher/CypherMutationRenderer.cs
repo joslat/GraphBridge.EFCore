@@ -8,7 +8,7 @@ internal static class CypherMutationRenderer
     public static CypherMutationCommand Create(string label, IReadOnlyDictionary<string, object?> properties)
     {
         ValidateNames(properties.Keys);
-        return new($"CREATE (n:{Identifier(label)})\nSET n = $properties\nRETURN count(n) AS count",
+        return new($"CREATE (n:{Labels(label)})\nSET n = $properties\nRETURN count(n) AS count",
             new Dictionary<string, object> { ["properties"] = properties });
     }
 
@@ -60,7 +60,7 @@ internal static class CypherMutationRenderer
             parameters["k" + index] = pair.Value!;
             return Identifier(pair.Key) + ": $k" + index;
         }).ToArray();
-        return ($"MATCH (n:{Identifier(label)} {{{string.Join(", ", comparisons)}}})", parameters);
+        return ($"MATCH (n:{Labels(label)} {{{string.Join(", ", comparisons)}}})", parameters);
     }
 
     private static string Concurrency(IReadOnlyDictionary<string, object?> originals, IDictionary<string, object> parameters)
@@ -78,6 +78,9 @@ internal static class CypherMutationRenderer
         foreach (var name in names)
             Identifier(name);
     }
+    // A node type's labels, separated by colons (ADR 0055), each validated and quoted.
+    private static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
+
     private static string Identifier(string name)
     {
         if (string.IsNullOrWhiteSpace(name) || !Initial(name[0]) || name.Any(c => !Initial(c) && c is not (>= '0' and <= '9')))

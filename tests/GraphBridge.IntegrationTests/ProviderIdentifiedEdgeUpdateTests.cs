@@ -110,6 +110,8 @@ public sealed partial class ProviderIdentifiedEdgeUpdateTests(DisposableNeo4jFix
             context.Add(edge);
             var error = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
             Assert.Same(edge, Assert.Single(error.Entries).Entity);
+            // The diagnosis names the command: the lock on the missing target, the second of the edge's two endpoint locks.
+            Assert.Equal(("lock 2 of 2", "affected 0"), ((string?)error.Data["GraphBridge.MutationStep"], (string?)error.Data["GraphBridge.MutationResult"]));
             Assert.Equal(0L, source.Version);
             Assert.Equal(0L, edge.Version);
             Assert.Equal(EntityState.Added, context.Entry(edge).State);
@@ -176,7 +178,8 @@ public sealed partial class ProviderIdentifiedEdgeUpdateTests(DisposableNeo4jFix
             var original = Copy(graph.First);
             stale.Attach(original);
             original.Role = "must not match by ID alone";
-            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => stale.SaveChangesAsync());
+            var moved = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => stale.SaveChangesAsync());
+            Assert.Equal(("mutation", "affected 0"), ((string?)moved.Data["GraphBridge.MutationStep"], (string?)moved.Data["GraphBridge.MutationResult"]));
             Assert.Equal(1L, original.Version);
             Assert.Equal(graph.First.Role, Assert.Single(await ReadEdges(run))["role"]);
         }
@@ -286,6 +289,31 @@ public sealed partial class ProviderIdentifiedEdgeUpdateTests(DisposableNeo4jFix
 
     [Neo4jIntegrationFact]
     public Task Concurrent_duplicate_ID_creates_have_one_constraint_winner() => AssertConcurrentCreates(sameId: true);
+
+    [Neo4jIntegrationFact]
+    public async Task An_identified_edge_deleted_and_added_again_with_the_same_key_in_one_transaction_is_written()
+    {
+        // A tracked delete locks the relationship first. On Neo4j 2026.09 a key written to itself stays taken until the transaction
+        // ends, so the lock must not write the key, or adding the same key again in the transaction fails.
+        var run = NewRun();
+        try
+        {
+            var graph = await InsertGraph(run);
+            await using var context = Context();
+            await using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                context.Remove(await context.Set<Event>().SingleAsync(e => e.Id == graph.First.Id));
+                Assert.Equal(1, await context.SaveChangesAsync());
+                context.Add(new Event { Id = graph.First.Id, SourceId = graph.Source.Id, TargetId = graph.Target.Id, Role = "again" });
+                Assert.Equal(1, await context.SaveChangesAsync());
+                await transaction.CommitAsync();
+            }
+            var edge = Assert.Single(await ReadEdges(run));
+            Assert.Equal((graph.First.Id.ToString("D"), "again", 1L), ((string)edge["edge_key"], (string)edge["role"], (long)edge["version"]));
+            Assert.False(edge.ContainsKey("__graphbridge_lock"));
+        }
+        finally { await Cleanup(run); }
+    }
 
     private async Task AssertConcurrentCreates(bool sameId)
     {

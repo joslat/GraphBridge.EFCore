@@ -63,6 +63,10 @@ jobs:
         if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
         shell: pwsh
         run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite Workshop
+      - name: GraphRAG samples, replaying their recorded real-model calls
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        shell: pwsh
+        run: ./eng/scripts/Run-IntegrationTests.ps1 -NoBuild -Suite GraphRag
       # Published packages are checked against the reviewed attribution files of the commit they were built from, so this
       # step runs only when the checkout has the published version: after publishing, not on the run before it.
       - name: Published template and provider from nuget.org, live CRUD
@@ -76,11 +80,14 @@ jobs:
           }
           $feed = Join-Path $env:RUNNER_TEMP 'nuget-org'
           New-Item -ItemType Directory -Force $feed | Out-Null
-          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.Templates') {
+          foreach ($id in 'GraphBridge.EntityFrameworkCore', 'GraphBridge.GraphRag', 'GraphBridge.Templates') {
             $lower = $id.ToLowerInvariant()
             $url = "https://api.nuget.org/v3-flatcontainer/$lower/$env:PUBLISHED_VERSION/$lower.$env:PUBLISHED_VERSION.nupkg"
             Invoke-WebRequest -Uri $url -OutFile (Join-Path $feed "$id.$env:PUBLISHED_VERSION.nupkg")
           }
+          # The GraphRAG starter writes the default GraphRAG schema, which sample 07's tests created above: start a fresh fixture.
+          ./eng/scripts/Stop-Neo4jFixture.ps1
+          ./eng/scripts/Start-Neo4jFixture.ps1
           ./eng/scripts/Test-TemplatePackage.ps1 -Live -CandidateFeed $feed -CandidateVersion $env:PUBLISHED_VERSION
       - name: Stop disposable Neo4j
         if: always()
@@ -159,10 +166,10 @@ jobs:
             dotnet add package GraphBridge.EntityFrameworkCore.VectorData --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
             if ($LASTEXITCODE) { throw 'Adding GraphBridge.EntityFrameworkCore.VectorData from nuget.org failed.' }
           } else { "GraphBridge.EntityFrameworkCore.VectorData $env:PUBLISHED_VERSION is not on nuget.org; skipped." }
-          # The experimental GraphRAG packages are first published with 0.1.0-preview.5; earlier versions skip them.
+          # The experimental GraphRAG packages are first published with 0.2.0-preview.1; earlier versions skip them.
           $graphRag = try { (Invoke-RestMethod 'https://api.nuget.org/v3-flatcontainer/graphbridge.graphrag/index.json').versions } catch { @() }
           if ($graphRag -contains $env:PUBLISHED_VERSION) {
-            foreach ($id in 'GraphBridge.GraphRag', 'GraphBridge.GraphRag.DataIngestion', 'GraphBridge.GraphRag.AgentFramework') {
+            foreach ($id in 'GraphBridge.GraphRag', 'GraphBridge.GraphRag.DataIngestion', 'GraphBridge.GraphRag.AgentFramework', 'GraphBridge.GraphRag.AspNetCore', 'GraphBridge.GraphRag.Pdf') {
               dotnet add package $id --version $env:PUBLISHED_VERSION --source https://api.nuget.org/v3/index.json
               if ($LASTEXITCODE) { throw "Adding $id from nuget.org failed." }
             }

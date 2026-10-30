@@ -37,7 +37,7 @@ var policy = new GraphScaffoldPolicy("Scaffolded.Workshop", "ScaffoldedContext",
 var compiled = GraphScaffoldCompiler.Compile(snapshot, policy);
 ```
 
-   Every diagnostic is a review prompt. `KeyExistenceUnproven` says a sample cannot prove every node has a key; `ObservedParallelEdges` is Hugo Weaving's two Cloud Atlas roles.
+   Every diagnostic is a review prompt. `KeyExistenceUnproven` says a sample cannot prove every node has a key; `ObservedParallelEdges` comes from Hugo Weaving and Tom Hanks, who each have two Cloud Atlas roles.
 
 3. **Generate the EF source.**
 

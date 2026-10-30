@@ -71,6 +71,23 @@ public sealed class InspectionTests
     }
 
     [Fact]
+    public async Task Selected_labels_are_read_alone_so_unrelated_labels_never_reach_the_token_bound()
+    {
+        // On Neo4j 2026, db.labels() lists every label the database ever had, so a used database can pass maxTokens.
+        var many = Enumerable.Range(0, 100).Select(i => $"Other{i}").Append("Person").ToArray();
+        var selected = new Protocol { Labels = many };
+        var snapshot = await GraphDatabaseInspector.InspectAsync(selected.Driver, "neo4j", new(labels: ["Person"], relationshipTypes: []));
+        Assert.Equal(["Person"], snapshot.Labels);
+        Assert.Contains(selected.Parameters, parameters => parameters.TryGetValue("selection", out var value) && ((string[])value).SequenceEqual(["Person"]));
+        selected.AssertCleanup();
+
+        var unselected = new Protocol { Labels = many };
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => GraphDatabaseInspector.InspectAsync(unselected.Driver, "neo4j"));
+        Assert.Contains("raise maxTokens", error.Message, StringComparison.Ordinal);
+        unselected.AssertCleanup();
+    }
+
+    [Fact]
     public async Task Metadata_row_overflow_rolls_back_and_never_returns_a_partial_snapshot()
     {
         var protocol = new Protocol();
@@ -234,7 +251,9 @@ public sealed class InspectionTests
             if (query.StartsWith("SHOW CONSTRAINTS", StringComparison.Ordinal)) return SchemaOnlyLabel is null ? [] :
                 [new() { ["name"] = "empty_key", ["type"] = "NODE_PROPERTY_UNIQUENESS", ["entityType"] = "NODE", ["labelsOrTypes"] = new[] { SchemaOnlyLabel }, ["properties"] = new[] { "id" }, ["propertyType"] = null! }];
             if (query.StartsWith("SHOW INDEXES", StringComparison.Ordinal)) return [];
-            if (query.StartsWith("CALL db.labels", StringComparison.Ordinal)) return Labels.Select(label => new Dictionary<string, object> { ["label"] = label }).ToArray();
+            if (query.StartsWith("CALL db.labels", StringComparison.Ordinal))
+                return Labels.Where(label => !Parameters[^1].TryGetValue("selection", out var selected) || ((string[])selected).Contains(label))
+                    .Select(label => new Dictionary<string, object> { ["label"] = label }).ToArray();
             if (query.StartsWith("CALL db.relationshipTypes", StringComparison.Ordinal)) return [new() { ["relationshipType"] = "KNOWS" }];
             if (EmptySamples) return [];
             if (query.StartsWith("MATCH (n:", StringComparison.Ordinal)) return

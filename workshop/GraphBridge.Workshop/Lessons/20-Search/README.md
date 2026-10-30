@@ -16,7 +16,7 @@
 dotnet run --project workshop/GraphBridge.Workshop -- run 20
 ```
 
-The lesson needs Neo4j 2026.x with Cypher 25 (full-text search needs 2026.09 or later). On an older server it explains why and skips the searches.
+The lesson needs Neo4j 2026.09 or later (typed search uses Cypher 25). On an older server it explains why and skips.
 
 ## Walkthrough
 

@@ -37,14 +37,28 @@ if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
     if ($LASTEXITCODE -ne 0) { throw 'Failed to restrict fixture credential file permissions.' }
 }
 
-& docker compose --project-name $fixtureComposeProject -f $fixtureComposePath --env-file $fixtureEnvPath up -d --wait --wait-timeout 180
-if ($LASTEXITCODE -ne 0) {
-    throw 'Disposable fixture startup failed. Stop-Neo4jFixture.ps1 removes only this Compose project; credentials were not printed.'
+# Compose prefers this process's variables to --env-file, so a password loaded from an earlier fixture would start the
+# container with it while the file holds the new one. Give Compose this fixture's values, then restore the caller's.
+. (Join-Path $PSScriptRoot 'Restore-ProcessEnvironment.ps1')
+$fixtureCallerEnvironment = @{}
+foreach ($fixtureVariable in 'GRAPHBRIDGE_NEO4J_PASSWORD', 'GRAPHBRIDGE_COMPOSE_PROJECT') {
+    $fixtureCallerEnvironment[$fixtureVariable] = [Environment]::GetEnvironmentVariable($fixtureVariable, 'Process')
 }
+try {
+    [Environment]::SetEnvironmentVariable('GRAPHBRIDGE_NEO4J_PASSWORD', $fixturePassword, 'Process')
+    [Environment]::SetEnvironmentVariable('GRAPHBRIDGE_COMPOSE_PROJECT', $fixtureComposeProject, 'Process')
+    & docker compose --project-name $fixtureComposeProject -f $fixtureComposePath --env-file $fixtureEnvPath up -d --wait --wait-timeout 180
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Disposable fixture startup failed. Stop-Neo4jFixture.ps1 removes only this Compose project; credentials were not printed.'
+    }
 
-# The password stays inside the container environment. No credential is in command arguments.
-# The generated GUID is validated by construction; this startup marker is never test data.
-$fixtureMarkerQuery = "CREATE (:GraphBridgeFixture {id: '$fixtureId'});"
-$fixtureMarkerQuery | & docker compose --project-name $fixtureComposeProject -f $fixtureComposePath --env-file $fixtureEnvPath exec -T neo4j sh -c 'exec cypher-shell -u neo4j -p "${NEO4J_AUTH#*/}"'
-if ($LASTEXITCODE -ne 0) { throw 'Failed to write the disposable fixture safety marker.' }
+    # The password stays inside the container environment. No credential is in command arguments.
+    # The generated GUID is validated by construction; this startup marker is never test data.
+    $fixtureMarkerQuery = "CREATE (:GraphBridgeFixture {id: '$fixtureId'});"
+    $fixtureMarkerQuery | & docker compose --project-name $fixtureComposeProject -f $fixtureComposePath --env-file $fixtureEnvPath exec -T neo4j sh -c 'exec cypher-shell -u neo4j -p "${NEO4J_AUTH#*/}"'
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to write the disposable fixture safety marker.' }
+}
+finally {
+    Restore-ProcessEnvironment -Snapshot $fixtureCallerEnvironment
+}
 Write-Output 'Disposable GraphBridge Neo4j fixture ready on 127.0.0.1:17687. Credentials are in ignored eng/.fixture.env.'

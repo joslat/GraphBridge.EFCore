@@ -11,11 +11,16 @@
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag.DataIngestion/GraphBridge.GraphRag.DataIngestion.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.Pdf/GraphBridge.GraphRag.Pdf.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.AspNetCore/GraphBridge.GraphRag.AspNetCore.csproj" />
+    <!-- The endpoint tests host the endpoints in process, on a loopback port. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../GraphBridge.GraphRag.Evaluation/GraphBridge.GraphRag.Evaluation.csproj" />
     <!-- Test-only: an agent with function calling for the Agent Framework adapter, and a tokenizer for DataIngestion's chunkers. -->
     <PackageReference Include="Microsoft.Agents.AI" />
     <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
     <PackageReference Include="Microsoft.ML.Tokenizers.Data.O200kBase" />
     <Using Include="Xunit" />
   </ItemGroup>

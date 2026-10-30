@@ -41,6 +41,40 @@ A refused LINQ query throws `Neo4jQueryTranslationException` before any database
 | GBQ160 | Unsupported `ExecuteUpdateAsync`/`ExecuteDeleteAsync` shapes | Direct scalar setters on a mapped entity root ([bulk mutations](../features/BULK_MUTATIONS.md)) |
 | GBQ170 | Aggregates over association, identified-relationship or native-reference roots | Aggregate the related node set, or a reviewed native query |
 
+### Fluent Cypher codes
+
+A refused Fluent query throws `FluentCypherException`, a `NotSupportedException` whose `Code` holds the code below, before any database work ([Fluent Cypher](../features/FLUENT_CYPHER.md)). The message names the exact shape and the alternative.
+
+| Code | Refused | Supported alternative |
+|---|---|---|
+| GBFC101 | A lambda shape with no faithful translation: method calls, arithmetic, client computation, list membership on a stored list | A comparison, null test, `values.Contains(member)`, ordinal `StartsWith`/`EndsWith`/`Contains`, or the explicit predicate methods |
+| GBFC102 | A captured value that C# would reject, or that reading could run application code: a null for a non-nullable type, a null collection, a computed operand | Assign the value to a local variable first, and pass non-null values |
+| GBFC103 | A comparison without a symbol member, or of whole symbols | Compare `alias.Value.Member` or a `WITH` value |
+| GBFC104 | `!` over a predicate that can be null | `.Not()` on the explicit predicate, or an explicit null test |
+| GBFC105 | A value that can't be compared exactly: a lossy conversion, overflow, NaN in a list, a user-defined operator | A value of the property's own type |
+| GBFC106 | Culture-sensitive or case-ignoring string comparisons | `StringComparison.Ordinal`, or the explicit `.StartsWith(...)` methods |
+| GBFC107 | `Contains` with a custom comparer, over another collection type, or with more than 1,024 values | An array, `List<T>` or `HashSet<T>` with default equality; batches |
+| GBFC110 | `==`, `!=` or `Contains` where null makes C# and Cypher disagree | `.Eq(...)`, `.Ne(...)` with explicit `IsNull()`/`IsNotNull()` |
+| GBFC111, 113 | Text operators, ordering or `WITH` comparisons over converted properties; comparing two converted properties | An unconverted representation, or a reviewed native query |
+| GBFC112 | Temporal comparisons and membership in C# | The explicit `.Gt(...)`, `.In(...)` predicate methods |
+| GBFC114 | A vector property used other than returned or tested for null | [Graph search](../features/GRAPH_SEARCH.md), or a search that starts the query |
+| GBFC150 | An ordering key that isn't a member, a `WITH` value, or isn't returned | Order by a returned member or value |
+| GBFC201, 214 | A bounded pattern without a named path, or with more steps | `Match(path, pattern.Repeat(min, max))` with one step |
+| GBFC202 | An undirected step outside a named bounded path | A named bounded path |
+| GBFC203 | A bounded or undirected pattern over a heterogeneous mapping, or over a relationship type that several entity types map | A directed single step, or a reviewed native query |
+| GBFC204, 206, 207, 208 | Rebinding a path, a dropped symbol or a repeated edge; reusing an edge with other endpoints | A new symbol |
+| GBFC205, 209, 210, 211 | Endpoints that aren't node symbols, unmapped relationships, a direction that contradicts the mapping, a type mapped more than once | Symbols of mapped types, in the mapping's direction |
+| GBFC212 | A type with EF query filters | LINQ, which applies them, or a reviewed native query |
+| GBFC213 | A property selector that isn't one direct mapped property, or a derived reference key | A mapped scalar property, or the relationship itself |
+| GBFC301 | A query that doesn't start with `MATCH` or a search | Start with `Match(...)`, `SearchVector` or `SearchFullText` |
+| GBFC302, 303, 304 | `WITH` beyond forwarding symbols and introducing aggregates; a symbol out of scope; an expression the clause doesn't support | Forward what later clauses use |
+| GBFC305, 306, 307 | A search after another clause, a score that isn't a fresh `Cypher.Score()`, a `Where` straight after a search | [Starting from a search](../features/FLUENT_CYPHER.md#starting-from-a-search) |
+| GBFC401, 402, 403, 404 | Returns beyond mapped scalars, entities, `WITH` values and DTOs; constructing a mapped entity | Return the symbol, `Return(() => movie.Value)`, or a DTO |
+| GBFC405 | `ORDER BY` of something not returned | Return it too |
+| GBFC406 | An aggregate of anything but a mapped, unconverted property | `alias.Property(p => p.Year)` |
+| GBFC407 | A returned predicate that can be null, read as `bool` | `(bool?)Graph.Is(...)` |
+| GBFC408 | An entity storing a property under GraphBridge's reserved prefix, returned whole | Its scalar members |
+
 ## Reporting a limitation
 
 Model mapping errors come from [model validation](../../src/GraphBridge.EntityFrameworkCore/Infrastructure/Neo4jModelValidator.cs); query refusals from the [unsupported-method visitor](../../src/GraphBridge.EntityFrameworkCore/Query/Neo4jQueryableMethodTranslatingExpressionVisitor.Unsupported.cs). When you report one, include a small synthetic model, the LINQ shape, the refusal code, exact versions and the exception type. Remove credentials and application values. The [behavior matrix](../../tests/verification/EF_CONFORMANCE_MATRIX.md) maps each supported behavior to its tests.

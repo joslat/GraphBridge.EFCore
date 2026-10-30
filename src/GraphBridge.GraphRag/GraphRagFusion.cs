@@ -6,7 +6,8 @@ namespace GraphBridge.GraphRag;
 internal sealed record GraphRagCandidate(string ChunkId, double NativeScore);
 
 /// <summary>A chunk's text and position, read for evidence.</summary>
-internal sealed record GraphRagChunkText(string ChunkId, string DocumentId, string Text, int StartByte, int EndByte);
+internal sealed record GraphRagChunkText(string ChunkId, string DocumentId, string Text, int StartByte, int EndByte,
+    GraphRagGrounding Grounding = GraphRagGrounding.Source);
 
 /// <summary>Reciprocal rank fusion and the evidence budget (ADR 0052, section 4). Ranks are fused, never scores.</summary>
 internal static class GraphRagFusion
@@ -59,7 +60,7 @@ internal static class GraphRagFusion
             var remaining = maxUtf8Bytes - used;
             if (bytes.Length <= remaining)
             {
-                items.Add(new(chunk.ChunkId, chunk.DocumentId, chunk.Text, chunk.StartByte, chunk.EndByte, score, routes));
+                items.Add(new(chunk.ChunkId, chunk.DocumentId, chunk.Text, chunk.StartByte, chunk.EndByte, score, routes) { Grounding = chunk.Grounding });
                 used += bytes.Length;
                 continue;
             }
@@ -67,7 +68,10 @@ internal static class GraphRagFusion
             while (cut > 0 && (bytes[cut] & 0xC0) == 0x80) cut--;
             if (cut > 0)
             {
-                items.Add(new(chunk.ChunkId, chunk.DocumentId, Encoding.UTF8.GetString(bytes, 0, cut), chunk.StartByte, chunk.StartByte + cut, score, routes));
+                items.Add(new(chunk.ChunkId, chunk.DocumentId, Encoding.UTF8.GetString(bytes, 0, cut), chunk.StartByte, chunk.StartByte + cut, score, routes)
+                {
+                    Grounding = chunk.Grounding
+                });
                 used += cut;
             }
             limits.Add(new(nameof(GraphRagRetrievalOptions.MaxUtf8Bytes), maxUtf8Bytes));

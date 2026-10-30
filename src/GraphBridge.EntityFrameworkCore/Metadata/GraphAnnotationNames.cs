@@ -3,6 +3,8 @@ namespace GraphBridge.EntityFrameworkCore.Metadata;
 public static class GraphAnnotationNames
 {
     public const string NodeLabel = "GraphBridge:NodeLabel";
+    /// <summary>Further labels every node of the type carries, as one string with the labels separated by colons (ADR 0055).</summary>
+    public const string AdditionalNodeLabels = "GraphBridge:AdditionalNodeLabels";
     public const string PropertyName = "GraphBridge:PropertyName";
     public const string RelationshipType = "GraphBridge:RelationshipType";
     public const string SourceForeignKeyProperties = "GraphBridge:SourceForeignKeyProperties";

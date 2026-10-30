@@ -11,20 +11,29 @@ Everything is stored through EF Core as typed entities, and every quote keeps th
 - **Resumable ingestion:**
   - one transaction per document, and a lease per document;
   - unchanged documents are skipped;
-  - transient model failures are retried at most twice.
+  - transient model failures are retried, 4 times by default;
+  - files named by a URI keep their documents' IDs wherever they are.
 - **Retrieval and answers:**
   - vector and full-text search fused by rank;
   - an evidence budget and a trace of where each item came from;
-  - answers whose every citation is located in the stored text, or a refusal with a reason.
+  - answers whose every citation is located in the stored text, or a refusal with a reason;
+  - search scoped to documents, sections, metadata or a Cypher query;
+  - streamed answers, whose text is provisional until its citations are checked;
+  - follow-up questions, rewritten with the conversation so far before they are retrieved;
+  - answer export: one answer as one JSON document, whose citations `Check` confirms without the database;
+  - derived text, such as OCR or a converted Office file: every citation names where the text came from;
+  - experimental Text2Cypher, off by default: rows of a read-only query a model writes, behind a checked query and the server's plan.
 - **Ontologies and extraction:** the standard generic document, novel and article ontologies, or your own classes.
   - Extraction prunes what the ontology doesn't allow and records why.
   - Every mention and quote is located in its chunk.
   - Things resolve by exact name; placeholders such as "the man" never merge.
   - Facts list every document that states them.
-- **Maintenance:** remove a source, reset what the toolkit wrote, clean up orphans, and a health report.
+  - `WithNeo4jGraphRagEntities()` stores things in neo4j-graphrag's entity shape (`__Entity__`, `FROM_CHUNK`, `name`), so its retrievers read them.
+- **Maintenance:** remove sources, in batches, reset what the toolkit wrote, clean up orphans, merge duplicate things with undo, and a health report.
 - **Agent tools:** `GraphRagTools` gives any chat client or agent `answer_from_documents`, `search_documents` and, with an ontology, `find_things` and `related_facts`. Every result carries IDs and byte spans, and an optional trail records each call.
 - **Re-embedding:** `GraphRagReembedding.Plan(...)` moves to a new embedding set through a staging property, with preview, backfill, cut-over and clean-up, never replacing vectors in place.
-- **Adapters:** `GraphBridge.GraphRag.DataIngestion` for DataIngestion pipelines, and `GraphBridge.GraphRag.AgentFramework` for Agent Framework agents.
+- **Adopt mode:** `GraphRagAdoption.Plan(...)` takes over a lexical graph Neo4j's Python `neo4j-graphrag` built, with a dry run, apply and undo; citations say whether they point into the source file or only into the stored chunk.
+- **Adapters:** `GraphBridge.GraphRag.DataIngestion` for DataIngestion pipelines, `GraphBridge.GraphRag.AgentFramework` for Agent Framework agents, `GraphBridge.GraphRag.AspNetCore` for streaming endpoints, and `GraphBridge.GraphRag.Pdf` for PDF files with page-aware citations.
 - **Layouts:** `GraphRagLayout.Default`, or `GraphRagLayout.Neo4jGraphRag` for the names Neo4j's Python `neo4j-graphrag` library reads.
 
 ```csharp
@@ -41,7 +50,8 @@ var plan = new GraphMigrationPlan("app-002-graphrag", "app-001", GraphRagSchema.
     GraphMigrationRollbackPolicy.NoRollback("Dropping the indexes is a separate migration."));
 await db.Database.ApplyGraphMigrationAsync(plan);
 
-// Ingest Markdown and plain text, then ask, or query the graph with LINQ.
+// Ingest the folder's Markdown, then ask, or query the graph with LINQ.
+// .Folder reads *.md by default; pass "*.txt" for plain text.
 var receipt = await ingestion.IngestAsync(GraphRagSources.Folder("articles"));
 var answer = await answers.AnswerAsync("Who works for the library?");
 var quotes = await db.Set<Quoted>().ToListAsync();

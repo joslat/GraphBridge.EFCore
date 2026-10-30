@@ -185,7 +185,7 @@ internal static class Neo4jBulkExecutor
     private static string LockClause(Neo4jBulkExpression bulk)
     {
         if (bulk.Target.Reference is { } reference)
-            return $"{CypherMutationRenderer.LockWrite("n")}\nWITH row, n\nOPTIONAL MATCH (s:{CypherQueryRenderer.Identifier(reference.Principal.Label)})-[:{CypherQueryRenderer.Identifier(reference.RelationshipType)}]->(n)"
+            return $"{CypherMutationRenderer.LockWrite("n")}\nWITH row, n\nOPTIONAL MATCH (s:{CypherQueryRenderer.Labels(reference.Principal.Labels)})-[:{CypherQueryRenderer.Identifier(reference.RelationshipType)}]->(n)"
                 + $"\nFOREACH (parent IN CASE WHEN s IS NULL THEN [] ELSE [s] END | {CypherMutationRenderer.LockWrite("parent")})";
         // A relationship with its own key or a required payload property is locked too, as the endpoints are.
         return bulk.Target.RelationshipLock is null ? CypherMutationRenderer.LockWrite("s", "t") : CypherMutationRenderer.LockWrite("s", "t", "r");

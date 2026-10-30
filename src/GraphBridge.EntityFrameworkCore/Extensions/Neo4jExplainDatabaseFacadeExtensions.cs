@@ -16,8 +16,9 @@ public static class Neo4jExplainDatabaseFacadeExtensions
     /// <summary>Prefixes a caller-owned statement with EXPLAIN and returns its real server plan.</summary>
     /// <remarks>
     /// Supply a bare MATCH/OPTIONAL/WITH/UNWIND/RETURN/CALL/CREATE/MERGE statement with explicit
-    /// driver-representation parameters. Leading comments, execution modes and dialect preambles
-    /// are rejected rather than rewritten. Generated ToQueryString text can be explained when its parameter placeholders are
+    /// driver-representation parameters. As Fluent Cypher writes them, leading <c>//</c> tag lines are dropped and a bare
+    /// <c>CYPHER &lt;version&gt;</c> preamble is kept in front of EXPLAIN (ADR 0057); block comments, execution modes and other
+    /// query options are rejected rather than rewritten. Generated ToQueryString text can be explained when its parameter placeholders are
     /// supplied correctly; this prototype does not extract LINQ closure parameters automatically.
     /// Owned transactions use read routing and are rolled back/disposed. An existing EF transaction
     /// is borrowed unchanged. Cancellation is checked between awaited driver operations, not by
@@ -40,12 +41,13 @@ public static class Neo4jExplainDatabaseFacadeExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(cypher);
         ArgumentNullException.ThrowIfNull(parameters);
         if (maxPlanNodes is < 1 or > 100_000) throw new ArgumentOutOfRangeException(nameof(maxPlanNodes));
-        var statementStart = cypher.AsSpan().TrimStart();
+        var (version, statement) = SplitPreamble(cypher);
+        var statementStart = statement.AsSpan();
         var keywordLength = 0;
         while (keywordLength < statementStart.Length && char.IsAsciiLetter(statementStart[keywordLength])) keywordLength++;
         var keyword = statementStart[..keywordLength].ToString().ToUpperInvariant();
         if (keyword is not ("MATCH" or "OPTIONAL" or "WITH" or "UNWIND" or "RETURN" or "CALL" or "CREATE" or "MERGE"))
-            throw new ArgumentException("EXPLAIN requires a bare supported statement; PROFILE, EXPLAIN, CYPHER preambles and leading comments are not accepted.", nameof(cypher));
+            throw new ArgumentException("EXPLAIN requires a supported statement, after at most // tag lines and a bare CYPHER <version>; PROFILE, EXPLAIN, query options and block comments are not accepted.", nameof(cypher));
         cancellationToken.ThrowIfCancellationRequested();
         var snapshot = new Dictionary<string, object>(parameters.Count, StringComparer.Ordinal);
         foreach (var (name, value) in parameters)
@@ -74,7 +76,8 @@ public static class Neo4jExplainDatabaseFacadeExtensions
                 runner = owned;
             }
             cancellationToken.ThrowIfCancellationRequested();
-            cursor = await GraphBridgeDiagnostics.RunAsync(runner, "EXPLAIN " + cypher, snapshot, kind: GraphCommandKind.Explain).ConfigureAwait(false);
+            cursor = await GraphBridgeDiagnostics.RunAsync(runner, (version is null ? "" : "CYPHER " + version + " ") + "EXPLAIN " + statement, snapshot,
+                kind: GraphCommandKind.Explain).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             if (await cursor.FetchAsync().ConfigureAwait(false))
                 throw new InvalidOperationException("EXPLAIN unexpectedly produced execution rows; no plan accepted.");
@@ -128,5 +131,26 @@ public static class Neo4jExplainDatabaseFacadeExtensions
             GraphBridgeDiagnostics.CompleteCursor(cursor);
             if (completed && cleanupFailure is not null) ExceptionDispatchInfo.Capture(cleanupFailure).Throw();
         }
+    }
+
+    // Fluent commands start with GraphBridge's tag lines and, for a search, CYPHER 25 (ADR 0057). The tags are dropped and a
+    // bare version is kept; anything else is left in the statement, where the keyword check refuses it.
+    private static (string? Version, string Statement) SplitPreamble(string cypher)
+    {
+        var rest = cypher.AsSpan().TrimStart();
+        while (rest.StartsWith("//"))
+        {
+            var end = rest.IndexOf('\n');
+            rest = end < 0 ? [] : rest[(end + 1)..].TrimStart();
+        }
+        if (rest.Length > 6 && rest[..6].Equals("CYPHER", StringComparison.OrdinalIgnoreCase) && char.IsWhiteSpace(rest[6]))
+        {
+            var after = rest[6..].TrimStart();
+            var digits = 0;
+            while (digits < after.Length && char.IsAsciiDigit(after[digits])) digits++;
+            if (digits > 0 && digits < after.Length && char.IsWhiteSpace(after[digits]))
+                return (after[..digits].ToString(), after[digits..].TrimStart().ToString());
+        }
+        return (null, rest.ToString());
     }
 }

@@ -12,7 +12,7 @@ namespace GraphBridge.Workshop.Lessons;
 public sealed class Lesson31CitedAnswers : ILesson
 {
     public LessonInfo Info { get; } = new("31", 'G', "From documents to cited answers", "31-CitedAnswers", LessonMode.Mixed, Core: false,
-        Requirement.Guarded, "Store two short documents with exact chunk positions, then answer a question with a citation checked against the stored bytes, and refuse one the documents don't answer.");
+        Requirement.Guarded, "Store a short document with two headings, with exact chunk positions, then answer a question with a citation checked against the stored bytes, and refuse one the document doesn't answer.");
 
     // The lesson's own labels and schema names, so it never touches the movie graph.
     public static GraphRagLayout Layout { get; } = GraphRagLayout.Default with
@@ -54,7 +54,7 @@ public sealed class Lesson31CitedAnswers : ILesson
         lesson.Step("Check a quote the way answers are checked");
         lesson.Code("Locate");
         // workshop:start Locate
-        var chunk = new GraphRagEvidenceItem("c", "d", "Tom Hanks and Hugo Weaving each play several roles.", 0, 52, 1, []);
+        var chunk = new GraphRagEvidenceItem("c", "d", "Tom Hanks and Hugo Weaving each play several roles.", 0, 51, 1, []);
         var found = GraphRagCitationVerifier.Locate(chunk, "Hugo   Weaving each play...roles");
         var invented = GraphRagCitationVerifier.Locate(chunk, "Hugo Weaving plays one role");
         // workshop:end Locate

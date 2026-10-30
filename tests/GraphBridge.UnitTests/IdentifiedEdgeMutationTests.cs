@@ -60,7 +60,8 @@ public sealed class IdentifiedEdgeMutationTests : IDisposable
         Assert.Equal(edge.TargetId.ToString("D"), operation.Command.Parameters["t0"]);
         Assert.Contains("MATCH (a)-[r:`EVENT` {`event_key`: $id}]->(b)", operation.Command.Text);
         Assert.Contains("candidates[0].source = s AND candidates[0].target = t", operation.Command.Text);
-        Assert.Contains("SET r.`event_key` = r.`event_key`", operation.Command.Text);
+        Assert.Contains("FOREACH (r IN edges | SET r.`__graphbridge_lock` = true REMOVE r.`__graphbridge_lock`)", operation.Command.Text);
+        Assert.DoesNotContain("SET r.`event_key`", operation.Command.Text);
         Assert.Equal("old token", operation.Command.Parameters["o0"]);
         Assert.Equal(7L, operation.Command.Parameters["o1"]);
         var changes = Map(operation.Command, "changes");

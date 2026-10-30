@@ -18,6 +18,10 @@ public sealed class GraphRagDocument
     public string? Published { get; set; }
     public string? Publisher { get; set; }
     public string? Url { get; set; }
+    /// <summary>For a paged source, such as a PDF: where each page starts, as UTF-8 byte offsets separated by commas. Null otherwise.</summary>
+    public string? PageStarts { get; set; }
+    /// <summary>From <see cref="GraphRagSourceMetadata.TextOrigin"/>: where derived text came from, such as OCR. Null for the source's own text.</summary>
+    public string? TextOrigin { get; set; }
     public string RunId { get; set; } = "";
 }
 
@@ -49,6 +53,11 @@ public sealed class GraphRagChunk
     public float[]? Embedding { get; set; }
     /// <summary>The embedding set that wrote <see cref="Embedding"/>.</summary>
     public string? EmbeddingSetId { get; set; }
+    /// <summary>
+    /// <see langword="null"/> for a chunk placed in its source document. <c>chunk</c> for an adopted chunk whose source isn't
+    /// known: its span is then within its own text, 0 to its UTF-8 length (ADR 0052, section 13).
+    /// </summary>
+    public string? Grounding { get; set; }
     public string RunId { get; set; } = "";
 }
 
@@ -105,6 +114,8 @@ public sealed class GraphRagIngestionRun
     public int DocumentsIngested { get; set; }
     public int DocumentsUnchanged { get; set; }
     public int DocumentsFailed { get; set; }
+    /// <summary>For a merge of two things (ADR 0052, section 16): what it changed, as JSON, so it can be undone. Null otherwise.</summary>
+    public string? Undo { get; set; }
 }
 
 /// <summary>A run's claim on one document while it writes it. Inserted, never upserted; see ADR 0052, section 4.</summary>

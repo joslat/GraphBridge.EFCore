@@ -6,7 +6,7 @@
 - `answer_from_documents` and `search_documents`;
 - `find_things` and `related_facts`, when your model maps an ontology.
 
-Its instructions tell the agent to answer questions about the documents only through `answer_from_documents`. That tool's citations are checked against the stored text, so the agent cites only what is stored, or says the documents don't answer.
+Its instructions tell the agent to answer only through `answer_from_documents`, whose citations are checked. The agent's own wording isn't checked: show the tool's citations, which the trail records.
 
 ```csharp
 var provider = GraphRagContextProvider.Create<AppDbContext>(services, new GraphRagToolOptions { Trail = trail });

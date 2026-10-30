@@ -5,7 +5,7 @@
 
 ## Concepts
 
-- `BeginTransactionAsync` opens one Neo4j transaction that EF saves **and** native queries (`QueryCypherAsync`) share.
+- `BeginTransactionAsync` opens one Neo4j transaction that EF saves **and** native queries (`QueryCypherAsync`, lesson 15) share.
 - Rollback undoes database work. It does **not** undo EF's in-memory state: entries that were saved stay accepted.
 - Without an explicit transaction, every `SaveChangesAsync` is its own atomic transaction.
 
@@ -56,7 +56,7 @@ Four passing checkpoints: the transaction saw its own write, EF still holds the 
 ## Try it yourself
 
 1. Throw an exception between the two saves in step 2 instead of committing. What does a fresh context see?
-2. Read the uncertain-commit guidance in the transaction recovery guide. How would you make a payment-like operation safe to retry?
+2. Read the uncertain-commit guidance in [recovering a failed graph operation](../../../../docs/features/TRANSACTIONS_AND_CONCURRENCY.md#recovering-a-failed-graph-operation). How would you make a payment-like operation safe to retry?
 
 ## Limits
 

@@ -58,7 +58,7 @@ The model is validated when it is built; a violation throws `InvalidOperationExc
 - **Endpoints:** two required, non-nullable, many-to-one foreign keys to the primary keys of [mapped nodes](MAPPING_NODES.md). Composite endpoint keys are supported. Endpoint foreign keys use the same type and converter instance as the node keys they reference.
 - **Payload:** every other mapped property is stored on the relationship. `IsRowVersion()` on a `long` property and `IsConcurrencyToken()` work as on [nodes](MAPPING_NODES.md#row-versions-and-concurrency-tokens).
 - **Navigations:** reference navigations from the relationship entity to its endpoints, with inverse collections on the nodes, are supported. Skip navigations through an identified relationship are rejected.
-- **Ownership:** one EF entity type per identified relationship type. The type cannot be shared with an [association](ASSOCIATIONS.md) or a [native reference](REFERENCES.md), and `ToGraphIdentifiedRelationship` and `ToGraphRelationship` are mutually exclusive.
+- **Ownership:** a relationship type has one identified-relationship owner, or several told apart by their endpoint types; see [shared relationship types](#shared-relationship-types). The type cannot be shared with an [association](ASSOCIATIONS.md) or a [native reference](REFERENCES.md), and `ToGraphIdentifiedRelationship` and `ToGraphRelationship` are mutually exclusive.
 - An identified relationship cannot be the endpoint of another relationship. If something needs to point at it, model it as a node.
 
 Saves and reads require existing uniqueness constraints for the relationship key and for both endpoint node keys:
@@ -79,6 +79,35 @@ await db.SaveChangesAsync(cancellationToken);          // a new relationship bet
 ```
 
 An add always uses `CREATE`, never `MERGE`, between existing endpoints. Endpoints added in the same save are created first. Updates write only the modified payload properties and check concurrency tokens; deletes remove only the relationship. Every operation must affect exactly one relationship, or the whole save rolls back. The save count is the number of EF entries.
+
+## Shared relationship types
+
+Several entity types can own one relationship type, as neo4j-graphrag's `FROM_CHUNK` links every kind of entity to its chunk. Each owner is mapped as usual, with the same type:
+
+```csharp
+model.Entity<PersonMention>(m =>
+{
+    m.HasOne<Person>().WithMany().HasForeignKey(x => x.PersonId);
+    m.HasOne<Chunk>().WithMany().HasForeignKey(x => x.ChunkId);
+    m.Property(x => x.Id).ValueGeneratedNever().HasGraphPropertyName("id");
+    m.ToGraphIdentifiedRelationship("FROM_CHUNK", nameof(PersonMention.Id), [nameof(PersonMention.PersonId)], [nameof(PersonMention.ChunkId)]);
+});
+model.Entity<OrganizationMention>(m =>
+{
+    m.HasOne<Organization>().WithMany().HasForeignKey(x => x.OrganizationId);
+    m.HasOne<Chunk>().WithMany().HasForeignKey(x => x.ChunkId);
+    m.Property(x => x.Id).ValueGeneratedNever().HasGraphPropertyName("id");
+    m.ToGraphIdentifiedRelationship("FROM_CHUNK", nameof(OrganizationMention.Id), [nameof(OrganizationMention.OrganizationId)], [nameof(OrganizationMention.ChunkId)]);
+});
+```
+
+- **Told apart by their endpoints:** every read and keyed write names both endpoint labels, so each owner sees and changes only the relationships between its own endpoint types. From `Chunk` to `Person` would be a different pair from `Person` to `Chunk`, and allowed.
+- **One key space:** all owners store their key under one property name, here `id`, and one uniqueness constraint on the type covers them all, so keys are unique across owners. A key another owner holds is refused: by the constraint when `SaveChanges` adds it, by the endpoint check (`DbUpdateConcurrencyException`) when a keyed update comes through the wrong owner, and by the preflight of `ExecuteUpsertAsync`.
+- **Refused when the model is built:** two owners with the same source and target node types, which reads couldn't tell apart, and owners whose key property names differ.
+- **Paths:** a bounded or undirected [Fluent](FLUENT_CYPHER.md) path over a type with several mappings is refused with `GBFC203`, because it constrains only its two ends and could cross another owner's relationships.
+- **Schema:** schema comparison reports the type as shared (`SharedRelationshipType`) and checks and proposes its key constraint once. The mapping generator doesn't produce shared types; write these mappings by hand.
+
+Design: [ADR 0056](../architecture/adr/ADR-0056.md).
 
 ## Endpoints are immutable
 

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- Measures the experimental GraphRAG toolkit (ADR 0052, GR-59); it acknowledges that once here. -->
+    <NoWarn>$(NoWarn);GBRAG001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <Compile Include="../../samples/GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
+    <Compile Include="../../samples/GraphRagShared/ModelRecordings.cs" Link="Shared/ModelRecordings.cs" />
+  </ItemGroup>
+</Project>

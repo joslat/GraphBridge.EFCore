@@ -49,7 +49,7 @@ var bornLate = db.People.Where(p => p.Born > 1975);
 var youngest = db.People.OrderByDescending(p => p.Born).Select(p => p.Name);
 ```
 
-   The printed Cypher is the filter. `CountAsync`, `AnyAsync` and `FirstAsync` change its `RETURN` on the server into a count, an existence check or `LIMIT 1`. Nothing is loaded and counted in memory.
+   The lesson then calls `nicknamed.CountAsync()`, `bornLate.AnyAsync()` and `youngest.FirstAsync()`. The printed Cypher is the filter. `CountAsync`, `AnyAsync` and `FirstAsync` change its `RETURN` on the server into a count, an existence check or `LIMIT 1`. Nothing is loaded and counted in memory.
 
 3. **Membership in a local list.**
 

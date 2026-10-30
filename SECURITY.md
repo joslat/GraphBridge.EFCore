@@ -6,7 +6,7 @@ Please report security problems privately through GitHub: open the repository's 
 
 Include what you can of:
 
-- the affected package and exact version (for example `GraphBridge.EntityFrameworkCore 0.1.0-preview.5`), with the .NET, EF Core, Neo4j.Driver and Neo4j versions;
+- the affected package and exact version (for example `GraphBridge.EntityFrameworkCore 0.2.0-preview.1`), with the .NET, EF Core, Neo4j.Driver and Neo4j versions;
 - the model, query or call that shows the problem, reduced to a small synthetic example;
 - the generated Cypher, if a query is involved, and what an attacker could read, change or cause.
 
@@ -16,11 +16,11 @@ GraphBridge is maintained by one person as an open-source developer preview. Rep
 
 ## Supported versions
 
-GraphBridge is a developer preview and is not production-supported. Security fixes go into the next preview only; earlier previews are not patched. Upgrade to the latest `0.1.0-preview` release to receive fixes.
+GraphBridge is a developer preview and is not production-supported. Security fixes go into the next preview only; earlier previews are not patched. Upgrade to the latest preview release to receive fixes.
 
 | Version | Security fixes |
 |---|---|
-| Latest `0.1.0-preview` | Yes, in the next preview |
+| Latest preview | Yes, in the next preview |
 | Earlier previews | No |
 
 ## Scope

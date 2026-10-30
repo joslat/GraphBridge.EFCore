@@ -2,7 +2,7 @@
 param(
     [string] $Filter,
     [switch] $NoBuild,
-    [ValidateSet('Integration', 'Specification', 'Tooling', 'Workshop')]
+    [ValidateSet('Integration', 'Specification', 'Tooling', 'Workshop', 'GraphRag', 'Interop')]
     [string] $Suite = 'Integration',
     [ValidateSet('minimal', 'normal', 'detailed')][string] $Verbosity = 'detailed',
     [string] $ResultsDirectory
@@ -35,6 +35,12 @@ try {
         'tests/GraphBridge.Tooling.IntegrationTests/GraphBridge.Tooling.IntegrationTests.csproj'
     } elseif ($Suite -eq 'Workshop') {
         'tests/GraphBridge.Workshop.Tests/GraphBridge.Workshop.Tests.csproj'
+    } elseif ($Suite -eq 'GraphRag') {
+        # Replays the GraphRAG samples' recorded real-model calls, at zero calls, unless GRAPHBRIDGE_AI_* name an endpoint.
+        'tests/GraphBridge.GraphRag.RealModelTests/GraphBridge.GraphRag.RealModelTests.csproj'
+    } elseif ($Suite -eq 'Interop') {
+        # GraphBridge and Neo4j's Python neo4j-graphrag on one graph; needs GRAPHBRIDGE_INTEROP_PYTHON (tests/interop/python/README.md).
+        'tests/GraphBridge.GraphRag.InteropTests/GraphBridge.GraphRag.InteropTests.csproj'
     } else {
         'tests/GraphBridge.IntegrationTests/GraphBridge.IntegrationTests.csproj'
     }

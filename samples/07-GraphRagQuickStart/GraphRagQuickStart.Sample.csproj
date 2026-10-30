@@ -8,6 +8,9 @@
   <ItemGroup>
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.Pdf/GraphBridge.GraphRag.Pdf.csproj" />
     <Compile Include="../GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
+    <Compile Include="../GraphRagShared/ModelRecordings.cs" Link="Shared/ModelRecordings.cs" />
+    <None Include="data/**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

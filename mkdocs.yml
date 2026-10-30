@@ -51,10 +51,6 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
 
-# The experimental GraphRAG pages stay in the repository, and join the site when their packages ship.
-exclude_docs: |
-  graphrag/
-
 validation:
   omitted_files: info
   absolute_links: info
@@ -86,6 +82,20 @@ nav:
       - Schema and migrations: features/SCHEMA_AND_MIGRATIONS.md
       - Query inspection: features/QUERY_INSPECTION.md
       - Command tracing: features/COMMAND_TRACING.md
+  - GraphRAG (experimental):
+      - Overview: graphrag/README.md
+      - Quick start: graphrag/QUICK_START.md
+      - Tutorial on a real model: graphrag/TUTORIAL.md
+      - Ontologies: graphrag/ONTOLOGIES.md
+      - Ingest: graphrag/INGEST.md
+      - Retrieve: graphrag/RETRIEVE.md
+      - Answer with evidence: graphrag/ANSWERS.md
+      - Agents and APIs: graphrag/AGENTS.md
+      - Maintain: graphrag/MAINTAIN.md
+      - Use a real model: graphrag/REAL_MODELS.md
+      - Test and evaluate: graphrag/EVALUATE.md
+      - Limits and performance: graphrag/LIMITS.md
+      - Interop: graphrag/INTEROP.md
   - Tools:
       - Doctor: tools/DOCTOR.md
       - Verify: tools/VERIFY.md

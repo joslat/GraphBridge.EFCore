@@ -12,7 +12,7 @@ public static class GraphRagServiceCollectionExtensions
     /// Registers loading, chunking, ingestion, retrieval, answers and maintenance for <typeparamref name="TContext"/>, whose model calls
     /// <c>AddGraphRag</c> with the set's dimensions. Uses the <see cref="IEmbeddingGenerator{TInput, TEmbedding}"/> and, for
     /// answers, the <see cref="IChatClient"/> registered in the container, and an <see cref="IGraphRagTokenCounter"/> if one is
-    /// registered. When the model maps an ontology, ingestion also extracts, through an <see cref="IChatClient"/> keyed
+    /// registered, which the cost preview also counts with. When the model maps an ontology, ingestion also extracts, through an <see cref="IChatClient"/> keyed
     /// <see cref="GraphRagServiceKeys.ExtractionChatClient"/> or the unkeyed one, and an <see cref="IGraphRagExtractionVerifier"/> if one is
     /// registered. Each document is written, and each retrieval read, through a new scope's context.
     /// </summary>
@@ -28,6 +28,7 @@ public static class GraphRagServiceCollectionExtensions
         options.Ingestion.Validate();
         options.Retrieval.Validate();
         options.Extraction.Validate();
+        options.Retry.Validate();
         services.TryAddSingleton(embeddingSet);
         services.TryAddSingleton(options);
         services.AddSingleton<IGraphRagDocumentLoader>(_ => new GraphRagTextLoader(options.Ingestion.MaxDocumentBytes));
@@ -37,7 +38,7 @@ public static class GraphRagServiceCollectionExtensions
             provider.GetServices<IGraphRagDocumentLoader>(), provider.GetRequiredService<IGraphRagChunker>(),
             provider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>(), provider.GetService<TimeProvider>(),
             () => provider.GetKeyedService<IChatClient>(GraphRagServiceKeys.ExtractionChatClient) ?? provider.GetService<IChatClient>(),
-            provider.GetService<IGraphRagExtractionVerifier>()));
+            provider.GetService<IGraphRagExtractionVerifier>(), provider.GetService<IGraphRagTokenCounter>()));
         services.TryAddTransient<IGraphRagRetriever>(provider => new GraphRagRetriever<TContext>(provider.GetRequiredService<IServiceScopeFactory>(),
             embeddingSet, options, provider.GetService<IEmbeddingGenerator<string, Embedding<float>>>()));
         services.TryAddTransient<IGraphRagAnswers>(provider => new GraphRagAnswerer(provider.GetRequiredService<IGraphRagRetriever>(),

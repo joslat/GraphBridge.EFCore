@@ -63,12 +63,12 @@ internal sealed class GraphNodeMutationPlanner(GraphBindingCompiler compiler)
         }
         var command = entry.EntityState switch
         {
-            EntityState.Added => CypherMutationRenderer.Create(binding.Label, changes),
-            EntityState.Modified => CypherMutationRenderer.Update(binding.Label, keys, originals, changes),
-            EntityState.Deleted => CypherMutationRenderer.Delete(binding.Label, keys, originals),
+            EntityState.Added => CypherMutationRenderer.Create(binding.Labels, changes),
+            EntityState.Modified => CypherMutationRenderer.Update(binding.Labels, keys, originals, changes),
+            EntityState.Deleted => CypherMutationRenderer.Delete(binding.Labels, keys, originals),
             _ => throw new InvalidOperationException("Unsupported mutation state.")
         };
         return new(entry, binding, command, entry.EntityState == EntityState.Added ? null
-            : CypherMutationRenderer.Lock(binding.Label, keys), generated.AsReadOnly());
+            : CypherMutationRenderer.Lock(binding.Labels, keys), generated.AsReadOnly());
     }
 }

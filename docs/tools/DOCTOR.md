@@ -28,7 +28,7 @@ Mode: offline | Status: pass
 Database observation: not-run
 Parameter values: excluded
 Statement and schema text: excluded
-Loaded provider: 0.1.0-preview.5…
+Loaded provider: 0.2.0-preview.1…
 …
 Model fingerprint: …
 Mapped nodes: … | relationships: …
@@ -126,6 +126,21 @@ GBD-SEARCH-008 matters most because Neo4j raises no error: values it can't index
 
 Each index appears in `searchIndexes[]` with its declared ID, kind, status, finding codes, how many values were sampled and how many are unusable. The report never contains the index name, labels, properties or any stored value. Sampling looks at no more than 10 times `sampleSize` entities (default 1,000 values) and reports counts only. Pass `sampleSize: 0` to check metadata only. Native `VECTOR` values are not dimension-checked. Offline Doctor lists the declarations as `not-run`.
 
+## Additional labels
+
+When the model gives a type [additional labels](../features/MAPPING_NODES.md#additional-labels), connected Doctor counts the nodes that carry the type's label but not all of its additional labels. Queries of the type skip those nodes, keyed writes don't touch them, and reading one through a native reference or an Include fails.
+
+| Code | Meaning | First action |
+|---|---|---|
+| GBD-LABEL-001 | Some nodes lack the labels (warning) | Upsert those entities by key, which adds the labels, or label them in a reviewed data step |
+| GBD-LABEL-000 | None do | |
+
+The check reads only, in one transaction it rolls back, with a 60-second timeout. When every node is labelled, it reads every node of each such label; the count stops at `maxSchemaRows`. It runs only when the model has additional labels. Like every Doctor report, the warning names no label; this query finds the nodes for a type, here `Person` with `__Entity__` and `__KGBuilder__`:
+
+```cypher
+MATCH (n:Person) WHERE NOT (n:__Entity__ AND n:__KGBuilder__) RETURN elementId(n) LIMIT 100
+```
+
 ## Report output
 
 `GraphEvidenceReport.ToJson()` writes version 1 evidence with deterministic ordering (queries by contract ID, diagnostics by code). Enum values use kebab case, such as `"not-run"`. `ToText()` writes the same evidence as readable text. Neither call compiles or connects again. An abbreviated offline report (`…` marks omitted values):
@@ -176,6 +191,7 @@ Every diagnosis has a fixed code, status, severity, phase, explanation, suggeste
 | GBD-SCHEMA-001 | fail | A required constraint or index is missing. Provision the reviewed change explicitly; Doctor never repairs. |
 | GBD-SCHEMA-002 | pass (warning) | Required expectations pass with warnings: application-enforced properties, optional indexes or unmanaged schema. |
 | GBD-SEARCH-000 … 011 | see [search indexes](#search-indexes) | Declared search indexes: missing (`001`), not ONLINE (`002`, blocked), failed (`003`), wrong kind (`004`), wrong labels or properties (`005`), wrong dimensions (`006`) fail; similarity (`007`), unusable values (`008`) and nothing to search (`009`) warn; `010` is unsupported; `011` is information. |
+| GBD-LABEL-000, 001 | see [additional labels](#additional-labels) | Every node with a type's label carries its additional labels (`000`), or some don't (`001`, warning): queries skip them, and reading one through a reference or an Include fails. |
 | GBD-CAP-001 | blocked | A required capability is unknown. Check server version, edition and metadata permissions. |
 | GBD-CONN-001 | blocked | Connection or session failure. Check endpoint, database, TLS and server readiness. |
 | GBD-CONN-002 | blocked | Authentication or authorization prevented observation. Review credentials and grants privately. |

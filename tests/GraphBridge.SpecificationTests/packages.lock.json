@@ -500,7 +500,7 @@
       "blogging.app": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )"
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )"
         }
       },
       "graphbridge.entityframeworkcore": {
@@ -513,28 +513,28 @@
       "graphbridge.entityframeworkcore.vectordata": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )",
           "Microsoft.Extensions.VectorData.Abstractions": "[10.11.0, )"
         }
       },
       "graphbridge.graphrag": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.11.0, )"
         }
       },
       "graphbridge.graphrag.agentframework": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.GraphRag": "[0.1.0-preview.4, )",
+          "GraphBridge.GraphRag": "[0.1.0-preview.5, )",
           "Microsoft.Agents.AI.Abstractions": "[1.26.0, )"
         }
       },
       "graphbridge.graphrag.dataingestion": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.GraphRag": "[0.1.0-preview.4, )",
+          "GraphBridge.GraphRag": "[0.1.0-preview.5, )",
           "Microsoft.Extensions.DataIngestion": "[10.11.0-preview.1.26513.7, )"
         }
       },
@@ -542,20 +542,28 @@
         "type": "Project",
         "dependencies": {
           "AgentEval": "[0.43.0-beta, )",
-          "GraphBridge.GraphRag": "[0.1.0-preview.4, )",
+          "GraphBridge.GraphRag": "[0.1.0-preview.5, )",
           "System.Security.Cryptography.Pkcs": "[10.0.13, )"
+        }
+      },
+      "graphbridge.graphrag.pdf": {
+        "type": "Project",
+        "dependencies": {
+          "GraphBridge.GraphRag": "[0.1.0-preview.5, )",
+          "PdfPig": "[0.1.16, )"
         }
       },
       "graphbridge.integrationtests": {
         "type": "Project",
         "dependencies": {
           "Blogging.App": "[1.0.0, )",
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )",
-          "GraphBridge.EntityFrameworkCore.VectorData": "[0.1.0-preview.4, )",
-          "GraphBridge.GraphRag": "[0.1.0-preview.4, )",
-          "GraphBridge.GraphRag.AgentFramework": "[0.1.0-preview.4, )",
-          "GraphBridge.GraphRag.DataIngestion": "[0.1.0-preview.4, )",
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )",
+          "GraphBridge.EntityFrameworkCore.VectorData": "[0.1.0-preview.5, )",
+          "GraphBridge.GraphRag": "[0.1.0-preview.5, )",
+          "GraphBridge.GraphRag.AgentFramework": "[0.1.0-preview.5, )",
+          "GraphBridge.GraphRag.DataIngestion": "[0.1.0-preview.5, )",
           "GraphBridge.GraphRag.Evaluation": "[1.0.0, )",
+          "GraphBridge.GraphRag.Pdf": "[0.1.0-preview.5, )",
           "Microsoft.Agents.AI": "[1.26.0, )",
           "Microsoft.Extensions.AI": "[10.11.0, )",
           "Microsoft.ML.Tokenizers.Data.O200kBase": "[1.0.1, )",
@@ -567,7 +575,7 @@
       "organization.app": {
         "type": "Project",
         "dependencies": {
-          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.4, )"
+          "GraphBridge.EntityFrameworkCore": "[0.1.0-preview.5, )"
         }
       },
       "AgentEval": {
@@ -748,6 +756,12 @@
         "requested": "[6.4.0, 7.0.0)",
         "resolved": "6.4.0",
         "contentHash": "y4HRrzUL3B3TxOMhF7BFgm7mAQxXporngAx+MN3KrR73T8Von316tkzcP+8knmfqlEFlfJ9y5QaM/l4j3gvn/A=="
+      },
+      "PdfPig": {
+        "type": "CentralTransitive",
+        "requested": "[0.1.16, )",
+        "resolved": "0.1.16",
+        "contentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA=="
       },
       "System.Security.Cryptography.Pkcs": {
         "type": "CentralTransitive",

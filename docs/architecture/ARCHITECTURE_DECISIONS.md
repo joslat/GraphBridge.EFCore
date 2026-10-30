@@ -24,6 +24,8 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0021](adr/ADR-0021.md) | Native storage for ordinary node foreign keys (references) |
 | [ADR-0032](adr/ADR-0032.md) | Optional native references remain dependent-owned graph membership |
 | [ADR-0054](adr/ADR-0054.md) | Embeddings as EF properties, opted in with their dimensions |
+| [ADR-0055](adr/ADR-0055.md) | Additional node labels per entity type, written and matched |
+| [ADR-0056](adr/ADR-0056.md) | Identified relationship types shared by owners with different endpoints |
 
 ## Schema and migrations
 
@@ -65,6 +67,7 @@ Each record states one decision, the alternatives that were considered and the e
 | [ADR-0026](adr/ADR-0026.md) | Uncertain commit verification and replay contract |
 | [ADR-0028](adr/ADR-0028.md) | Correlated runtime tracing with value-free events |
 | [ADR-0050](adr/ADR-0050.md) | Query tags as Cypher comments, command timeouts and write counters |
+| [ADR-0057](adr/ADR-0057.md) | Search inside Fluent Cypher: a vector or full-text search as the first clause |
 
 ## Authoring toolchains
 

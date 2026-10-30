@@ -25,6 +25,11 @@ internal sealed partial class CypherCompiler
             var edge = BindEdge(step.Edge, sourceAlias, targetAlias, pattern.Depth is not null);
             if ((pattern.Depth is not null || step.Undirected) && edge.Source.Node.EntityType != edge.Target.Node.EntityType)
                 throw Unsupported("GBFC203", "Bounded or undirected patterns require a homogeneous relationship mapping with the same source/target node type.");
+            // A path constrains only its two ends, so every hop must be this mapping's: a type other mappings share (ADR 0056)
+            // could otherwise walk through their relationships and node types.
+            if ((pattern.Depth is not null || step.Undirected)
+                && _model.GetEntityTypes().Count(e => e[GraphAnnotationNames.RelationshipType] as string == edge.RelationshipType) > 1)
+                throw Unsupported("GBFC203", $"Bounded or undirected patterns require a relationship type with one mapping; '{edge.RelationshipType}' is mapped by several entity types, so a path could cross the others' relationships.");
             text.Append(step.Outgoing || step.Undirected ? "-[" : "<-[").Append(edge.Name).Append(':')
                 .Append(Identifier(edge.RelationshipType));
             if (pattern.Depth is { } depth)
@@ -58,7 +63,7 @@ internal sealed partial class CypherCompiler
             _scope.Add(alias);
         }
         var symbol = (NodeSymbol)_symbols[alias];
-        return "(" + symbol.Name + ":" + Identifier(symbol.Binding.Label) + ")";
+        return "(" + symbol.Name + ":" + Labels(symbol.Binding.Labels) + ")";
     }
 
     private EdgeSymbol BindEdge(CypherAlias alias, CypherAlias source, CypherAlias target, bool repeated)

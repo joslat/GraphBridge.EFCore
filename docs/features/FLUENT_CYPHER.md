@@ -282,6 +282,26 @@ Paths return `GraphPath<INode, IRelationship>`: ordered native driver values, re
 - Ordering is unspecified unless supported scalar ordering is supplied. LIMIT returns a bounded observed subset; it gives neither a truncation witness nor a shortest-path guarantee. For explicit native anchor uniqueness and `HasMorePaths`, use the separate [QueryPathsAsync contract](BOUNDED_PATHS.md).
 - Depth/row bounds do not cap expansion work, bytes or elapsed time. Use a selective indexed anchor and a server transaction timeout appropriate to the workload. These are read-only queries, not a graph algorithm framework.
 
+## Starting from a search
+
+A query can start from a vector or full-text index, then follow the graph from the hits ([ADR 0057](../architecture/adr/ADR-0057.md)):
+
+```csharp
+var movie = Graph.Node<Movie>(); var actor = Graph.Node<Person>(); var score = Graph.Score();
+var rows = await db.Cypher()
+    .SearchVector(movie, "movie_embedding", embedding, limit: 5, score)     // or SearchFullText(movie, "movie_titles", "matrix", 5, score)
+    .Match(actor.Out<Credit>(movie))
+    .Return(() => new { movie.Value.Title, actor.Value.Name, Score = score.Value })
+    .OrderByDescending(() => score.Value).Limit(20).ToListAsync();
+```
+
+- **It renders** `CYPHER 25 MATCH (n:Movie) SEARCH n IN (VECTOR INDEX movie_embedding FOR $p LIMIT $p) SCORE AS v`, with the vector or query and the limit as parameters. `Graph.Score()` is the native score: closer is higher.
+- **Before it runs,** in the same transaction, the index is checked as [graph search](GRAPH_SEARCH.md) checks it: it must exist, be `ONLINE`, be a node index of that kind on the type's own label, and match the vector's dimensions. The server must be Neo4j 2026 with Cypher 25, or 2026.09 for full-text.
+- **Limits:** the search starts the query (`GBFC305`) and there is one; the score is a fresh `Graph.Score()` (`GBFC306`); `Where` can't follow the search directly (`GBFC307`), because it would filter after the index's limit, so add `With(...)` and filter there. To order by the score, return it.
+- **Fewer rows than the limit:** the index's limit applies first. Later clauses can drop rows, and so can the type's [additional labels](MAPPING_NODES.md#additional-labels): the index covers the type's own label, so a node without the others can take a top place and then be left out.
+- **Verify** plans a contract with a search like any other: the tags are dropped and `CYPHER 25` stays in front of `EXPLAIN`. It doesn't check the search's index, which only running the query does: an index on another label, such as a label several types share, passes Verify and is refused when the query runs.
+- **Try it:** the [live tests](../../tests/GraphBridge.IntegrationTests/ProviderFluentSearchTests.cs) run vector and full-text searches that follow the graph, with an optional match, an aggregate and `EXISTS`.
+
 ## Execution and exclusions
 
 Existing EF transactions remain caller-owned. Otherwise the native pipeline owns and closes a transaction. Cancellation, cursor draining, failed projectors, uncertain commits and diagnostics follow native query execution ([native Cypher](NATIVE_CYPHER.md#transactions)). Values stay out of ordinary query inspection and default diagnostics; explicit command parameters are sensitive.

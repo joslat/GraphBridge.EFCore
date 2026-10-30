@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "GraphBridge contributors",
+  "classifications": ["Console", "EF Core", "Neo4j", "GraphRAG"],
+  "identity": "GraphBridge.GraphRag.Starter.CSharp",
+  "name": "GraphBridge GraphRAG starter (experimental)",
+  "shortName": "graphbridge-graphrag",
+  "sourceName": "GraphRagStarter",
+  "preferNameDirectory": true,
+  "tags": { "language": "C#", "type": "solution" },
+  "symbols": {
+    "provider-version": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Exact GraphBridge.GraphRag version available in your feed; the provider of the same version comes with it.",
+      "replaces": "0.0.0-provider-version-required"
+    }
+  }
+}

@@ -12,16 +12,16 @@ GraphBridge is a real Entity Framework Core provider for Neo4j. EF Core owns you
 | [Concepts](CONCEPTS.md) | The same ideas in words: how EF concepts map to the graph, and the three ways to query |
 | [Getting started](GETTING_STARTED.md) | Install, configure `UseNeo4j`, map an entity, save it and see the Cypher |
 | [Coming from Neo4jClient](COMING_FROM_NEO4JCLIENT.md) | Neo4jClient's idioms in GraphBridge, reading a graph Neo4jClient wrote, and running both side by side |
-| [Workshop](WORKSHOP.md) | 31 runnable lessons, about three hours for the core track |
-| [Samples](SAMPLES.md) | Five complete applications to copy from |
+| [Workshop](WORKSHOP.md) | 36 runnable lessons, about three hours for the core track |
+| [Samples](SAMPLES.md) | Nine complete applications to copy from, three of them GraphRAG |
 
 ## Features
 
 | Area | Pages |
 |---|---|
 | Mapping the graph | [Mapping nodes](features/MAPPING_NODES.md) · [References](features/REFERENCES.md) · [Associations](features/ASSOCIATIONS.md) · [Identified relationships](features/IDENTIFIED_RELATIONSHIPS.md) |
-| Querying | [LINQ queries](features/LINQ_QUERIES.md) · [Fluent Cypher](features/FLUENT_CYPHER.md) · [Native Cypher](features/NATIVE_CYPHER.md) · [Bounded paths](features/BOUNDED_PATHS.md) · [Graph search](features/GRAPH_SEARCH.md) · [Query inspection](features/QUERY_INSPECTION.md) |
-| GraphRAG (experimental) | In the repository, with packages in a later preview: [the GraphRAG pages on GitHub](https://github.com/joslat/GraphBridge.EFCore/blob/main/docs/graphrag/README.md) |
+| Querying | [LINQ queries](features/LINQ_QUERIES.md) · [Fluent Cypher](features/FLUENT_CYPHER.md) · [Native Cypher](features/NATIVE_CYPHER.md) · [Bounded paths](features/BOUNDED_PATHS.md) · [Graph search](features/GRAPH_SEARCH.md) · [Vector search through VectorData](features/VECTOR_DATA.md) · [Query inspection](features/QUERY_INSPECTION.md) |
+| GraphRAG (experimental) | [Overview](graphrag/README.md) · [Quick start](graphrag/QUICK_START.md) · [Tutorial on a real model](graphrag/TUTORIAL.md) · [Ontologies](graphrag/ONTOLOGIES.md) · [Ingest](graphrag/INGEST.md) · [Retrieve](graphrag/RETRIEVE.md) · [Answer with evidence](graphrag/ANSWERS.md) · [Agents and APIs](graphrag/AGENTS.md) · [Maintain](graphrag/MAINTAIN.md) · [Evaluate](graphrag/EVALUATE.md) · [Use a real model](graphrag/REAL_MODELS.md) · [Limits](graphrag/LIMITS.md) · [Interop with neo4j-graphrag](graphrag/INTEROP.md) |
 | Writing | [Transactions and concurrency](features/TRANSACTIONS_AND_CONCURRENCY.md) · [Bulk mutations](features/BULK_MUTATIONS.md) · [Nulls, types and time](features/NULLS_TYPES_AND_TIME.md) |
 | Operating | [Schema and migrations](features/SCHEMA_AND_MIGRATIONS.md) · [Command tracing](features/COMMAND_TRACING.md) |
 

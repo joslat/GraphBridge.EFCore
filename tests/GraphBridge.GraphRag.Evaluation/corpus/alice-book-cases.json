@@ -1,0 +1,28 @@
+{
+  "corpus": "The whole of Alice's Adventures in Wonderland, Project Gutenberg eBook #11, fetched by sample 08 and never committed.",
+  "labels": "Written by the implementing agent on 25 October 2026 from the Project Gutenberg text, every evidence phrase checked against it; reviewed by the project's owner on 25 October 2026, who kept every label. Replaces v1's excerpt cases for the whole book: 'queen' goes because the whole book answers it, and 'alice-book' because it is a rhetorical question.",
+  "cases": [
+    { "id": "rabbit-watch", "question": "What did the White Rabbit take out of its waistcoat-pocket?", "answerable": true, "requiredEvidence": ["took a watch out of its waistcoat-pocket"] },
+    { "id": "rabbit-eyes", "question": "What colour were the White Rabbit's eyes?", "answerable": true, "requiredEvidence": ["White Rabbit with pink eyes"] },
+    { "id": "cake", "question": "What words were marked in currants on the little cake?", "answerable": true, "requiredEvidence": ["EAT ME"] },
+    { "id": "pool", "question": "How deep was the pool of tears Alice shed?", "answerable": true, "requiredEvidence": ["about four inches deep"] },
+    { "id": "caterpillar", "question": "What was the Caterpillar smoking on top of the mushroom?", "answerable": true, "requiredEvidence": ["quietly smoking a long hookah"] },
+    { "id": "pig", "question": "What did the Duchess's baby turn into?", "answerable": true, "requiredEvidence": ["neither more nor less than a pig"] },
+    { "id": "cheshire", "question": "What did Alice find even more curious than a cat without a grin?", "answerable": true, "requiredEvidence": ["a grin without a cat"] },
+    { "id": "dormouse", "question": "Who was sitting between the March Hare and the Hatter at the tea-table?", "answerable": true, "requiredEvidence": ["a Dormouse was sitting between them, fast asleep"] },
+    { "id": "riddle", "question": "What riddle did the Hatter ask Alice at the tea-party?", "answerable": true, "requiredEvidence": ["Why is a raven like a writing-desk"] },
+    { "id": "croquet", "question": "What did the Queen's croquet game use as balls and mallets?", "answerable": true, "requiredEvidence": ["the balls were live hedgehogs, the mallets live flamingoes"] },
+    { "id": "school", "question": "Where did the Mock Turtle go to school?", "answerable": true, "requiredEvidence": ["we went to school in the sea"] },
+    { "id": "song", "question": "What song did the Hatter sing at the Queen of Hearts' concert?", "answerable": true, "requiredEvidence": ["Twinkle, twinkle, little bat"] },
+    { "id": "tarts", "question": "According to the verses read at the trial, who stole the tarts?", "answerable": true, "requiredEvidence": ["The Knave of Hearts, he stole those tarts"] },
+    { "id": "housemaid", "question": "Who did the White Rabbit mistake Alice for?", "answerable": true, "requiredEvidence": ["Mary Ann"] },
+    { "id": "dinah", "question": "What is the name of Alice's cat?", "answerable": true, "requiredEvidence": ["Dinah was the cat"] },
+    { "id": "queen-shout", "question": "What does the Queen of Hearts shout when someone displeases her?", "answerable": true, "requiredEvidence": ["Off with"] },
+    { "id": "size-changes", "question": "What did Alice eat or drink to change her size, from the little bottle to the mushroom?", "answerable": true, "requiredEvidence": ["DRINK ME", "EAT ME", "mushroom"] },
+    { "id": "telescope", "question": "How did Alice describe shrinking and then growing again?", "answerable": true, "requiredEvidence": ["shutting up like a telescope", "opening out like the largest telescope"] },
+    { "id": "capital", "question": "What is the capital of Mongolia?", "answerable": false, "requiredEvidence": [] },
+    { "id": "sister-name", "question": "What is the name of Alice's sister?", "answerable": false, "requiredEvidence": [] },
+    { "id": "rabbit-name", "question": "What is the White Rabbit's first name?", "answerable": false, "requiredEvidence": [] },
+    { "id": "hatter-brothers", "question": "How many brothers does the Hatter have?", "answerable": false, "requiredEvidence": [] }
+  ]
+}

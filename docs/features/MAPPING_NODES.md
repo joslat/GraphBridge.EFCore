@@ -49,6 +49,24 @@ Adding `new Person { Id = id, Name = "Ada Lovelace", Born = 1815 }` and calling 
 - Labels, relationship types and property names must match `[A-Za-z_][A-Za-z0-9_]*`. Other names throw `ArgumentException` when you configure them. Generated Cypher always quotes these identifiers with backticks, and values are always parameters.
 - Graph properties that your model does not map are left alone. An update writes only the modified mapped properties, so a property written by another application survives.
 
+## Additional labels
+
+Some tools mark nodes with labels of their own besides the type's: neo4j-graphrag writes every entity as `(:__Entity__:__KGBuilder__:Person)`. Give a type those labels with `HasAdditionalGraphLabels`:
+
+```csharp
+modelBuilder.Entity<Person>().ToGraphNode("Person").HasAdditionalGraphLabels("__Entity__", "__KGBuilder__");
+```
+
+- **Written:** `SaveChanges` creates the node with every label. `ExecuteUpsertAsync` merges on the type's own label and key, then sets the others, so an existing node with the key gains any it lacks.
+- **Matched:** queries, counts, relationship endpoints, includes, `SaveChanges` updates and deletes, `ExecuteUpdate`, `ExecuteDelete` and Fluent Cypher all require every label.
+- **A node without them is outside the type.** Queries of the type skip it. A tracked entity whose node lost a label fails to save with `DbUpdateConcurrencyException`. Reaching it through a native reference or an Include fails the read with `InvalidOperationException`, rather than hide a principal or a child. It still holds its key, so adding an entity with that key fails on the constraint; an upsert by key takes it back.
+- **Reserved:** labels starting with `__GraphBridge` belong to GraphBridge's migration journal and are refused.
+- **One call:** `HasAdditionalGraphLabels` sets the type's additional labels; calling it again replaces them, so pass them all at once.
+- **Identity:** the type's own label keeps its key constraints, indexes and manifest entry. Several types can share an additional label, but an additional label can't be any type's own label.
+- **Doctor** reports nodes that carry a type's label without all its additional labels ([`GBD-LABEL-001`](../tools/DOCTOR.md#additional-labels)).
+
+See [ADR 0055](../architecture/adr/ADR-0055.md).
+
 Relationships between nodes are configured on the relationship, not the node: see [native references](REFERENCES.md), [associations](ASSOCIATIONS.md) and [identified relationships](IDENTIFIED_RELATIONSHIPS.md).
 
 ## Application keys
@@ -124,7 +142,7 @@ To delete a node, remove its relationships in the same save or an earlier one: d
 ## Limits
 
 - Inheritance, owned entities, complex properties, keyless entities and property-bag entities (except association joins) are rejected when the model is built, with `InvalidOperationException` (`GraphBridge model '<Entity>': ...`).
-- One label per entity type; nodes with several labels are not mapped.
+- One label identifies each entity type; [additional labels](#additional-labels) are fixed per type, so a type can't be chosen by a node's labels, and inheritance isn't supported.
 - Store-generated values other than a `long` row version, and `Ignore` save behaviors, are not supported.
 - `ReloadAsync` and `GetDatabaseValuesAsync` are not supported; read again in a fresh context.
 - Explicit transactions, rollback and uncertain commits are covered in [transactions and concurrency](TRANSACTIONS_AND_CONCURRENCY.md).
@@ -166,5 +184,6 @@ Compare the fingerprint across builds to detect storage changes. `InspectGraphSc
 - Workshop lessons [01 · Your first context](../../workshop/GraphBridge.Workshop/Lessons/01-FirstContext/README.md), [02 · Mapping nodes](../../workshop/GraphBridge.Workshop/Lessons/02-MappingNodes/README.md), [03 · Schema before data](../../workshop/GraphBridge.Workshop/Lessons/03-SchemaFirst/README.md), [04 · Create, read, update, delete](../../workshop/GraphBridge.Workshop/Lessons/04-Crud/README.md) and [12 · Optimistic concurrency](../../workshop/GraphBridge.Workshop/Lessons/12-Concurrency/README.md).
 - The [Blogging sample](../../samples/01-Blogging-CodeFirst/README.md): code-first nodes with client-generated Guid keys and row versions.
 - To generate these mappings from attributes, see the [mapping generator](../tools/MAPPING_GENERATOR.md).
+- Additional labels: the [live tests](../../tests/GraphBridge.IntegrationTests/AdditionalLabelsTests.cs) write, read, upsert and skip nodes with neo4j-graphrag's labels, and GraphRAG's [entity shape](../graphrag/INTEROP.md#one-graph-two-stacks-entities) uses them.
 
 Evidence: [EF behavior and conformance matrix](../../tests/verification/EF_CONFORMANCE_MATRIX.md#implemented-behavior-and-limits).

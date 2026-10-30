@@ -6,11 +6,17 @@
     <NoWarn>$(NoWarn);GBRAG001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <!-- The serve command's endpoint stays inside the sample; the framework ships with the SDK, no package. -->
+    <!-- The serve command hosts the toolkit's endpoints; fetch reads NASA's pages with AngleSharp. -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../../src/GraphBridge.EntityFrameworkCore/GraphBridge.EntityFrameworkCore.csproj" />
     <ProjectReference Include="../../src/GraphBridge.GraphRag/GraphBridge.GraphRag.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.AspNetCore/GraphBridge.GraphRag.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/GraphBridge.GraphRag.AgentFramework/GraphBridge.GraphRag.AgentFramework.csproj" />
+    <PackageReference Include="AngleSharp" />
+    <!-- The agent command: ChatClientAgent from the Agent Framework. -->
+    <PackageReference Include="Microsoft.Agents.AI" />
     <Compile Include="../GraphRagShared/SampleModels.cs" Link="Shared/SampleModels.cs" />
-    <None Include="data/articles/*.md;data/articles.json;data/article-replies.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../GraphRagShared/ModelRecordings.cs" Link="Shared/ModelRecordings.cs" />
+    <None Include="data/articles/*.md;data/articles.json;data/article-replies.json;data/article-recordings.json;data/nasa/**;explorer.html" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

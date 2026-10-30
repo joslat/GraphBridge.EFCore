@@ -49,6 +49,11 @@ public static class GraphDatabaseInspector
     private const string Indexes = "SHOW INDEXES YIELD name, state, type, entityType, labelsOrTypes, properties, owningConstraint RETURN name, state, type, entityType, labelsOrTypes, properties, owningConstraint LIMIT $limit";
     private const string Labels = "CALL db.labels() YIELD label RETURN label LIMIT $limit";
     private const string Types = "CALL db.relationshipTypes() YIELD relationshipType RETURN relationshipType LIMIT $limit";
+    // With a selection, only the selected tokens are read, so unrelated labels don't count against MaxTokens. On Neo4j 2026
+    // db.labels() lists every label the database ever had, in use or not.
+    private const string SelectedLabels = "CALL db.labels() YIELD label WHERE label IN $selection RETURN label LIMIT $limit";
+    private const string SelectedTypes = "CALL db.relationshipTypes() YIELD relationshipType WHERE relationshipType IN $selection RETURN relationshipType LIMIT $limit";
+    private const string TokensExceeded = "The database has more labels or relationship types than maxTokens allows; select the labels and relationship types to inspect, or raise maxTokens (up to 512).";
     private const string GraphType = "CYPHER 25 SHOW CURRENT GRAPH TYPE YIELD specification RETURN substring(specification, 0, $textLimit) AS specification, size(specification) AS textLength";
 
     public static async Task<GraphScaffoldSnapshot> InspectAsync(IDriver driver, string databaseName,
@@ -69,8 +74,8 @@ public static class GraphDatabaseInspector
                 .WithMetadata(new Dictionary<string, object> { ["graphbridgeOperation"] = "database-first-inspection" })).ConfigureAwait(false);
             var budget = new ObservationBudget();
             async Task<IReadOnlyList<IReadOnlyDictionary<string, object?>>> Read(string query, int maximum,
-                bool sample = false)
-                => await ReadAsync(transaction, query, maximum, options, sample, budget, cancellationToken).ConfigureAwait(false);
+                bool sample = false, IReadOnlyList<string>? selection = null, string? exceeded = null)
+                => await ReadAsync(transaction, query, maximum, options, sample, budget, cancellationToken, selection, exceeded).ConfigureAwait(false);
 
             var components = await Read(Components, options.MaxMetadataRows).ConfigureAwait(false);
             var kernels = components.Where(row => Text(row, "name") == "Neo4j Kernel").ToArray();
@@ -101,8 +106,11 @@ public static class GraphDatabaseInspector
             IEnumerable<string> SchemaTokens(string entityType) => constraints.Where(value => value.EntityType == entityType)
                 .SelectMany(value => value.LabelsOrTypes ?? []).Concat(indexes.Where(value => value.EntityType == entityType)
                     .SelectMany(value => value.LabelsOrTypes ?? []));
-            var labels = SelectInventory(await Read(Labels, options.MaxTokens).ConfigureAwait(false), "label", options.Labels, SchemaTokens("NODE"), options.MaxTokens);
-            var types = SelectInventory(await Read(Types, options.MaxTokens).ConfigureAwait(false), "relationshipType", options.RelationshipTypes, SchemaTokens("RELATIONSHIP"), options.MaxTokens);
+            var labels = SelectInventory(await Read(options.Labels is null ? Labels : SelectedLabels, options.MaxTokens,
+                selection: options.Labels, exceeded: TokensExceeded).ConfigureAwait(false), "label", options.Labels, SchemaTokens("NODE"), options.MaxTokens);
+            var types = SelectInventory(await Read(options.RelationshipTypes is null ? Types : SelectedTypes, options.MaxTokens,
+                selection: options.RelationshipTypes, exceeded: TokensExceeded).ConfigureAwait(false), "relationshipType", options.RelationshipTypes,
+                SchemaTokens("RELATIONSHIP"), options.MaxTokens);
             var nodes = new List<GraphScaffoldNodeSample>();
             var relationships = new List<GraphScaffoldRelationshipSample>();
             var nodeTokens = new HashSet<string>(StringComparer.Ordinal);
@@ -161,14 +169,17 @@ public static class GraphDatabaseInspector
     }
 
     private static async Task<IReadOnlyList<IReadOnlyDictionary<string, object?>>> ReadAsync(IAsyncTransaction transaction,
-        string query, int maximum, GraphInspectionOptions options, bool sample, ObservationBudget budget, CancellationToken cancellation)
+        string query, int maximum, GraphInspectionOptions options, bool sample, ObservationBudget budget, CancellationToken cancellation,
+        IReadOnlyList<string>? selection = null, string? exceeded = null)
     {
         cancellation.ThrowIfCancellationRequested();
-        var cursor = await transaction.RunAsync(query, new Dictionary<string, object>
+        var parameters = new Dictionary<string, object>
         {
             ["limit"] = sample ? (long)maximum : (long)maximum + 1,
             ["labelLimit"] = (long)options.MaxLabels, ["propertyLimit"] = (long)options.MaxProperties, ["textLimit"] = 16384L
-        }).ConfigureAwait(false);
+        };
+        if (selection is not null) parameters["selection"] = selection.ToArray();
+        var cursor = await transaction.RunAsync(query, parameters).ConfigureAwait(false);
         cancellation.ThrowIfCancellationRequested();
         var rows = new List<IReadOnlyDictionary<string, object?>>();
         // An error leaves the result unconsumed; the owning transaction is rolled back/disposed in the outer finally.
@@ -176,7 +187,7 @@ public static class GraphDatabaseInspector
         while (await cursor.FetchAsync().ConfigureAwait(false))
         {
             cancellation.ThrowIfCancellationRequested();
-            if (rows.Count >= maximum) throw Invalid("Inspection row limit exceeded; no partial snapshot is returned.");
+            if (rows.Count >= maximum) throw Invalid(exceeded ?? "Inspection row limit exceeded; no partial snapshot is returned.");
             var values = cursor.Current.Values;
             budget.Observe(values);
             rows.Add(values.ToDictionary(pair => pair.Key, pair => (object?)pair.Value, StringComparer.Ordinal));
@@ -191,8 +202,9 @@ public static class GraphDatabaseInspector
         string field, IReadOnlyList<string>? selection, IEnumerable<string> schemaTokens, int maximum)
     {
         var inventory = rows.Select(row => Text(row, field)).ToHashSet(StringComparer.Ordinal);
-        inventory.UnionWith(schemaTokens);
-        if (inventory.Count > maximum) throw Invalid("Combined token inventory exceeds the configured bound.");
+        // Schema tokens count too: a constraint or index keeps a label that has no nodes. With a selection, only the selected ones.
+        inventory.UnionWith(selection is null ? schemaTokens : schemaTokens.Where(selection.Contains));
+        if (inventory.Count > maximum) throw Invalid(TokensExceeded);
         if (selection is not null && selection.Any(token => !inventory.Contains(token)))
             throw Invalid("Selected label or relationship type was not present in the observed inventory.");
         return (selection ?? inventory.ToArray()).Order(StringComparer.Ordinal).ToArray();

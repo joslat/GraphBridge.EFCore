@@ -59,14 +59,18 @@ Shapes that cannot be translated faithfully are refused with a code (GBQ for LIN
 
 Optional, built on the same EF model, never needed at runtime: [Doctor](docs/tools/DOCTOR.md) diagnoses the model, queries and schema; [Verify](docs/tools/VERIFY.md) compiles, plans and compares registered queries; [Query Lab](docs/tools/QUERY_LAB.md) shows C#, Cypher and evidence side by side as HTML or in VS Code; the [mapping generator](docs/tools/MAPPING_GENERATOR.md) writes EF configuration from attributes; [GraphBridge.Tool](docs/tools/GRAPHBRIDGE_TOOL.md) compiles ontologies and scaffolds from an existing graph; plus a [project template](docs/tools/TEMPLATE.md) and [design-time commands](docs/tools/DESIGN_TIME.md).
 
+## GraphRAG toolkit (experimental)
+
+Building blocks for graph-based retrieval-augmented generation on GraphBridge: documents and chunks with exact byte positions, resumable ingestion, vector, full-text and graph retrieval, extraction to an ontology you choose, and answers whose every quote is checked against the stored text, or a refusal. It works with any `IChatClient` and `IEmbeddingGenerator`. It is experimental (`GBRAG001`); its five packages are on NuGet from `0.2.0-preview.1`. Start with the [overview](docs/graphrag/README.md), the [quick start](docs/graphrag/QUICK_START.md) or the [tutorial on a real model](docs/graphrag/TUTORIAL.md), and samples [07](samples/07-GraphRagQuickStart/README.md), [08](samples/08-GraphRagNovel/README.md) and [09](samples/09-GraphRagArticles/README.md).
+
 ## Learn
 
 | Start with | |
 |---|---|
 | [Getting started](docs/GETTING_STARTED.md) | Install, configure, map an entity, save it and see the Cypher |
 | [Coming from Neo4jClient?](docs/COMING_FROM_NEO4JCLIENT.md) | Neo4jClient's idioms mapped to GraphBridge, and how to read a graph it wrote |
-| [Workshop](workshop/README.md) | 31 runnable lessons, about three hours for the core track |
-| [Samples](samples/README.md) | Code-first, ontology-first and database-first applications, design-time commands and a Fluent Cypher gallery |
+| [Workshop](workshop/README.md) | 36 runnable lessons, about three hours for the core track |
+| [Samples](samples/README.md) | Code-first, ontology-first and database-first applications, design-time commands, a Fluent Cypher gallery, vector search through VectorData, and three GraphRAG applications |
 | [Documentation](docs/README.md) | Every feature, tool and reference page; it also builds as a site with `eng/scripts/Build-DocsSite.ps1` |
 | [Roadmap](ROADMAP.md) | What comes next, what is deliberately not planned, and how to influence it |
 
@@ -74,7 +78,7 @@ Optional, built on the same EF model, never needed at runtime: [Doctor](docs/too
 
 ![GraphBridge architecture](docs/images/architecture.svg)
 
-One runtime package on top of EF Core 10 and Neo4j.Driver 6, pinned to exact versions. See the [architecture overview](docs/architecture/ARCHITECTURE.md) and the [decision records](docs/architecture/ARCHITECTURE_DECISIONS.md).
+One runtime package on top of EF Core 10 and Neo4j.Driver 6. It accepts their versions below the next major; pin the tested patches, as [compatibility](docs/reference/COMPATIBILITY.md) describes. See the [architecture overview](docs/architecture/ARCHITECTURE.md) and the [decision records](docs/architecture/ARCHITECTURE_DECISIONS.md).
 
 ## Build and test
 

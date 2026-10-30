@@ -14,10 +14,11 @@ public static class WorkshopData
     public static readonly IReadOnlyList<string> Labels = ["Person", "Movie", "Review"];
     public const string Marker = "GraphBridgeWorkshop";
     // The repository fixture's marker and GraphBridge's migration journal (lesson 23) are infrastructure, not application data.
-    // Lesson 31's labels are its own and removed when it ends; allowing them keeps an interrupted run from blocking the next.
+    // The GraphRAG lessons' labels (31 to 35) are their own and removed when each ends; allowing them keeps an interrupted run
+    // from blocking the next.
     private static readonly HashSet<string> Allowed =
         [.. Labels, Marker, "GraphBridgeFixture", "__GraphBridgeMigrationControl", "__GraphBridgeMigration", "__GraphBridgeMigrationStep",
-         "WorkshopDocument", "WorkshopSection", "WorkshopChunk", "WorkshopIngestionRun", "WorkshopLease"];
+         "WorkshopDocument", "WorkshopSection", "WorkshopChunk", "WorkshopIngestionRun", "WorkshopLease", .. Lessons.GraphRagWorkshop.Labels];
     private const string WorkshopNodes = "(n:Person OR n:Movie OR n:Review)";
 
     /// <summary>Refuses to write unless the database is empty or holds only workshop data. Creates the ownership marker.</summary>
@@ -27,7 +28,7 @@ public static class WorkshopData
         var labels = await ReadAsync(connection, "CALL db.labels() YIELD label RETURN label", r => r["label"].As<string>(), cancellationToken);
         var foreign = labels.Where(l => !Allowed.Contains(l)).Order(StringComparer.Ordinal).ToArray();
         if (foreign.Length > 0 && !connection.Options.AllowOtherData)
-            throw new WorkshopConfigurationException($"This database holds other data (labels: {string.Join(", ", foreign.Take(10))}). Use an empty database, or pass --allow-other-data for a disposable one: the workshop only writes Person, Movie and Review nodes.");
+            throw new WorkshopConfigurationException($"This database holds other data (labels: {string.Join(", ", foreign.Take(10))}). Use an empty database, or pass --allow-other-data for a disposable one: the workshop writes Person, Movie and Review nodes, and lessons 31 to 35 write Workshop* nodes and workshop_rag_* schema that they remove when they end.");
         var markers = await ScalarAsync(connection, $"MATCH (m:{Marker}) RETURN count(m) AS value", cancellationToken);
         var workshopNodes = await ScalarAsync(connection, $"MATCH (n) WHERE {WorkshopNodes} RETURN count(n) AS value", cancellationToken);
         if (markers == 0 && workshopNodes > 0)

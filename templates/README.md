@@ -29,4 +29,14 @@ The tests run offline and need no database.
 
 The template has no post-actions: it does not restore, build, start Docker or add migrations. The demo application writes, so it runs only against a disposable database it can identify; point it at your own database by replacing its guards with your own setup.
 
+## The GraphRAG starter (experimental)
+
+```shell
+dotnet new graphbridge-graphrag --name MyRag --provider-version <GraphBridge.GraphRag version>
+cd MyRag
+dotnet test Tests/MyRag.Tests.csproj
+```
+
+A console application on the experimental [GraphRAG toolkit](https://www.nuget.org/packages/GraphBridge.GraphRag): `setup` applies the schema as your own migration, `ingest` reads a folder of Markdown, `ask` answers with citations checked against the stored bytes, and `cleanup` removes what was ingested. It runs offline with model stand-ins, so it needs no key; register a real `IChatClient` and `IEmbeddingGenerator` in one place to use a model. Its three offline tests check the schema plan, the stand-in embedder and the citation check. The application needs a Neo4j 2026.09 or later database you can write to.
+
 See the [template guide](https://joslat.github.io/GraphBridge.EFCore/tools/TEMPLATE.html), [Getting started](https://joslat.github.io/GraphBridge.EFCore/GETTING_STARTED.html) and the [documentation](https://joslat.github.io/GraphBridge.EFCore/). Remove the template with `dotnet new uninstall GraphBridge.Templates`. MIT licensed.

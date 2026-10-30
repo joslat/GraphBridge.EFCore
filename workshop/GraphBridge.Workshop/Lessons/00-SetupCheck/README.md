@@ -35,7 +35,7 @@ var server = await WorkshopData.ReadAsync(lesson.Connection!,
 ## What you should see
 
 ```text
-  GraphBridge provider: 0.1.0-preview.1
+  GraphBridge provider: 0.2.0-preview.1
   ...
   ✔ connected to Neo4j
   ✔ database passes the workshop safety guard
@@ -43,7 +43,7 @@ var server = await WorkshopData.ReadAsync(lesson.Connection!,
 
 ## Try it yourself
 
-1. Unset `GRAPHBRIDGE_WORKSHOP_URI` and run `list`. Which lessons can you still do?
+1. Run the core track without a database: `dotnet run --project workshop/GraphBridge.Workshop -- run --track core --offline`. Which lessons run in full, which run only their offline part, and which are reported as not run without a database?
 2. Point the workshop at `bolt://some-other-host:7687`. Read the refusal, then notice the `--allow-remote` switch it mentions. Use it only for a disposable remote database.
 
 ## Limits

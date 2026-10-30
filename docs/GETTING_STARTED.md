@@ -14,13 +14,13 @@ Reference the provider and pin the EF Core and driver versions it is tested with
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="0.1.0-preview.5" />
+  <PackageReference Include="GraphBridge.EntityFrameworkCore" Version="0.2.0-preview.1" />
   <PackageReference Include="Microsoft.EntityFrameworkCore" Version="[10.0.13]" />
   <PackageReference Include="Neo4j.Driver" Version="[6.4.0]" />
 </ItemGroup>
 ```
 
-`0.1.0-preview.5` is the current preview on nuget.org; pin it exactly, because previews may change. The provider declares only minimum versions of EF Core and Neo4j.Driver, so the explicit pins keep NuGet from resolving untested newer ones.
+`0.2.0-preview.1` is the current preview on nuget.org; pin it exactly, because previews may change. The provider accepts EF Core and Neo4j.Driver versions below their next majors (EF Core 10.0.13 up to 11, Neo4j.Driver 6.4.0 up to 7), so the explicit pins keep NuGet from resolving untested newer patches.
 
 ## 2. Map an entity and configure the context
 
@@ -126,7 +126,7 @@ The name is a parameter (`$p0`), never part of the text. The `coalesce(...)` and
 
 ## Where to go next
 
-- **[Workshop](WORKSHOP.md):** 31 runnable lessons on a small movie graph, from this first context to relationships, Fluent Cypher and the tools. Lessons 01–04 extend this page.
+- **[Workshop](WORKSHOP.md):** 36 runnable lessons on a small movie graph, from this first context to relationships, Fluent Cypher and the tools. Lessons 01–04 extend this page.
 - **[Samples](SAMPLES.md):** complete applications to copy from: code-first, ontology-first, database-first, design-time commands and a Fluent Cypher gallery.
 - **Feature guides:** [mapping nodes](features/MAPPING_NODES.md), [references](features/REFERENCES.md), [associations](features/ASSOCIATIONS.md), [identified relationships](features/IDENTIFIED_RELATIONSHIPS.md), [LINQ queries](features/LINQ_QUERIES.md), [Fluent Cypher](features/FLUENT_CYPHER.md), [native Cypher](features/NATIVE_CYPHER.md), [transactions and concurrency](features/TRANSACTIONS_AND_CONCURRENCY.md), [schema and migrations](features/SCHEMA_AND_MIGRATIONS.md).
 - **Before you build on it:** [compatibility](reference/COMPATIBILITY.md), [known limitations](reference/KNOWN_LIMITATIONS.md) and [troubleshooting](reference/TROUBLESHOOTING.md).

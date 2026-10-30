@@ -69,6 +69,9 @@ public static class GraphRagModelBuilderExtensions
             var node = modelBuilder.Entity(type.ClrType).ToGraphNode(type.Label);
             node.HasKey(nameof(GraphRagEntity.Id));
             node.Property(nameof(GraphRagEntity.Id)).ValueGeneratedNever();
+            // ADR 0052, section 20: neo4j-graphrag's entity shape, on the provider's additional labels and shared types (ADR 0055, 0056).
+            if (ontology.EntityLabels.Count > 0) node.HasAdditionalGraphLabels([.. ontology.EntityLabels]);
+            if (ontology.NameProperty != nameof(GraphRagEntity.Name)) node.Property(nameof(GraphRagEntity.Name)).HasGraphPropertyName(ontology.NameProperty);
             var mention = modelBuilder.Entity(type.MentionClrType);
             mention.HasKey(nameof(GraphRagMention.Id));
             mention.Property(nameof(GraphRagMention.Id)).ValueGeneratedNever();

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GraphRAG explorer</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #66665f; --line: #deded8; --accent: #2457c5; --on-accent: #ffffff;
+    --mark: #fff0a8; --mark-text: #1d1d1b; --provisional: #8a8a80;
+    --person: #2f6fdf; --organization: #b4489a; --place: #1f8a5b; --event: #c26a12; --concept: #6d4fc4; --topic: #0f7f8c; --article: #555550;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --panel: #20201d; --text: #ecece6; --muted: #a3a39a; --line: #3a3a35; --accent: #8fb0ff; --on-accent: #0d1a3a;
+      --mark: #6b5d12; --mark-text: #fff7d1; --provisional: #8f8f86;
+      --person: #7ea6ff; --organization: #e38bd0; --place: #5cc796; --event: #f0a45a; --concept: #b39cff; --topic: #4fc6d3; --article: #b9b9b0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 16px 24px 8px; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  .note { color: var(--muted); font-size: 13px; margin: 0; }
+  form { display: flex; gap: 8px; padding: 8px 24px; }
+  #turns { padding: 0 24px 16px; }
+  input { flex: 1; min-width: 0; padding: 8px 10px; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  button { padding: 8px 16px; font: inherit; color: var(--on-accent); background: var(--accent); border: 0; border-radius: 6px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: default; }
+  button.secondary { color: var(--accent); background: transparent; border: 1px solid var(--accent); }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 16px; padding: 0 24px 24px; }
+  @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 8px; }
+  #answer { white-space: pre-wrap; min-height: 3em; }
+  #answer.provisional { color: var(--provisional); font-style: italic; }
+  #answer.refused { color: var(--muted); }
+  .cites { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .cite { padding: 2px 9px; font-size: 13px; color: var(--accent); background: transparent; border: 1px solid var(--accent); border-radius: 12px; }
+  .cite[aria-pressed="true"] { color: var(--on-accent); background: var(--accent); }
+  ol#events { margin: 12px 0 0; padding-left: 20px; font: 12px/1.6 ui-monospace, Consolas, monospace; color: var(--muted); max-height: 220px; overflow: auto; }
+  #passage-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  #passage-meta a { color: var(--accent); }
+  #passage-text { white-space: pre-wrap; margin: 0 0 12px; }
+  mark { background: var(--mark); color: var(--mark-text); border-radius: 2px; }
+  .mention { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin: 6px 0; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; background: var(--c); vertical-align: -1px; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { fill: var(--text); font: 12px system-ui, sans-serif; }
+  svg .kind { fill: var(--muted); font-size: 10px; }
+  svg .edge { stroke: var(--muted); stroke-width: 1.2; stroke-opacity: .7; }
+  svg .edge:hover { stroke: var(--accent); stroke-width: 3; stroke-opacity: 1; }
+  svg .mentioned { stroke: var(--line); stroke-dasharray: 4 4; }
+  svg .label { fill: var(--muted); font-size: 10px; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>GraphRAG explorer</h1>
+  <p class="note">Ask the articles. The answer streams in as provisional text and is replaced by the checked answer. Open a citation to see its passage, the quoted bytes and what was extracted from it. Answers are written by the model; only the quoted passages are the sources' own words.</p>
+</header>
+<form id="ask">
+  <input id="question" name="question" autocomplete="off" placeholder="Who are the four Artemis II astronauts?" aria-label="Question">
+  <button id="go" type="submit">Ask</button>
+  <button id="restart" type="button" class="secondary" title="Forget the conversation; the next question stands alone">New conversation</button>
+</form>
+<p id="turns" class="note">A follow-up is asked with the conversation so far, which only this page keeps.</p>
+<main>
+  <section aria-labelledby="answer-title">
+    <h2 id="answer-title">Answer</h2>
+    <div id="answer" class="empty">Ask a question.</div>
+    <div class="cites" id="cites"></div>
+    <ol id="events" aria-label="Events"></ol>
+  </section>
+  <section aria-labelledby="passage-title">
+    <h2 id="passage-title">Cited passage</h2>
+    <div id="passage-meta" class="empty">Open a citation.</div>
+    <p id="passage-text"></p>
+    <div class="legend" id="legend"></div>
+    <svg id="graph" viewBox="0 0 820 420" role="img" aria-label="Things mentioned in the passage and the facts between them"></svg>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const kinds = ["person", "organization", "place", "event", "concept", "topic", "article"];
+const encoder = new TextEncoder(), decoder = new TextDecoder();
+
+function el(tag, attributes = {}, text) {
+  const node = document.createElementNS(tag === "svg" || ["line", "circle", "text", "g", "title"].includes(tag) ? "http://www.w3.org/2000/svg" : "http://www.w3.org/1999/xhtml", tag);
+  for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, value);
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function log(event, detail) { $("events").append(el("li", {}, detail ? `${event}: ${detail}` : event)); }
+
+// The conversation so far, oldest first: the endpoint rewrites a follow-up with it, and stores none of it (at most 20 turns).
+let turns = [];
+let asking = null;
+function showTurns() {
+  $("turns").textContent = turns.length === 0 ? "A follow-up is asked with the conversation so far, which only this page keeps."
+    : `Follow-ups use the ${turns.length} earlier question${turns.length === 1 ? "" : "s"} of this conversation.`;
+}
+
+// Server-sent events from a POST: the browser's EventSource only does GET.
+async function ask(question, openCitation) {
+  asking = { question };
+  $("go").disabled = true;
+  $("events").replaceChildren(); $("cites").replaceChildren();
+  const answer = $("answer");
+  answer.className = "provisional"; answer.textContent = "";
+  try {
+    const history = turns.slice(-20);
+    const response = await fetch("/graphrag/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, history }) });
+    if (!response.ok) { answer.className = "refused"; answer.textContent = `The request failed: HTTP ${response.status}.`; return; }
+    const reader = response.body.getReader();
+    let buffer = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
+      for (let end; (end = buffer.indexOf("\n\n")) >= 0; buffer = buffer.slice(end + 2)) handle(buffer.slice(0, end), openCitation);
+    }
+  } catch (error) {
+    answer.className = "refused"; answer.textContent = `The request failed: ${error.message}.`;
+  } finally {
+    // Only a question that got an answer or a refusal joins the conversation: a failed one would skew the follow-ups.
+    if (asking?.settled) { delete asking.settled; turns.push(asking); showTurns(); }
+    asking = null;
+    $("go").disabled = false;
+  }
+}
+
+function handle(block, openCitation) {
+  let event = "message", data = "";
+  for (const line of block.split("\n")) {
+    if (line.startsWith("event:")) event = line.slice(6).trim();
+    else if (line.startsWith("data:")) data += line.slice(5).trim();
+  }
+  const body = data ? JSON.parse(data) : {};
+  const answer = $("answer");
+  switch (event) {
+    case "retrieved":
+      log("retrieved", `${body.items} items, ${body.contextItems} context, ${body.utf8Bytes} bytes${body.limitsReached?.length ? ", limits: " + body.limitsReached.map(l => l.name).join(", ") : ""}`);
+      if (body.rewrite) log("rewritten", body.rewrite.outcome === "rewritten" ? `asked as: ${body.rewrite.standalone}` : body.rewrite.outcome);
+      break;
+    case "delta":
+      answer.textContent += body.text;
+      break;
+    case "verified":
+      log("verified", `${body.citations.length} citations checked`);
+      answer.className = ""; answer.textContent = body.answer;
+      if (asking) { asking.answer = body.answer; asking.settled = true; }
+      body.citations.forEach((citation, index) => {
+        const chip = el("button", { class: "cite", type: "button", "aria-pressed": "false", title: citation.quote }, `[${index + 1}] ${citation.quote.slice(0, 40)}${citation.quote.length > 40 ? "…" : ""}`);
+        chip.addEventListener("click", () => open(citation, chip));
+        $("cites").append(chip);
+      });
+      if (openCitation && $("cites").children[openCitation - 1]) $("cites").children[openCitation - 1].click();
+      break;
+    case "refused":
+      log("refused", body.reason + (body.withdraws ? "; provisional text withdrawn" : ""));
+      answer.className = "refused"; answer.textContent = `Not answered: ${body.reason}.`;
+      if (asking) asking.settled = true;
+      break;
+    case "error":
+      log("error", body.code);
+      answer.className = "refused"; answer.textContent = `The answer failed: ${body.code}.`;
+      break;
+    default:
+      log(event);
+  }
+}
+
+// Byte offsets into the passage's UTF-8 bytes, as character offsets into its text.
+function charAt(bytes, offset) { return decoder.decode(bytes.slice(0, Math.max(0, Math.min(offset, bytes.length)))).length; }
+
+async function open(citation, chip) {
+  for (const other of $("cites").children) other.setAttribute("aria-pressed", String(other === chip));
+  const response = await fetch(`/explorer/passages/${encodeURIComponent(citation.chunkId)}`);
+  if (!response.ok) { $("passage-meta").textContent = `The passage could not be read: HTTP ${response.status}.`; return; }
+  const passage = await response.json();
+  const meta = $("passage-meta");
+  meta.className = ""; meta.replaceChildren();
+  // Only a web address becomes a link: the URL comes from the articles' own metadata.
+  meta.append(/^https?:\/\//i.test(passage.url ?? "") ? el("a", { href: passage.url, rel: "noopener noreferrer", target: "_blank" }, passage.title ?? passage.url) : el("span", {}, passage.title ?? passage.documentId));
+  meta.append(el("span", {}, ` · ${[passage.publisher, passage.published].filter(Boolean).join(", ")} · bytes ${passage.startByte}–${passage.endByte} of the article; cited bytes ${citation.startByte}–${citation.endByte}${citation.grounding === "Chunk" ? " of the stored passage" : ""}`));
+  renderText(passage, citation);
+  renderGraph(passage);
+  document.body.dataset.ready = "passage";
+}
+
+function renderText(passage, citation) {
+  const bytes = encoder.encode(passage.text);
+  const base = citation.grounding === "Chunk" ? 0 : passage.startByte;
+  const spans = [{ start: citation.startByte - base, end: citation.endByte - base, cited: true }];
+  for (const thing of passage.things) for (const m of thing.mentions) spans.push({ start: m.startByte - passage.startByte, end: m.endByte - passage.startByte, kind: thing.kind, name: thing.name });
+  const cuts = [...new Set([0, bytes.length, ...spans.flatMap(s => [s.start, s.end])])].filter(c => c >= 0 && c <= bytes.length).sort((a, b) => a - b);
+  const text = $("passage-text");
+  text.replaceChildren();
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const [from, to] = [cuts[i], cuts[i + 1]];
+    const piece = passage.text.slice(charAt(bytes, from), charAt(bytes, to));
+    const covering = spans.filter(s => s.start <= from && s.end >= to);
+    let node = document.createTextNode(piece);
+    const mention = covering.find(s => s.kind);
+    if (mention) { const span = el("span", { class: "mention", style: `text-decoration-color: var(--${mention.kind})`, title: `${mention.name} (${mention.kind})` }); span.append(node); node = span; }
+    if (covering.some(s => s.cited)) { const mark = el("mark"); mark.append(node); node = mark; }
+    text.append(node);
+  }
+}
+
+function renderGraph(passage) {
+  const svg = $("graph");
+  svg.replaceChildren();
+  $("legend").replaceChildren(...kinds.map(kind => el("span", { style: `--c: var(--${kind})` }, kind)));
+  const nodes = passage.things.map(t => ({ id: t.id, label: t.name, kind: t.kind }));
+  if (passage.facts.some(f => f.fromId === passage.documentId || f.toId === passage.documentId))
+    nodes.push({ id: passage.documentId, label: passage.title ?? "the article", kind: "article" });
+  const [width, height] = [820, Math.max(360, Math.min(680, 260 + nodes.length * 16))];
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  if (nodes.length === 0) { svg.append(el("text", { x: width / 2, y: height / 2, "text-anchor": "middle" }, "Nothing was extracted from this passage.")); return; }
+  // Things on an ellipse around the passage, grouped by kind; labels sit outside, so they don't cross the lines.
+  nodes.sort((a, b) => kinds.indexOf(a.kind) - kinds.indexOf(b.kind) || a.label.localeCompare(b.label));
+  const [cx, cy, rx, ry] = [width / 2, height / 2, width / 2 - 170, height / 2 - 40];
+  nodes.forEach((node, i) => {
+    node.angle = -Math.PI / 2 + 2 * Math.PI * i / nodes.length;
+    node.x = cx + rx * Math.cos(node.angle); node.y = cy + ry * Math.sin(node.angle);
+  });
+  const at = new Map(nodes.map(n => [n.id, n]));
+  for (const node of nodes) if (node.kind !== "article") svg.append(el("line", { class: "mentioned", x1: cx, y1: cy, x2: node.x, y2: node.y }));
+  const labelled = passage.facts.length <= 8;
+  for (const fact of passage.facts) {
+    const [from, to] = [at.get(fact.fromId), at.get(fact.toId)];
+    if (!from || !to) continue;
+    const line = el("line", { class: "edge", x1: from.x, y1: from.y, x2: to.x, y2: to.y });
+    line.append(el("title", {}, `${from.label} ${fact.type} ${to.label}`));
+    svg.append(line);
+    if (labelled) svg.append(el("text", { class: "label", x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 - 4, "text-anchor": "middle" }, fact.type));
+  }
+  svg.append(el("circle", { cx, cy, r: 7, fill: "var(--accent)" }));
+  svg.append(el("text", { x: cx, y: cy + 22, "text-anchor": "middle" }, "this passage"));
+  for (const node of nodes) {
+    const group = el("g");
+    group.append(el("title", {}, `${node.label} (${node.kind})`));
+    group.append(el("circle", { cx: node.x, cy: node.y, r: 7, fill: `var(--${node.kind})` }));
+    const [cos, sin] = [Math.cos(node.angle), Math.sin(node.angle)];
+    const text = node.label.length > 26 ? node.label.slice(0, 25) + "…" : node.label;
+    // At the top and bottom, the label goes above or below its node; elsewhere, outside on its side.
+    const placement = Math.abs(cos) < 0.1
+      ? { x: node.x, y: sin < 0 ? node.y - 12 : node.y + 20, "text-anchor": "middle" }
+      : { x: node.x + (cos > 0 ? 12 : -12), y: node.y + 4, "text-anchor": cos > 0 ? "start" : "end" };
+    group.append(el("text", placement, text));
+    svg.append(group);
+  }
+  if (!labelled) svg.append(el("text", { class: "label", x: 8, y: height - 8 }, `${passage.facts.length} facts: point at a line to see which.`));
+}
+
+$("restart").addEventListener("click", () => { turns = []; showTurns(); $("question").focus(); });
+
+$("ask").addEventListener("submit", event => {
+  event.preventDefault();
+  const question = $("question").value.trim() || $("question").placeholder;
+  ask(question);
+});
+
+// ?q=...&cite=1 asks at once and opens that citation; &then=... asks a follow-up after it, as the docs' screenshot does, and
+// opens the citation of that answer instead.
+const params = new URLSearchParams(location.search);
+if (params.get("q")) {
+  const [first, then, cite] = [params.get("q"), params.get("then"), Number(params.get("cite")) || 0];
+  $("question").value = first;
+  ask(first, then ? 0 : cite).then(() => { if (then) { $("question").value = then; return ask(then, cite); } });
+}
+</script>
+</body>
+</html>

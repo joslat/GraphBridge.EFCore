@@ -77,7 +77,7 @@ public sealed class IdentifiedEdgeBindingTests : IDisposable
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void Identified_type_has_one_global_owner_and_cannot_overlap_pair_storage(bool pair)
+    public void Identified_type_owners_need_distinct_endpoints_and_cannot_overlap_pair_storage(bool pair)
     {
         using var context = Context(model =>
         {
@@ -93,7 +93,24 @@ public sealed class IdentifiedEdgeBindingTests : IDisposable
             else second.ToGraphIdentifiedRelationship("EVENT", nameof(OtherEvent.Id), [nameof(OtherEvent.SourceId)], [nameof(OtherEvent.TargetId)]);
         });
         var error = Assert.Throws<InvalidOperationException>(() => context.Model);
-        Assert.Contains(pair ? "cannot be shared" : "one EF entity owner", error.Message);
+        // ADR 0056: a second owner of the type with the same endpoint types couldn't be told apart.
+        Assert.Contains(pair ? "cannot be shared" : "already has an owner from", error.Message);
+    }
+
+    [Fact]
+    public void Owners_of_one_type_in_opposite_directions_are_different_pairs()
+    {
+        // ADR 0056: from Target to Source is not the pair from Source to Target, so reads still tell them apart.
+        using var context = Context(model =>
+        {
+            Configure(model);
+            var reverse = model.Entity<OtherEvent>();
+            reverse.HasOne<Target>().WithMany().HasForeignKey(e => e.SourceId);
+            reverse.HasOne<Source>().WithMany().HasForeignKey(e => e.TargetId);
+            reverse.Property(e => e.Id).HasGraphPropertyName("event_key");
+            reverse.ToGraphIdentifiedRelationship("EVENT", nameof(OtherEvent.Id), [nameof(OtherEvent.SourceId)], [nameof(OtherEvent.TargetId)]);
+        });
+        Assert.Contains("(s:`Target`)-[r:`EVENT`]->(t:`Source`)", context.Set<OtherEvent>().ToQueryString());
     }
 
     [Theory]

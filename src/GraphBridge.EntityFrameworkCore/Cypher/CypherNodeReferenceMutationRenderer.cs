@@ -47,7 +47,7 @@ internal static class CypherNodeReferenceMutationRenderer
         string dependentLabel, IReadOnlyDictionary<string, object?> dependentKeys)
     {
         // Validate even when both principals are absent; metadata must never bypass validation.
-        _ = Identifier(principalLabel);
+        _ = Labels(principalLabel);
         var (text, parameters) = IncomingMembership(relationshipType, dependentLabel, dependentKeys);
         if (originalPrincipalKeys is not null)
             text.Append('\n').Append(Match("p", principalLabel, originalPrincipalKeys, parameters));
@@ -95,8 +95,11 @@ internal static class CypherNodeReferenceMutationRenderer
             parameters[parameter] = pair.Value!;
             return Identifier(pair.Key) + ": $" + parameter;
         });
-        return "MATCH (" + alias + ":" + Identifier(label) + " {" + string.Join(", ", slots) + "})";
+        return "MATCH (" + alias + ":" + Labels(label) + " {" + string.Join(", ", slots) + "})";
     }
+
+    // A node type's labels, separated by colons (ADR 0055), each validated and quoted.
+    private static string Labels(string labels) => string.Join(':', labels.Split(':').Select(Identifier));
 
     private static string Identifier(string name)
     {

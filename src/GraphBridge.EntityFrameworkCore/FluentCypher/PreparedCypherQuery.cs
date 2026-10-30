@@ -21,6 +21,6 @@ public sealed class PreparedCypherQuery<TResult>
     {
         cancellationToken.ThrowIfCancellationRequested();
         return Neo4jDatabaseFacadeExtensions.QueryCypherWithTimeoutAsync(context.Database, Command.Text, Command.Parameters,
-            record => compiled.Read(record.Values), MaxRows, timeout, cancellationToken);
+            record => compiled.Read(record.Values), MaxRows, timeout, cancellationToken, compiled.Preflight);
     }
 }

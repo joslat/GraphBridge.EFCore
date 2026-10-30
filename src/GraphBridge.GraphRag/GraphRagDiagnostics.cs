@@ -16,6 +16,8 @@ public static class GraphRagTracing
     public const string WriteActivity = "GraphRag.Write";
     public const string RetrieveActivity = "GraphRag.Retrieve";
     public const string AnswerActivity = "GraphRag.Answer";
+    public const string RewriteActivity = "GraphRag.Rewrite";
+    public const string Text2CypherActivity = "GraphRag.Text2Cypher";
 }
 
 /// <summary>What one answer cost: chat calls, tokens when the client reports them, and the time spent retrieving and answering.</summary>

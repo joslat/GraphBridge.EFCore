@@ -17,9 +17,11 @@ internal enum GraphMutationPhase
     NodeDelete
 }
 
+// LockCommands run before Command. For a changed node with a native reference, the last of them checks its reference's
+// membership instead of locking (ChecksReference), so a failure there is named as such.
 internal sealed record GraphMutationOperation(IUpdateEntry Entry, GraphMutationPhase Phase,
     CypherMutationCommand Command, IReadOnlyList<CypherMutationCommand> LockCommands,
-    IReadOnlyList<(IProperty Property, object Value)> GeneratedValues);
+    IReadOnlyList<(IProperty Property, object Value)> GeneratedValues, bool ChecksReference = false);
 
 internal sealed record GraphGeneratedValue(IUpdateEntry Entry, IProperty Property, object Value);
 
@@ -77,7 +79,8 @@ internal sealed class GraphMutationPlanner(GraphBindingCompiler compiler)
         var byEntry = new Dictionary<IUpdateEntry, GraphNodeReferenceMutation>(ReferenceEqualityComparer.Instance);
         foreach (var reference in references) byEntry.Add(reference.Entry, reference);
         var operations = nodes.Select(node => new GraphMutationOperation(node.Entry, NodePhase(node.Entry.EntityState),
-                node.Command, NodePreparations(node), node.GeneratedValues))
+                node.Command, NodePreparations(node), node.GeneratedValues,
+                ChecksReference: node.Entry.EntityState != EntityState.Added && byEntry.ContainsKey(node.Entry)))
             .Concat(references.Where(reference => reference.Entry.EntityState == EntityState.Added)
                 .Select(reference => new GraphMutationOperation(reference.Entry, GraphMutationPhase.NodeReferenceAdd,
                     reference.Command, reference.LockCommands, Array.Empty<(IProperty, object)>())))

@@ -1,6 +1,6 @@
 # GraphBridge workshop
 
-Learn GraphBridge by running it. The workshop is one menu-driven console application with 31 short lessons, from a first `DbContext` to native relationships, Fluent Cypher, Doctor and Query Lab. Each lesson has a script to read and code that prints what it does, the Cypher it generates and what it observed. The core track (★) takes about three hours.
+Learn GraphBridge by running it. The workshop is one menu-driven console application with 36 short lessons, from a first `DbContext` to native relationships, Fluent Cypher, Doctor and Query Lab, and an experimental GraphRAG track. Each lesson has a script to read and code that prints what it does, the Cypher it generates and what it observed. The core track (★) takes about three hours.
 
 ```powershell
 # The interactive menu
@@ -27,4 +27,4 @@ Lessons marked ◇ run without a database. For the others, [get a disposable Neo
 
 ## After the workshop
 
-The [samples](../samples/README.md) are complete applications to copy from: the three ways to author a model (code-first, ontology-first and database-first), design-time commands and a Fluent Cypher query gallery. The [documentation index](../docs/README.md) lists the contracts and limits behind every lesson.
+The [samples](../samples/README.md) are complete applications to copy from: the three ways to author a model (code-first, ontology-first and database-first), design-time commands, a Fluent Cypher query gallery, vector search through VectorData, and three GraphRAG applications. The [documentation index](../docs/README.md) lists the contracts and limits behind every lesson.

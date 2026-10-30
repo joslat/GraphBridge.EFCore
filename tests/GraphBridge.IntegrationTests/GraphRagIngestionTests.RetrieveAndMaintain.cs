@@ -47,6 +47,40 @@ public sealed partial class GraphRagIngestionTests
     }
 
     [Neo4jIntegrationFact]
+    public async Task Derived_text_is_stored_with_its_origin_and_every_item_and_citation_names_it()
+    {
+        // GR-54 (ADR 0052, section 21): the text of a scan, read by OCR elsewhere, ingested with where it came from.
+        await ProvisionAsync();
+        await using var provider = Services(new HashGenerator(), new QuotingChat());
+        var receipt = await provider.GetRequiredService<IGraphRagIngestion>().IngestAsync(
+        [
+            GraphRagSources.Text("scan", Markdown, "text/markdown") with { Metadata = new GraphRagSourceMetadata(Title: "Scanned guide", TextOrigin: "ocr: test engine 1.0") }
+        ]);
+        Assert.Equal(GraphRagDocumentStatus.Ingested, Assert.Single(receipt.Documents).Status);
+        await using (var db = Context())
+            Assert.Equal("ocr: test engine 1.0", (await db.Set<GraphRagDocument>().SingleAsync()).TextOrigin);
+
+        var evidence = await provider.GetRequiredService<IGraphRagRetriever>().RetrieveAsync("Edges link nodes");
+        Assert.NotEmpty(evidence.Items);
+        Assert.All(evidence.Items, item => Assert.Equal("ocr: test engine 1.0", item.TextOrigin));
+        var answer = await provider.GetRequiredService<IGraphRagAnswers>().AnswerAsync("Edges link nodes");
+        var citation = Assert.Single(answer.Citations);
+        Assert.Equal("ocr: test engine 1.0", citation.TextOrigin);
+        // The quote is still exactly the stored text's bytes: the derived text, not the scan.
+        var source = Encoding.UTF8.GetBytes(Markdown.ReplaceLineEndings("\n"));
+        Assert.Equal(Encoding.UTF8.GetString(source, citation.StartByte, citation.EndByte - citation.StartByte), citation.Quote);
+
+        // GR-69: an agent's search passages say it too, and the answer tool's citation.
+        var tools = GraphRagTools.Create<RagContext>(provider);
+        var search = tools.Single(t => t.Name == GraphRagTools.SearchTool);
+        var passages = System.Text.Json.JsonSerializer.Serialize(await search.InvokeAsync(new Microsoft.Extensions.AI.AIFunctionArguments { ["query"] = "Edges link nodes", ["limit"] = 3 }));
+        Assert.Contains("\"textOrigin\":\"ocr: test engine 1.0\"", passages, StringComparison.Ordinal);
+        var cited = System.Text.Json.JsonSerializer.Serialize(await tools.Single(t => t.Name == GraphRagTools.AnswerTool)
+            .InvokeAsync(new Microsoft.Extensions.AI.AIFunctionArguments { ["question"] = "Edges link nodes" }));
+        Assert.Contains("\"textOrigin\":\"ocr: test engine 1.0\"", cited, StringComparison.Ordinal);
+    }
+
+    [Neo4jIntegrationFact]
     public async Task A_cypher_expansion_adds_labelled_context_and_cannot_write()
     {
         await ProvisionAsync();
@@ -118,6 +152,18 @@ public sealed partial class GraphRagIngestionTests
 
         Assert.Equal(1, (await maintenance.RemoveOrphansAsync()).Chunks);
         Assert.DoesNotContain("orphans", (await maintenance.CheckAsync()).Findings);
+
+        // A chunk whose text no longer fits its span, and a lease past its time.
+        await Execute($"MATCH (c:{Layout.ChunkLabel} {{Id: $id}}) SET c.EndByte = c.StartByte", new { id = ids[1] });
+        await using (var leases = Context())
+        {
+            leases.Add(new GraphRagLease { Key = "abandoned", RunId = receipt.RunId, ExpiresUtc = DateTimeOffset.UtcNow.AddHours(-1) });
+            await leases.SaveChangesAsync();
+        }
+        health = await maintenance.CheckAsync();
+        Assert.Equal((1, 1), (health.ReadbackMismatches, health.ExpiredLeases));
+        Assert.Contains("readback-mismatch", health.Findings);
+        Assert.Contains("expired-leases", health.Findings);
     }
 
     // A scripted chat client: it cites the first full line of evidence 1, exactly, or with two letters added.

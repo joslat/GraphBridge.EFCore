@@ -107,6 +107,31 @@ public sealed class FluentCypherPathTests
     }
 
     [Fact]
+    public void Paths_over_a_relationship_type_other_mappings_share_are_refused_with_GBFC203()
+    {
+        // FLUENT_FRIEND also links people to movies here, so a path between two people could pass through a movie.
+        using var db = FluentCypherCompilerTests.Context(b =>
+        {
+            b.Entity<Fan>().HasKey(e => new { e.PersonId, e.MovieId });
+            b.Entity<Fan>().HasOne<Person>().WithMany().HasForeignKey(e => e.PersonId);
+            b.Entity<Fan>().HasOne<FluentCypherCompilerTests.Movie>().WithMany().HasForeignKey(e => e.MovieId);
+            b.Entity<Fan>().ToGraphRelationship("FLUENT_FRIEND", [nameof(Fan.PersonId)], [nameof(Fan.MovieId)]);
+        });
+        var person = Graph.Node<Person>(); var friend = Graph.Node<Person>(); var edge = Graph.Edge<Friendship>(); var path = Graph.Path();
+        foreach (var pattern in new[] { person.Out(edge, friend).Repeat(1, 3), person.Undirected(edge, friend).Repeat(1, 1) })
+        {
+            var error = Assert.Throws<FluentCypherException>(() => db.Cypher().Match(path, pattern).Return(() => friend.Value.Name).ToQueryString());
+            Assert.Equal("GBFC203", error.Code);
+            Assert.Contains("FLUENT_FRIEND", error.Message);
+        }
+        // One directed hop names both endpoints' labels, so it stays within the mapping.
+        Assert.Contains("-[r2:`FLUENT_FRIEND`]->(n1:`FluentPerson`)",
+            db.Cypher().Match(person.Out(edge, friend)).Return(() => friend.Value.Name).ToQueryString());
+    }
+
+    public sealed class Fan { public int PersonId { get; set; } public int MovieId { get; set; } }
+
+    [Fact]
     public void Undirected_paths_return_typed_endpoint_values_but_not_repeated_edge_properties()
     {
         using var db = FluentCypherCompilerTests.Context();

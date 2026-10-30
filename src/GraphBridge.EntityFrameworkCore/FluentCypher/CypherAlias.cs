@@ -13,6 +13,8 @@ public static class Cypher
     public static CypherEdge<T> Edge<T>() where T : class => new();
     public static CypherPath Path() => new();
     public static CypherValue<long> CountRows() => new(new CypherCountTerm(null, false));
+    /// <summary>The native score of a <c>SearchVector</c> or <c>SearchFullText</c> clause (ADR 0057); higher is closer.</summary>
+    public static CypherValue<double> Score() => new(new CypherScoreTerm());
     public static CypherValue<long> Count(CypherAlias alias)
         => new(new CypherCountTerm(new CypherAliasTerm(alias ?? throw new ArgumentNullException(nameof(alias))), false));
     public static CypherValue<long> CountDistinct(CypherAlias alias)
