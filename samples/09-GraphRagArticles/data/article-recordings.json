@@ -151,6 +151,18 @@
       "reasoningTokens": 48
     },
     {
+      "request": "4e191cf1c61f6090774bfe87db4d8b3c",
+      "hint": "How far from Earth did the Artemis II crew travel?",
+      "provider": "bitdeer",
+      "model": "zai-org/GLM-5.3-Flash",
+      "recorded": "2026-10-26",
+      "reply": "At its farthest point, the Artemis II crew traveled **252,756 miles from Earth**, completing a nearly 10-day journey around the Moon. This set a new record for the farthest distance humans have traveled in space, surpassing the previous record of 248,655 miles set by the Apollo 13 mission in 1970.\n\nCitations:\n- *\"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"* (document 3959252f1f2adf5f1d9be96e68c53a7847042dd36c3992628443ef2500dc65e0, chunk a92ee083d6963a51c39107277aeb52d9102ccfbb8001d0bf7ae9d8534d620f65, bytes 552–664)\n- *\"At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles, before looping back toward our home planet\"* (document 9b98c5329a9b8a7ec276924b14ef540cfc2fe02fc3b3b08797f4bfa954b9f61c, chunk 41ff1e80a2f68542600c542cd7a8ff972d0e4583ed10e9228b2602633001136d, bytes 666–804)\n- *\"traveling 248,655 miles from Earth, surpassing the record for human spaceflight's farthest distance previously set by the Apollo 13 mission in 1970.\"* (document 9b98c5329a9b8a7ec276924b14ef540cfc2fe02fc3b3b08797f4bfa954b9f61c, chunk 41ff1e80a2f68542600c542cd7a8ff972d0e4583ed10e9228b2602633001136d, bytes 515–665)",
+      "finish": "stop",
+      "inputTokens": 4353,
+      "outputTokens": 529,
+      "reasoningTokens": 32
+    },
+    {
       "request": "52b364885f26efd6991bdde0878db765",
       "hint": "Question: When and where did Artemis II splash down? Evidence: [1] # NASA Welcom…",
       "provider": "bitdeer",
@@ -245,18 +257,6 @@
       "inputTokens": 2456,
       "outputTokens": 713,
       "reasoningTokens": 502
-    },
-    {
-      "request": "b53eac23960b69363ddf0035acce91d6",
-      "hint": "How far from Earth did the Artemis II crew travel?",
-      "provider": "bitdeer",
-      "model": "zai-org/GLM-5.3-Flash",
-      "recorded": "2026-10-26",
-      "reply": "At its farthest point, the Artemis II crew traveled **252,756 miles from Earth**, completing a nearly 10-day journey around the Moon. This set a new record for the farthest distance humans have traveled in space, surpassing the previous record of 248,655 miles set by the Apollo 13 mission in 1970.\n\nCitations:\n- *\"completing a nearly 10-day journey that took them 252,756 miles from home at their farthest distance from Earth.\"* (document 3959252f1f2adf5f1d9be96e68c53a7847042dd36c3992628443ef2500dc65e0, chunk a92ee083d6963a51c39107277aeb52d9102ccfbb8001d0bf7ae9d8534d620f65, bytes 552–664)\n- *\"At its farthest point, crew inside the Orion spacecraft will have traveled about 252,756 miles, before looping back toward our home planet\"* (document 9b98c5329a9b8a7ec276924b14ef540cfc2fe02fc3b3b08797f4bfa954b9f61c, chunk 41ff1e80a2f68542600c542cd7a8ff972d0e4583ed10e9228b2602633001136d, bytes 666–804)\n- *\"traveling 248,655 miles from Earth, surpassing the record for human spaceflight's farthest distance previously set by the Apollo 13 mission in 1970.\"* (document 9b98c5329a9b8a7ec276924b14ef540cfc2fe02fc3b3b08797f4bfa954b9f61c, chunk 41ff1e80a2f68542600c542cd7a8ff972d0e4583ed10e9228b2602633001136d, bytes 515–665)",
-      "finish": "stop",
-      "inputTokens": 4353,
-      "outputTokens": 529,
-      "reasoningTokens": 32
     },
     {
       "request": "c21389621a8749cfe07b9a0f08cdad30",

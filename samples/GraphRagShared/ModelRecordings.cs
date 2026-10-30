@@ -71,9 +71,6 @@ public sealed class ModelRecordings
         }
     }
 
-    // A request's line breaks count as \n, so a prompt built on Windows (\r\n) and on Linux (\n) has one key.
-    private static string? Newlines(string? text) => text?.Replace("\r\n", "\n", StringComparison.Ordinal);
-
     public static string ChatKey(IEnumerable<ChatMessage> messages, ChatOptions? options)
     {
         var request = new JsonObject
@@ -89,19 +86,21 @@ public sealed class ModelRecordings
         };
         // Only when asked for, so recordings made without it keep their keys.
         if (options?.Reasoning?.Effort is { } effort) request["reasoning"] = effort.ToString();
-        if (options?.Instructions is { Length: > 0 } instructions) request["instructions"] = Newlines(instructions);
+        if (options?.Instructions is { Length: > 0 } instructions) request["instructions"] = instructions;
         if (options?.Tools is { Count: > 0 } tools)
             request["tools"] = new JsonArray(tools.Select(t => (JsonNode)new JsonObject
             {
                 ["name"] = t.Name, ["schema"] = t is AIFunctionDeclaration f ? JsonNode.Parse(f.JsonSchema.GetRawText()) : null
             }).ToArray());
-        return Hash(request.ToJsonString());
+        // Line breaks count as \n wherever they are, in texts, tool results and schemas: a request built on Windows (\r\n, also
+        // what indented JSON writes there) and on Linux (\n) has one key.
+        return Hash(request.ToJsonString().Replace(@"\r\n", @"\n", StringComparison.Ordinal));
     }
 
     // A message's role and text, and its tool calls and results only when it has them, so plain requests keep their keys.
     private static JsonNode MessageNode(ChatMessage message)
     {
-        var node = new JsonObject { ["role"] = message.Role.Value, ["text"] = Newlines(message.Text) };
+        var node = new JsonObject { ["role"] = message.Role.Value, ["text"] = message.Text };
         var calls = message.Contents.OfType<FunctionCallContent>().ToArray();
         if (calls.Length > 0) node["calls"] = new JsonArray(calls.Select(CallNode).ToArray());
         var results = message.Contents.OfType<FunctionResultContent>().ToArray();
