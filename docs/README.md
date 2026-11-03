@@ -12,6 +12,7 @@ GraphBridge is a real Entity Framework Core provider for Neo4j. EF Core owns you
 | [Concepts](CONCEPTS.md) | The same ideas in words: how EF concepts map to the graph, and the three ways to query |
 | [Getting started](GETTING_STARTED.md) | Install, configure `UseNeo4j`, map an entity, save it and see the Cypher |
 | [Coming from Neo4jClient](COMING_FROM_NEO4JCLIENT.md) | Neo4jClient's idioms in GraphBridge, reading a graph Neo4jClient wrote, and running both side by side |
+| [Coming from Python](COMING_FROM_PYTHON.md) | neo4j-graphrag, Neo4j Labs and community projects mapped to GraphBridge, Neo4j's samples mapped to its samples, and one graph for both stacks |
 | [Workshop](WORKSHOP.md) | 36 runnable lessons, about three hours for the core track |
 | [Samples](SAMPLES.md) | Nine complete applications to copy from, three of them GraphRAG |
 

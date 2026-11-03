@@ -33,7 +33,7 @@ GraphBridge's GraphRAG toolkit stores documents as a typed graph in Neo4j throug
 - **Interop:** an opt-in suite runs GraphBridge and neo4j-graphrag 1.22.0 on one database: each reads the other's graph, and GraphBridge adopts one neo4j-graphrag built ([Interop](INTEROP.md)).
 - **Not yet:** a second model provider (a second model family on the same provider ran as a smoke test), corpora over 50,000 passages, and reading the things neo4j-graphrag extracts; it reads GraphBridge's ([entities](INTEROP.md#one-graph-two-stacks-entities)).
 
-Start with the [quick start](QUICK_START.md), or follow the [tutorial](TUTORIAL.md) from an empty database to cited answers on a real model. Interop with Neo4j's Python `neo4j-graphrag` library is on its [own page](INTEROP.md).
+Start with the [quick start](QUICK_START.md), or follow the [tutorial](TUTORIAL.md) from an empty database to cited answers on a real model. Interop with Neo4j's Python `neo4j-graphrag` library is on its [own page](INTEROP.md). Coming from Python? [This page](../COMING_FROM_PYTHON.md) maps neo4j-graphrag, Neo4j Labs' projects and their samples to GraphBridge's.
 
 ## Packages
 

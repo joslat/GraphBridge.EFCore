@@ -17,6 +17,7 @@ GraphBridge is a **developer preview**. This page shows where it is heading and 
 - **Neo4j Aura compatibility check.** Run the preflight, capability, CRUD and search checks against Aura and document the result.
 - **LINQ gaps people report.** For example set operations, composed paging and Include edge cases.
 - **GraphRAG beyond the toolkit.** Filters inside a search index, and readers for more document formats; tell us which ones you need.
+- **GraphRAG Builder.** A desktop app, in Avalonia, that turns a folder of files into a graph while you watch: each passage and extracted thing appears as it is written, with what extraction kept and pruned. Then ask a question and see only what the answer used, or every passage placed by meaning, with the question landing among them. It's the .NET counterpart of Neo4j Labs' [LLM Graph Builder](https://github.com/neo4j-labs/llm-graph-builder), built on the toolkit and Fluent Cypher. Your own files need a real model; the shipped corpora replay at zero calls.
 
 ## Exploring: no commitment
 

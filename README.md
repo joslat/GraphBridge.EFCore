@@ -63,12 +63,21 @@ Optional, built on the same EF model, never needed at runtime: [Doctor](docs/too
 
 Building blocks for graph-based retrieval-augmented generation on GraphBridge: documents and chunks with exact byte positions, resumable ingestion, vector, full-text and graph retrieval, extraction to an ontology you choose, and answers whose every quote is checked against the stored text, or a refusal. It works with any `IChatClient` and `IEmbeddingGenerator`. It is experimental (`GBRAG001`); its five packages are on NuGet from `0.2.0-preview.1`. Start with the [overview](docs/graphrag/README.md), the [quick start](docs/graphrag/QUICK_START.md) or the [tutorial on a real model](docs/graphrag/TUTORIAL.md), and samples [07](samples/07-GraphRagQuickStart/README.md), [08](samples/08-GraphRagNovel/README.md) and [09](samples/09-GraphRagArticles/README.md).
 
+## Where the GraphRAG toolkit comes from
+
+GraphRAG on Neo4j grew up in Python, and this toolkit learned from it. It began alongside [Zaid Zaim](https://github.com/ZaidZaim)'s [graph-explorer-kit](https://github.com/ZaidZaim/graph-explorer-kit), a GraphRAG app on Neo4j's [`neo4j-graphrag`](https://github.com/neo4j/neo4j-graphrag-python) package with an agent and the Graph Explorer. Contributing to it and talking it through with Zaid led to the idea behind the toolkit: one graph, two stacks. Neo4j's `neo4j-graphrag` set the conventions: GraphBridge can write its layout, its retriever presets carry the same names, and an [interop suite](docs/graphrag/INTEROP.md) runs both libraries on one database.
+
+Most of what `neo4j-graphrag` does is now available in .NET: ingestion held to an ontology, vector, hybrid and graph-expanding retrieval, Text2Cypher, PDF, follow-up questions and answers, with checked citations added. On the Python side these roles are spread over several excellent projects: neomodel, `neo4j-graphrag` and its examples, Neo4j Labs' neo4j-maf-provider, graph-explorer-kit and Neo4j's movies examples. GraphBridge brings the .NET pieces together in one repository. Neo4j Labs also publishes a .NET context provider for Agent Framework, [`Neo4j.AgentFramework.GraphRAG`](https://github.com/neo4j-labs/neo4j-maf-provider/tree/main/dotnet), and [Coming from Python](docs/COMING_FROM_PYTHON.md) compares it with GraphBridge's. That page maps every piece, and Neo4j's samples to GraphBridge's, and lists what .NET doesn't have yet. GraphBridge is independent: nothing here implies Neo4j's endorsement.
+
+![Who builds what in Python and .NET, over one Neo4j graph](docs/images/graphrag-two-stacks.svg)
+
 ## Learn
 
 | Start with | |
 |---|---|
 | [Getting started](docs/GETTING_STARTED.md) | Install, configure, map an entity, save it and see the Cypher |
 | [Coming from Neo4jClient?](docs/COMING_FROM_NEO4JCLIENT.md) | Neo4jClient's idioms mapped to GraphBridge, and how to read a graph it wrote |
+| [Coming from Python?](docs/COMING_FROM_PYTHON.md) | neo4j-graphrag, Neo4j Labs and community projects mapped to GraphBridge, and Neo4j's samples to its samples |
 | [Workshop](workshop/README.md) | 36 runnable lessons, about three hours for the core track |
 | [Samples](samples/README.md) | Code-first, ontology-first and database-first applications, design-time commands, a Fluent Cypher gallery, vector search through VectorData, and three GraphRAG applications |
 | [Documentation](docs/README.md) | Every feature, tool and reference page; it also builds as a site with `eng/scripts/Build-DocsSite.ps1` |

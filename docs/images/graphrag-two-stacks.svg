@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 830" width="1400" height="830" role="img" aria-labelledby="t d">
+  <title id="t">GraphRAG on Neo4j: who builds what, in Python and .NET</title>
+  <desc id="d">Six layers, with Python projects on the left and .NET projects on the right, over one Neo4j graph. Drivers: neo4j for Python and Neo4j.Driver for .NET, both by Neo4j. Data access: neomodel from neo4j-contrib; GraphBridge.EntityFrameworkCore and the community's Neo4jClient. GraphRAG library: Neo4j's neo4j-graphrag; GraphBridge.GraphRag. The interop suite tests both directions between the two libraries. Agent context: Neo4j Labs' agent-framework-neo4j and its .NET port Neo4j.AgentFramework.GraphRAG; GraphBridge.GraphRag.AgentFramework. Agent memory: Neo4j Labs' neo4j-agent-memory; AgentMemory. Apps: Neo4j Labs' LLM Graph Builder and Zaid Zaim's graph-explorer-kit; GraphBridge samples 07 to 09 and the planned GraphRAG Builder.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1424"/><stop offset="1" stop-color="#0c1726"/></linearGradient>
+    <linearGradient id="ramp" gradientUnits="userSpaceOnUse" x1="40" y1="0" x2="1360" y2="0"><stop offset="0" stop-color="#70d9fa"/><stop offset=".5" stop-color="#b6a3ff"/><stop offset="1" stop-color="#64e5ad"/></linearGradient>
+    <marker id="ae" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64e5ad"/></marker>
+    <marker id="as" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M10 0L0 5L10 10z" fill="#64e5ad"/></marker>
+    <style>
+      .sans{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}
+      .mono{font-family:Consolas,"SFMono-Regular",Menlo,monospace}
+      .card{fill:#0f1929;stroke:#27374d}
+      .plan{fill:#0f1929;stroke:#70d9fa;stroke-dasharray:6 5}
+      .nm{font-size:14px;font-weight:700;fill:#e7effb}
+      .nm.s{font-size:12.5px}
+      .who{font-size:12px;fill:#98a9bf}
+      .layer{font-size:14px;font-weight:700;fill:#cfe3f5;text-anchor:middle}
+      .col{font-size:13px;font-weight:700;letter-spacing:2px;text-anchor:middle}
+      .neo{fill:#64e5ad}.labs{fill:#b6a3ff}.comm{fill:#ffc46b}.gb{fill:#70d9fa}
+    </style>
+  </defs>
+  <rect x="0.5" y="0.5" width="1399" height="829" rx="22" fill="url(#bg)" stroke="#27374d"/>
+  <text x="40" y="52" class="sans" font-size="13" font-weight="700" letter-spacing="2" fill="#64e5ad">GRAPHRAG ON NEO4J</text>
+  <text x="40" y="84" class="sans" font-size="24" font-weight="800" fill="#e7effb">Who builds what, in Python and .NET, over one graph</text>
+  <text x="40" y="110" class="sans" font-size="14" fill="#98a9bf">As of November 2026. Each project is maintained by its own authors; the colour says by whom.</text>
+
+  <g class="sans">
+    <text x="320" y="152" class="col" fill="#ffc46b">PYTHON</text>
+    <text x="1080" y="152" class="col" fill="#70d9fa">.NET</text>
+
+    <!-- Row 1: apps -->
+    <text x="700" y="200" class="layer">Apps and</text><text x="700" y="218" class="layer">explorers</text>
+    <g transform="translate(40 170)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="labs"/><text x="18" y="28" class="mono nm">LLM Graph Builder</text><circle cx="23" cy="46" r="4" class="labs"/><text x="33" y="50" class="who">Neo4j Labs · files to a graph</text></g>
+    <g transform="translate(326 170)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="comm"/><text x="18" y="28" class="mono nm">graph-explorer-kit</text><circle cx="23" cy="46" r="4" class="comm"/><text x="33" y="50" class="who">Zaid Zaim · agent, Graph Explorer</text></g>
+    <g transform="translate(800 170)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="gb"/><text x="18" y="28" class="mono nm">Samples 07–09</text><circle cx="23" cy="46" r="4" class="gb"/><text x="33" y="50" class="who">GraphBridge · agent and explorer page</text></g>
+    <g transform="translate(1086 170)"><rect class="plan" width="274" height="66" rx="12"/><text x="18" y="28" class="mono nm">GraphRAG Builder</text><circle cx="23" cy="46" r="4" class="gb"/><text x="33" y="50" class="who">Planned · files to a graph, live</text></g>
+
+    <!-- Row 2: memory -->
+    <text x="700" y="296" class="layer">Agent memory</text>
+    <g transform="translate(40 258)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="labs"/><text x="18" y="28" class="mono nm">neo4j-agent-memory</text><circle cx="23" cy="46" r="4" class="labs"/><text x="33" y="50" class="who">Neo4j Labs · agent-memory</text></g>
+    <g transform="translate(800 258)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="gb"/><text x="18" y="28" class="mono nm">AgentMemory</text><circle cx="23" cy="46" r="4" class="gb"/><text x="33" y="50" class="who">José Luis Latorre · inspired by agent-memory</text></g>
+
+    <!-- Row 3: agent context -->
+    <text x="700" y="384" class="layer">Agent context</text>
+    <g transform="translate(40 346)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="labs"/><text x="18" y="28" class="mono nm">agent-framework-neo4j</text><circle cx="23" cy="46" r="4" class="labs"/><text x="33" y="50" class="who">Neo4j Labs · neo4j-maf-provider, built on neo4j-graphrag</text></g>
+    <g transform="translate(800 346)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="labs"/><text x="18" y="28" class="mono nm s">Neo4j.AgentFramework.GraphRAG</text><circle cx="23" cy="46" r="4" class="labs"/><text x="33" y="50" class="who">Neo4j Labs · neo4j-maf-provider</text></g>
+    <g transform="translate(1086 346)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="gb"/><text x="18" y="28" class="mono nm s">GraphRag.AgentFramework</text><circle cx="23" cy="46" r="4" class="gb"/><text x="33" y="50" class="who">GraphBridge · checked-citation tools</text></g>
+
+    <!-- Row 4: GraphRAG library -->
+    <text x="700" y="458" class="layer">GraphRAG library</text>
+    <line x1="606" y1="477" x2="794" y2="477" stroke="#64e5ad" stroke-width="2" marker-start="url(#as)" marker-end="url(#ae)"/>
+    <text x="700" y="494" class="who" text-anchor="middle">tested both ways</text>
+    <g transform="translate(40 434)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="neo"/><text x="18" y="28" class="mono nm">neo4j-graphrag</text><circle cx="23" cy="46" r="4" class="neo"/><text x="33" y="50" class="who">Neo4j, first-party · pipelines, retrievers, GraphRAG</text></g>
+    <g transform="translate(800 434)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="gb"/><text x="18" y="28" class="mono nm">GraphBridge.GraphRag</text><circle cx="23" cy="46" r="4" class="gb"/><text x="33" y="50" class="who">GraphBridge · with .AspNetCore, .DataIngestion, .Pdf · checked citations</text></g>
+
+    <!-- Row 5: data access -->
+    <text x="700" y="560" class="layer">Data access</text>
+    <g transform="translate(40 522)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="comm"/><text x="18" y="28" class="mono nm">neomodel</text><circle cx="23" cy="46" r="4" class="comm"/><text x="33" y="50" class="who">neo4j-contrib · object graph mapper</text></g>
+    <g transform="translate(800 522)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="gb"/><text x="18" y="28" class="mono nm s">GraphBridge.EntityFrameworkCore</text><circle cx="23" cy="46" r="4" class="gb"/><text x="33" y="50" class="who">GraphBridge · EF Core provider</text></g>
+    <g transform="translate(1086 522)"><rect class="card" width="274" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="comm"/><text x="18" y="28" class="mono nm">Neo4jClient</text><circle cx="23" cy="46" r="4" class="comm"/><text x="33" y="50" class="who">DotNet4Neo4j · Cypher builder</text></g>
+
+    <!-- Row 6: driver -->
+    <text x="700" y="648" class="layer">Driver</text>
+    <g transform="translate(40 610)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="neo"/><text x="18" y="28" class="mono nm">neo4j</text><circle cx="23" cy="46" r="4" class="neo"/><text x="33" y="50" class="who">Neo4j · the official Python driver</text></g>
+    <g transform="translate(800 610)"><rect class="card" width="560" height="66" rx="12"/><rect width="4" height="40" x="0" y="13" rx="2" class="neo"/><text x="18" y="28" class="mono nm">Neo4j.Driver</text><circle cx="23" cy="46" r="4" class="neo"/><text x="33" y="50" class="who">Neo4j · the official .NET driver</text></g>
+
+    <!-- The graph -->
+    <rect x="40" y="696" width="1320" height="48" rx="12" fill="#0a1220" stroke="url(#ramp)" stroke-width="1.5"/>
+    <text x="700" y="726" text-anchor="middle" font-size="15" font-weight="700" fill="#e7effb">Neo4j: one graph that both stacks can build and read</text>
+
+    <!-- Legend -->
+    <g transform="translate(40 782)" class="who">
+      <circle cx="6" cy="0" r="5" class="neo"/><text x="18" y="4">Neo4j</text>
+      <circle cx="96" cy="0" r="5" class="labs"/><text x="108" y="4">Neo4j Labs (experimental)</text>
+      <circle cx="292" cy="0" r="5" class="comm"/><text x="304" y="4">Community</text>
+      <circle cx="404" cy="0" r="5" class="gb"/><text x="416" y="4">José Luis Latorre: GraphBridge, AgentMemory</text>
+      <rect x="720" y="-8" width="28" height="16" rx="4" class="plan"/><text x="758" y="4">Planned</text>
+    </g>
+  </g>
+</svg>

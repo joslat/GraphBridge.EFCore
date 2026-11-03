@@ -1,5 +1,7 @@
 # Interop with neo4j-graphrag
 
+For a map of the Python projects and their .NET counterparts, see [coming from Python](../COMING_FROM_PYTHON.md).
+
 `GraphRagLayout.Neo4jGraphRag` writes the document and chunk layer with the names Neo4j's Python [`neo4j-graphrag`](https://github.com/neo4j/neo4j-graphrag-python) library uses, checked against its version 1.22.0:
 - `(:Chunk)-[:FROM_DOCUMENT]->(:Document)` and `(:Chunk)-[:NEXT_CHUNK]->(:Chunk)`;
 - chunk properties `index`, `text` and `embedding`, and `id`, which the library's reader uses.

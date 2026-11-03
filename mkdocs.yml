@@ -63,6 +63,7 @@ nav:
   - Concepts: CONCEPTS.md
   - Getting started: GETTING_STARTED.md
   - Coming from Neo4jClient: COMING_FROM_NEO4JCLIENT.md
+  - Coming from Python: COMING_FROM_PYTHON.md
   - Workshop: WORKSHOP.md
   - Samples: SAMPLES.md
   - Features:
